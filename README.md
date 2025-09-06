@@ -6,6 +6,8 @@ Preference page "MCP Services" lets users enable this built-in MCP Server to run
 
 A suite of built in templates, resources and tools are included with the feature.  These include:
 
+## Features
+
 - Platform:
   - Tools:
     - currentSelection: Return the active Eclipse IDE text editor and its selected text
@@ -20,17 +22,25 @@ A suite of built in templates, resources and tools are included with the feature
     - changeEditorText: Make one or more changes to an Eclipse text editor
     - listProblems: list Eclipse IDE compilation and configuration problems
     - listTasks: list codebase locations of tasks including TODO comments
-  - Resource Templates:
+  - Resource Templates with Completion Assist:
     - Eclipse IDE Text Editor: Content of an Eclipse Text Editor
       - eclipse://editor/{name}
     - Eclipse Workspace File: Content of an file in an Eclipse workspace
       - file://workspace/{project}/{projectRelativePath}
-    - PDS Member: A file that is a member of a an IBM System z Multiple Virtual Storage(MVS) Partitioned Data Set (PDS)
-      - file://mvs/{host}/{pds}/{member}
   - Resource Contributors:
     - Editors: Each open Editor has an associated MCP resource
 
 An extension point is available for other plugins to contribute their own MCP services to the server.
+
+## Screenshots
+
+### Enable the internal MCP Server to run on an HTTP port
+
+![MCP Services](org.eclipse.mcp.docs/images/MCPServices.png)
+
+### Enable/Disable MCP service contributions from other plugins
+
+![MCP Capabilities](org.eclipse.mcp.docs/images/MCPCapabilities.png)
 
 ## Demonstrations
 
@@ -41,11 +51,11 @@ An extension point is available for other plugins to contribute their own MCP se
 - Clone this repositority locally
 - From Eclipse navigate to Help > Install New Software...
 - Click "Add..." > "Archive..." and navigate to the org.eclipse.mcp.update folder, then click "Open"
+- Uncheck "Group items by category"
 - Toggle the checkbox for the feature that shows up in the view
 - Click "Next" until "Finish"
 - Click "OK" to the security warning and allow the patch to install
 - When prompted to restart, click "Yes"
 - Upon restart, navigate to preference page "MCP Services"
 - Enable the feature, customize the HTTP port, and apply the changes.
-- Copy the MCP server's url to the clipboard and apply it to your clients MCP configuration as a remote MCP server)
-- [
+- Copy the MCP server's url to the clipboard and apply it to your clients MCP configuration as a remote MCP server
