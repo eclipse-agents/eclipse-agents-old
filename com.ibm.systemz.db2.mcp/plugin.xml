@@ -14,7 +14,7 @@
              description="Db2 for z/OS MCP Services for running SQL queries"
              provider="Developer for z"
              activityId="org.eclipse.mcp.db2.zos">
-          <factory class="org.eclipse.mcp.platform.FactoryProvider"/>
+          <factory class="com.ibm.systemz.db2.mcp.FactoryProvider"/>
        </contributor>
     </extension>
     

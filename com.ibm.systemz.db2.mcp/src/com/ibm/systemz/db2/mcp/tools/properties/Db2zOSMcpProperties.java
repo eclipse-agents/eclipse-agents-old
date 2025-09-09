@@ -61,7 +61,7 @@ public class Db2zOSMcpProperties  extends PropertyPage implements IWorkbenchPref
 		label.setText("Use the following connection:");
 		label.setLayoutData(new GridData());
 		
-		Combo connectionCombo = new Combo(control, SWT.READ_ONLY);
+		connectionCombo = new Combo(control, SWT.READ_ONLY);
 		connectionCombo.setText("Select one...");
 		connectionCombo.setLayoutData(new GridData());
 		connectionCombo.setItems(
@@ -69,7 +69,7 @@ public class Db2zOSMcpProperties  extends PropertyPage implements IWorkbenchPref
 				map(summary -> summary.getName()).toArray(String[]::new));
 		connectionCombo.addSelectionListener(this);
 		
-		Button enableWrites = new Button(control, SWT.CHECK);
+		enableWrites = new Button(control, SWT.CHECK);
 		enableWrites.setText("Enable data modifications");
 		GridData gd = new GridData();
 		gd.horizontalSpan = 2;
