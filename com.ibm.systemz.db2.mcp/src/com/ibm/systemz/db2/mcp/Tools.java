@@ -10,10 +10,9 @@ import org.eclipse.ui.services.IServiceLocator;
 import org.springaicommunity.mcp.annotation.McpTool;
 import org.springaicommunity.mcp.annotation.McpToolParam;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.google.gson.Gson;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import com.ibm.systemz.db2.Activator;
 import com.ibm.systemz.db2.Messages;
 import com.ibm.systemz.db2.ide.Db2RunQueryJob;
@@ -22,7 +21,6 @@ import com.ibm.systemz.db2.ide.preferences.IPreferenceConstants.E_ON_SUCCESS_OPT
 import com.ibm.systemz.db2.ide.preferences.model.RunningOptions;
 import com.ibm.systemz.db2.mcp.tools.properties.IPreferenceConstants;
 import com.ibm.systemz.db2.rse.db.queries.QueryModel;
-import com.ibm.systemz.db2.rse.db.queries.ResultSet;
 
 
 public class Tools implements IPreferenceConstants {
@@ -78,10 +76,16 @@ public class Tools implements IPreferenceConstants {
 				}
 				QueryModel model = job.getQueryModel();
 				if (model != null) {
-				
-					Gson gson = new Gson();
-					String json =  gson.toJson(model);
-					return json;
+
+					
+					try {
+						ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+						String result = ow.writeValueAsString(model);
+						return result;
+					} catch (JsonProcessingException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 	//				Activator.getDisplay().asyncExec(new Runnable() {
 	//					@Override
 	//					public void run() {

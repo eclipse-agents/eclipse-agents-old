@@ -18,7 +18,8 @@ Require-Bundle: org.eclipse.ui,
  com.ibm.ftt.rse.mvs.client,
  com.ibm.ftt.resource.utils,
  com.ibm.ftt.resources.bridge,
- org.eclipse.rse.services
+ org.eclipse.rse.services,
+ com.fasterxml.jackson.core.jackson-core;bundle-version="2.17.2"
 Bundle-RequiredExecutionEnvironment: JavaSE-21
 Automatic-Module-Name: com.ibm.systemz.mcp.mvs
 Bundle-ActivationPolicy: lazy
