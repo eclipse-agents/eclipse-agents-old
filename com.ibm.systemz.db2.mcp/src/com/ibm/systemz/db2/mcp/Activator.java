@@ -1,5 +1,6 @@
 package com.ibm.systemz.db2.mcp;
 
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
@@ -39,6 +40,10 @@ public class Activator extends AbstractUIPlugin {
 	 */
 	public static Activator getDefault() {
 		return plugin;
+	}
+	
+	public static Display getDisplay() {
+		return Display.getCurrent() == null ? Display.getDefault() : Display.getCurrent();
 	}
 
 }

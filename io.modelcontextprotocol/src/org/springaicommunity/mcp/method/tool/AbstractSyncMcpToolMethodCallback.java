@@ -29,6 +29,7 @@ import org.springaicommunity.mcp.method.tool.utils.JsonParser;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 
+import io.modelcontextprotocol.spec.McpError;
 import io.modelcontextprotocol.spec.McpSchema.CallToolRequest;
 import io.modelcontextprotocol.spec.McpSchema.CallToolResult;
 

@@ -16,11 +16,13 @@
 
 package org.springaicommunity.mcp.method.tool;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.function.BiFunction;
 
 import org.springaicommunity.mcp.annotation.McpTool;
 
 import io.modelcontextprotocol.server.McpSyncServerExchange;
+import io.modelcontextprotocol.spec.McpError;
 import io.modelcontextprotocol.spec.McpSchema.CallToolRequest;
 import io.modelcontextprotocol.spec.McpSchema.CallToolResult;
 
@@ -69,6 +71,16 @@ public final class SyncMcpToolMethodCallback extends AbstractSyncMcpToolMethodCa
 			return this.processResult(result);
 		}
 		catch (Exception e) {
+			
+			// if underlying error wrapped via reflection is McpError, pass that forward up the stack
+			// where it will be handled by the java sdk
+			if (e instanceof RuntimeException && 
+					e.getCause() instanceof InvocationTargetException &&
+					e.getCause().getCause() instanceof McpError) {
+				
+				throw (McpError)e.getCause().getCause();
+				
+			}
 			return this.createErrorResult(e);
 		}
 	}

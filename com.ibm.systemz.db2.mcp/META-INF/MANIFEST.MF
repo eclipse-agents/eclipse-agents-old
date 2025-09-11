@@ -3,16 +3,17 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Db2 Mcp
 Bundle-SymbolicName: com.ibm.systemz.db2.mcp;singleton:=true
 Bundle-Version: 1.0.0.qualifier
-Export-Package: com.ibm.systemz.db2.mcp.tools
 Bundle-Activator: com.ibm.systemz.db2.mcp.Activator
 Bundle-Vendor: IBM
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  org.eclipse.core.resources,
  com.ibm.systemz.db2,
- org.eclipse.mcp,
- com.google.gson,
- com.ibm.editors.smartlogical
+ org.eclipse.mcp;bundle-version="1.0.0",
+ io.modelcontextprotocol;bundle-version="0.11.2",
+ com.fasterxml.jackson.core.jackson-databind,
+ com.fasterxml.jackson.core.jackson-core;bundle-version="2.17.2",
+ com.fasterxml.jackson.core.jackson-annotations;bundle-version="2.17.2"
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: com.ibm.systemz.db2.mcp
 Bundle-ActivationPolicy: lazy
