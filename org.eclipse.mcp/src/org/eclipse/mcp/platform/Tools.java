@@ -7,6 +7,8 @@ import java.util.Comparator;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRewriteTarget;
@@ -15,7 +17,6 @@ import org.eclipse.mcp.MCPException;
 import org.eclipse.mcp.platform.resource.ConsoleAdapter;
 import org.eclipse.mcp.platform.resource.EditorAdapter;
 import org.eclipse.mcp.platform.resource.MarkerAdapter;
-import org.eclipse.mcp.platform.resource.WorkspaceResourceAdapter;
 import org.eclipse.mcp.platform.resource.ResourceSchema.Children;
 import org.eclipse.mcp.platform.resource.ResourceSchema.Consoles;
 import org.eclipse.mcp.platform.resource.ResourceSchema.DEPTH;
@@ -26,6 +27,7 @@ import org.eclipse.mcp.platform.resource.ResourceSchema.Problems;
 import org.eclipse.mcp.platform.resource.ResourceSchema.Tasks;
 import org.eclipse.mcp.platform.resource.ResourceSchema.TextEditorSelection;
 import org.eclipse.mcp.platform.resource.ResourceSchema.TextReplacement;
+import org.eclipse.mcp.platform.resource.WorkspaceResourceAdapter;
 import org.eclipse.mcp.resource.IResourceHierarchy;
 import org.eclipse.mcp.resource.IResourceTemplate;
 import org.eclipse.swt.widgets.Display;
@@ -147,17 +149,23 @@ public class Tools {
 			@McpToolParam(
 					description = "offset of the text selection", 
 					required = false) 
-					int selectionOffset,
+					Integer selectionOffset,
 			@McpToolParam(
 					description = "length of the text selection", 
 					required = false) 
-					int selectionLength) {
+					Integer selectionLength) {
 
 		WorkspaceResourceAdapter adapter = new WorkspaceResourceAdapter(fileUri);
 		IResource resource = adapter.getModel();
 		final Editor[] result = new Editor[] { null };
 
 		if (resource instanceof IFile) {
+			try {
+				resource.refreshLocal(IResource.DEPTH_ZERO, new NullProgressMonitor());
+			} catch (CoreException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			Display.getDefault().syncExec(new Runnable() {
 				@Override
 				public void run() {
