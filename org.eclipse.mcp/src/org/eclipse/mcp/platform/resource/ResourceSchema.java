@@ -1,10 +1,17 @@
 package org.eclipse.mcp.platform.resource;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import com.fasterxml.jackson.annotation.JsonClassDescription;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyDescription;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import io.modelcontextprotocol.spec.McpSchema;
 
@@ -239,6 +246,29 @@ public class ResourceSchema {
 	public record Tasks (
 			@JsonProperty(value = "tasks")
 			Marker[] tasks) {}
-
+	
+	@JsonInclude(JsonInclude.Include.NON_ABSENT)
+	@JsonIgnoreProperties(ignoreUnknown = true)
+	public record ElicitationChoice (
+			@JsonProperty String type,
+			@JsonProperty String title,
+			@JsonProperty String description,
+			@JsonProperty String[] enums,
+			@JsonProperty String[] enumNames,
+			@JsonProperty(value = "default") String _default) {}
+	
+	public static Map<String, Object> createEliciationRequestSchema(Map<String, Object> propertyValues, String[] required) {
+		Map<String, Object> requestedSchema = new HashMap<String, Object>();
+		requestedSchema.put("type",  "object");
+		requestedSchema.put("required", required);
+	
+		ObjectMapper mapper = new ObjectMapper();
+		ObjectNode properties = mapper.createObjectNode();
+		requestedSchema.put("properties", properties);
 		
+		for (String key: propertyValues.keySet()) {
+			properties.putPOJO(key, propertyValues.get(key));
+		}
+		return requestedSchema;
+	}
 }

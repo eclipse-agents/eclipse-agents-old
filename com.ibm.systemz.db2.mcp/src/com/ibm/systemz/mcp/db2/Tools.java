@@ -1,24 +1,25 @@
-package com.ibm.systemz.db2.mcp;
+package com.ibm.systemz.mcp.db2;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.mcp.MCPException;
+import org.springaicommunity.mcp.annotation.McpElicitation;
 import org.springaicommunity.mcp.annotation.McpTool;
 import org.springaicommunity.mcp.annotation.McpToolParam;
 
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ibm.systemz.db2.mcp.Db2Schema.Column;
-import com.ibm.systemz.db2.mcp.Db2Schema.Schemas;
-import com.ibm.systemz.db2.mcp.Db2Schema.Table;
-import com.ibm.systemz.db2.mcp.Db2Schema.Tables;
-import com.ibm.systemz.db2.mcp.tools.properties.IPreferenceConstants;
 import com.ibm.systemz.db2.rse.db.queries.QueryModel;
 import com.ibm.systemz.db2.rse.db.queries.ResultSet;
+import com.ibm.systemz.mcp.db2.Db2Schema.Column;
+import com.ibm.systemz.mcp.db2.Db2Schema.Schemas;
+import com.ibm.systemz.mcp.db2.Db2Schema.Table;
+import com.ibm.systemz.mcp.db2.Db2Schema.Tables;
+import com.ibm.systemz.mcp.db2.tools.properties.IPreferenceConstants;
+
+import io.modelcontextprotocol.server.McpSyncServerExchange;
+import io.modelcontextprotocol.spec.McpSchema.ElicitRequest;
+import io.modelcontextprotocol.spec.McpSchema.ElicitResult;
 
 
 public class Tools implements IPreferenceConstants {
@@ -31,9 +32,11 @@ public class Tools implements IPreferenceConstants {
 	public String runSQL(
 			@McpToolParam(
 					description = "Db2 for z/OS SQL Statement") 
-					String sqlStatement) {
-		
-		QueryModel model = Util.instance().runSQL(sqlStatement);
+					String sqlStatement,
+					McpSyncServerExchange exchange) {
+
+		ElicitRequest req = new ElicitRequest(sqlStatement, null);
+		QueryModel model = Util.instance().runSQL(sqlStatement, exchange);
 		return Util.instance().queryModelToJson(model);
 	
 	}
@@ -42,9 +45,9 @@ public class Tools implements IPreferenceConstants {
 			description = "Retrieve Db2 for z/OS schemas", 
 			annotations = @McpTool.McpAnnotations(
 					title = "Get Db2 Schemas")) 
-	public Schemas getDb2Schemas() {
+	public Schemas getDb2Schemas(McpSyncServerExchange exchange) {
 		List<String> schemas = new ArrayList<String>();
-		QueryModel model = Util.instance().runSQL("SELECT DISTINCT CREATOR FROM SYSIBM.SYSTABLES");
+		QueryModel model = Util.instance().runSQL("SELECT DISTINCT CREATOR FROM SYSIBM.SYSTABLES", exchange);
 		if (model.successes == 1) {
 			ResultSet set = model.executions.get(0).resultSets[0];
 			for (String[] row: set.getRows()) {
@@ -63,7 +66,8 @@ public class Tools implements IPreferenceConstants {
 			@McpToolParam(
 					description = "Db2 for z/OS schema", 
 					required = false) 
-			String schema) {
+			String schema,
+			McpSyncServerExchange exchange) {
 		
 		List<Table> tables = new ArrayList<Table>();
 		
@@ -104,7 +108,7 @@ TRIM(CASE
   ELSE GENERATED_ATTR 
 END)
 FROM SYSIBM.SYSCOLUMNS 
-WHERE TBCREATOR = """ + schemaClause + " ORDER BY 1, 2, 4");
+WHERE TBCREATOR = """ + schemaClause + " ORDER BY 1, 2, 4", exchange);
 	
 		if (columnModel.successes == 1) {
 
@@ -128,7 +132,7 @@ SELECT
   END AS \"Type\" 
   FROM SYSIBM.SYSTABLES TB1
   WHERE TB1.TYPE NOT IN ('P', 'X')
-  AND TB1.CREATOR = """ + schemaClause + " ORDER BY 2, 1");
+  AND TB1.CREATOR = """ + schemaClause + " ORDER BY 2, 1", exchange);
 		
 			if (tableModel.successes == 1) {
 				Map<String, List<Column>> columns = new HashMap<String, List<Column>>();
@@ -157,4 +161,14 @@ SELECT
 
 		return new Tables(tables.toArray(Table[]::new));
 	}
+	
+	 @McpElicitation()
+	 public ElicitResult handleElicitationRequest(ElicitRequest request) {
+	        // Example implementation that accepts the request and returns user data
+	        // In a real implementation, this would present a form to the user
+	        // and collect their input based on the requested schema
+	        
+	        Map<String, Object> userData = new HashMap<>();
+	        return ElicitResult.builder().build();
+	 }
 }

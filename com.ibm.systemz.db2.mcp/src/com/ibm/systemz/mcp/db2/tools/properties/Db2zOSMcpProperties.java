@@ -7,7 +7,7 @@
  * has been deposited with the U.S. Copyright Office.
  *******************************************************************************/
 
-package com.ibm.systemz.db2.mcp.tools.properties;
+package com.ibm.systemz.mcp.db2.tools.properties;
 
 
 import java.util.List;
@@ -31,7 +31,7 @@ import org.eclipse.ui.dialogs.PropertyPage;
 
 import com.ibm.systemz.db2.ide.ConnectionEnvironment;
 import com.ibm.systemz.db2.ide.ConnectionSummary;
-import com.ibm.systemz.db2.mcp.Activator;
+import com.ibm.systemz.mcp.db2.Activator;
 
 
 public class Db2zOSMcpProperties  extends PropertyPage implements IWorkbenchPreferencePage, SelectionListener, IPreferenceConstants {

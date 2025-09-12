@@ -1,4 +1,4 @@
-package com.ibm.systemz.db2.mcp;
+package com.ibm.systemz.mcp.db2;
 
 import com.fasterxml.jackson.annotation.JsonClassDescription;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;

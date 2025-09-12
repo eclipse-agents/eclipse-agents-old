@@ -1,10 +1,15 @@
-package com.ibm.systemz.db2.mcp;
+package com.ibm.systemz.mcp.db2;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.mcp.MCPException;
+import org.eclipse.mcp.platform.resource.ResourceSchema;
+import org.eclipse.mcp.platform.resource.ResourceSchema.ElicitationChoice;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.PreferencesUtil;
 import org.eclipse.ui.services.IServiceLocator;
@@ -20,12 +25,17 @@ import com.ibm.systemz.db2.ide.preferences.IPreferenceConstants.E_ON_SUCCESS_OPT
 import com.ibm.systemz.db2.ide.preferences.model.RunningOptions;
 import com.ibm.systemz.db2.ide.services.ExternalServices;
 import com.ibm.systemz.db2.ide.services.ExternalServices.RunSqlStatus;
-import com.ibm.systemz.db2.mcp.tools.properties.IPreferenceConstants;
 import com.ibm.systemz.db2.rse.db.queries.QueryModel;
+import com.ibm.systemz.mcp.db2.tools.properties.IPreferenceConstants;
+
+import io.modelcontextprotocol.server.McpSyncServerExchange;
+import io.modelcontextprotocol.spec.McpSchema.ElicitRequest;
+import io.modelcontextprotocol.spec.McpSchema.ElicitResult;
 
 public class Util implements IPreferenceConstants {
 
 	private static Util instance = new Util();
+	private static String sessionConnectionId = null;
 	
 	public static Util instance() {
 		return instance;
@@ -33,29 +43,102 @@ public class Util implements IPreferenceConstants {
 	
 	private Util() {}
 	
-	public QueryModel runSQL(String sqlStatement) {
+	public QueryModel runSQL(String sqlStatement, McpSyncServerExchange exchange) {
 		
-		String connectionId = Activator.getDefault().getPreferenceStore().getString(P_CONNECTIONID);
+		String connectionId = //(sessionConnectionId == null) 
+			//	? Activator.getDefault().getPreferenceStore().getString(P_CONNECTIONID) 
+			//	:
+					sessionConnectionId;
+		
 		if (connectionId == null || connectionId.isBlank()) {
 					
 			//TODO use MCP elicitation if available
-			
-			Activator.getDisplay().syncExec(new Runnable() {
-				@Override
-				public void run() {
-					MessageDialog.openError(Activator.getDisplay().getActiveShell(), Messages.RunSQLAction_ErrorDialogTitle, Messages.RunSQLAction_NoActiveConnection);
-					
-					PreferencesUtil.createPreferenceDialogOn(
-							Activator.getDisplay().getActiveShell(),
-							"com.ibm.systemz.db2.mcp.tools.properties.Db2zOSMcpProperties", //$NON-NLS-1$
-							new String[] {
-									"com.ibm.systemz.db2.mcp.tools.properties.Db2zOSMcpProperties" //$NON-NLS-1$
-							},
-							null).open();
-				}
-			});
+			if (exchange.getClientCapabilities().elicitation() != null) {
 				
-			connectionId = Activator.getDefault().getPreferenceStore().getString(P_CONNECTIONID);
+				List<String> enums = new ArrayList<String>();
+				List<String> enumNames = new ArrayList<String>();
+				ConnectionEnvironment.getLocationSummaries().forEach(c->{
+					enums.add(c.getId().toString());
+					enumNames.add(c.getName());
+				});
+				
+				ElicitationChoice selectConnection = new ElicitationChoice(
+						"string",
+						"Select a Db2 for z/OS Connection",
+						"Select a Db2 for z/OS Connection",
+						enums.toArray(String[]::new),
+						enumNames.toArray(String[]::new),
+						enums.getFirst());
+				
+				ElicitationChoice remember = new ElicitationChoice(
+						"string",
+						"Remember this selection",
+						"Remember this selection",
+						new String[] { 
+								"session", 
+								"always", 
+								"ask"},
+						new String[] { 
+								"Remember for this session", 
+								"Remember for this and future sessions",
+								"Always ask"},
+						"session");
+		
+				ElicitResult result = null;
+				try {
+					result = exchange.createElicitation(ElicitRequest.builder()
+							.message("select a connection")
+							.requestedSchema(ResourceSchema.createEliciationRequestSchema(Map.of(
+									"connection", selectConnection,
+									"remember", remember
+								), new String[] {
+									"connection", "remember"
+								}))
+							.build());
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+				switch (result.action()) {
+				case ACCEPT:
+					connectionId = result.content().get("connection").toString();
+					
+					String rememberResult = result.content().get("remember").toString();
+					if (rememberResult.equals("session")) {
+						sessionConnectionId = connectionId;
+					} else if (rememberResult.equals("always")) {
+						Activator.getDefault().getPreferenceStore().setValue(P_CONNECTIONID, connectionId);
+					}
+					break;
+				case CANCEL:
+					break;
+				case DECLINE:
+					break;
+				default:
+					break;
+				
+				}
+
+			} else {
+				Activator.getDisplay().syncExec(new Runnable() {
+					@Override
+					public void run() {
+						MessageDialog.openError(Activator.getDisplay().getActiveShell(), Messages.RunSQLAction_ErrorDialogTitle, Messages.RunSQLAction_NoActiveConnection);
+						
+						PreferencesUtil.createPreferenceDialogOn(
+								Activator.getDisplay().getActiveShell(),
+								"com.ibm.systemz.mcp.db2.tools.properties.Db2zOSMcpProperties", //$NON-NLS-1$
+								new String[] {
+										"com.ibm.systemz.mcp.db2.tools.properties.Db2zOSMcpProperties" //$NON-NLS-1$
+								},
+								null).open();
+					}
+				});
+				connectionId = Activator.getDefault().getPreferenceStore().getString(P_CONNECTIONID);
+			}
+				
+//			connectionId = Activator.getDefault().getPreferenceStore().getString(P_CONNECTIONID);
 		}
 		
 		if (connectionId != null && !connectionId.isBlank()) {

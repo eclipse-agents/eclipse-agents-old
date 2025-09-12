@@ -14,7 +14,7 @@
              description="Db2 for z/OS MCP Services for running SQL queries"
              provider="Developer for z"
              activityId="org.eclipse.mcp.db2.zos">
-          <factory class="com.ibm.systemz.db2.mcp.FactoryProvider"/>
+          <factory class="com.ibm.systemz.mcp.db2.FactoryProvider"/>
        </contributor>
     </extension>
     
@@ -22,7 +22,7 @@
    
        <activity id="org.eclipse.mcp.db2.zos" 
            description="Services for Db2 for z/OS"
-           name="Db2 for z/OS MCPEclipse Platform Services" />
+           name="Db2 for z/OS MCP Services" />
    
        <categoryActivityBinding activityId="org.eclipse.mcp.db2.zos"
            categoryId="org.eclipse.mcp.activity" />
@@ -33,10 +33,10 @@
    
   <extension point="org.eclipse.ui.preferencePages"> 
       <page 
-         id="com.ibm.systemz.db2.mcp.tools.properties.Db2zOSMcpProperties" 
+         id="com.ibm.systemz.mcp.db2.tools.properties.Db2zOSMcpProperties" 
          name="Db2 for z/OS" 
          category="org.eclipse.mcp.preferences.general"
-         class="com.ibm.systemz.db2.mcp.tools.properties.Db2zOSMcpProperties">
+         class="com.ibm.systemz.mcp.db2.tools.properties.Db2zOSMcpProperties">
          <keywordReference id="com.ibm.systemz.db2.keyword.db2"/>
          <keywordReference id="com.ibm.systemz.db2.keyword.sql"/>
 		 <keywordReference id="org.eclipse.mcp.keyword.mcp" />

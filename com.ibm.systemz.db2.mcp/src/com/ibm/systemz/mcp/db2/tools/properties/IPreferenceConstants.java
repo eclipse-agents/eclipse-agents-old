@@ -1,4 +1,4 @@
-package com.ibm.systemz.db2.mcp.tools.properties;
+package com.ibm.systemz.mcp.db2.tools.properties;
 
 import com.ibm.systemz.db2.Activator;
 
