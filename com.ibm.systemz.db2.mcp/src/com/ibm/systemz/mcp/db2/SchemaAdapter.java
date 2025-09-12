@@ -1,4 +1,4 @@
-package com.ibm.systemz.db2.mcp;
+package com.ibm.systemz.mcp.db2;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -84,7 +84,7 @@ public class SchemaAdapter implements IResourceTemplate<String, ResourceLink> {
 	public String toContent() {
 		
 		Tools tools = new Tools();
-		return tools.runSQL("SELECT TBCREATOR, TBNAME, NAME FROM SYSIBM.SYSCOLUMNS");
+		return tools.runSQL("SELECT TBCREATOR, TBNAME, NAME FROM SYSIBM.SYSCOLUMNS", null);
 		
 	}
 }

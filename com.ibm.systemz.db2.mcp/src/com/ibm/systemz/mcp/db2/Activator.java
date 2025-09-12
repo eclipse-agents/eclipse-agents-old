@@ -1,4 +1,4 @@
-package com.ibm.systemz.db2.mcp;
+package com.ibm.systemz.mcp.db2;
 
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
