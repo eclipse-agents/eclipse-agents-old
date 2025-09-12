@@ -29,9 +29,9 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.PropertyPage;
 
-import com.ibm.systemz.db2.Activator;
 import com.ibm.systemz.db2.ide.ConnectionEnvironment;
 import com.ibm.systemz.db2.ide.ConnectionSummary;
+import com.ibm.systemz.db2.mcp.Activator;
 
 
 public class Db2zOSMcpProperties  extends PropertyPage implements IWorkbenchPreferencePage, SelectionListener, IPreferenceConstants {
@@ -102,7 +102,7 @@ public class Db2zOSMcpProperties  extends PropertyPage implements IWorkbenchPref
 
 	@Override
 	public void init(IWorkbench workbench) {
-		setPreferenceStore(Activator.getInstance().getPreferenceStore());
+		setPreferenceStore(Activator.getDefault().getPreferenceStore());
 	}
 
 	private void updateValidation() {

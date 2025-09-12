@@ -1,35 +1,30 @@
 package com.ibm.systemz.db2.mcp;
 
-import java.util.UUID;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.mcp.MCPException;
-import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.dialogs.PreferencesUtil;
-import org.eclipse.ui.services.IServiceLocator;
 import org.springaicommunity.mcp.annotation.McpTool;
 import org.springaicommunity.mcp.annotation.McpToolParam;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ibm.systemz.db2.Activator;
-import com.ibm.systemz.db2.Messages;
-import com.ibm.systemz.db2.ide.ConnectionEnvironment;
-import com.ibm.systemz.db2.ide.ConnectionSummary;
-import com.ibm.systemz.db2.ide.preferences.IPreferenceConstants.E_CONNECTION_OPTIONS;
-import com.ibm.systemz.db2.ide.preferences.IPreferenceConstants.E_ON_SUCCESS_OPTIONS;
-import com.ibm.systemz.db2.ide.preferences.model.RunningOptions;
-import com.ibm.systemz.db2.ide.services.ExternalServices;
-import com.ibm.systemz.db2.ide.services.ExternalServices.RunSqlStatus;
+import com.ibm.systemz.db2.mcp.Db2Schema.Column;
+import com.ibm.systemz.db2.mcp.Db2Schema.Schemas;
+import com.ibm.systemz.db2.mcp.Db2Schema.Table;
+import com.ibm.systemz.db2.mcp.Db2Schema.Tables;
 import com.ibm.systemz.db2.mcp.tools.properties.IPreferenceConstants;
+import com.ibm.systemz.db2.rse.db.queries.QueryModel;
+import com.ibm.systemz.db2.rse.db.queries.ResultSet;
 
 
 public class Tools implements IPreferenceConstants {
 
 
-	@McpTool (name = "runSQL", 
+	@McpTool (name = "db2RunSQL", 
 			description = "Run a Db2 for z/OS SQL Query", 
 			annotations = @McpTool.McpAnnotations(
 					title = "Run SQL"))
@@ -38,86 +33,128 @@ public class Tools implements IPreferenceConstants {
 					description = "Db2 for z/OS SQL Statement") 
 					String sqlStatement) {
 		
-		String result;
-		
-		String connectionId = Activator.getInstance().getPreferenceStore().getString(P_CONNECTIONID);
-		if (connectionId == null || connectionId.isBlank()) {
-					
-			//TODO use MCP elicitation if available
-			
-			Activator.getDisplay().syncExec(new Runnable() {
-				@Override
-				public void run() {
-					MessageDialog.openError(Activator.getDisplay().getActiveShell(), Messages.RunSQLAction_ErrorDialogTitle, Messages.RunSQLAction_NoActiveConnection);
-					
-					PreferencesUtil.createPreferenceDialogOn(
-							Activator.getDisplay().getActiveShell(),
-							"com.ibm.systemz.db2.mcp.tools.properties.Db2zOSMcpProperties", //$NON-NLS-1$
-							new String[] {
-									"com.ibm.systemz.db2.mcp.tools.properties.Db2zOSMcpProperties" //$NON-NLS-1$
-							},
-							null).open();
-				}
-			});
-				
-			connectionId = Activator.getInstance().getPreferenceStore().getString(P_CONNECTIONID);
-		}
-		
-		if (connectionId != null && !connectionId.isBlank()) {
-			ConnectionSummary summary = ConnectionEnvironment.getConnectionSummary(UUID.fromString(connectionId));
-			
-			RunningOptions runningOptions = new RunningOptions();
-			runningOptions.setConnectionOption(E_CONNECTION_OPTIONS.UseNewConnection.toString());
-			
-			if ("true".equals(Activator.getInstance().getPreferenceStore().getString(P_ENABLEWRITES))) {
-				runningOptions.setSuccessOption(E_ON_SUCCESS_OPTIONS.CommitOnEachStmt.toString());
-			} else {
-				runningOptions.setSuccessOption(E_ON_SUCCESS_OPTIONS.RollBackOnComplete.toString());
-			}
-			
-			IServiceLocator[] serviceLocator = new IServiceLocator[] { null };
-			Activator.getDisplay().syncExec(()->{
-				serviceLocator[0] = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActivePart().getSite();
-			});
-			
-			IStatus status = ExternalServices.instance().runSqlStatement(summary, sqlStatement, runningOptions, serviceLocator[0]);
-			ObjectMapper mapper = new ObjectMapper();
-			mapper.setSerializationInclusion(Include.NON_NULL);
-
-			if (status instanceof RunSqlStatus) {
-				RunSqlStatus rsStatus = (RunSqlStatus)status;
-				if (rsStatus.getJsonObject() != null) {
-					try {
-						if (rsStatus.isOK()) {
-							return mapper.writeValueAsString(rsStatus.getJsonObject());
-						} else {
-							throw new MCPException(mapper.writeValueAsString( new SimpleError(rsStatus)));
-						}
-					} catch (JsonProcessingException e) {
-						e.printStackTrace();
-						throw new MCPException(e);
-					}
-				}
-			} 
-			throw new MCPException(status);
-		} else {
-			throw new MCPException("Db2 connection not selected");
-		}
+		QueryModel model = Util.instance().runSQL(sqlStatement);
+		return Util.instance().queryModelToJson(model);
+	
 	}
 	
-	
-	public class SimpleError {
-		public String title;
-		public String exceptionMessage = null;
-		public Object details;
-		
-		public SimpleError(RunSqlStatus status) {
-			super();
-			this.title = status.getMessage();
-			if (status.getException() != null) {
-				this.exceptionMessage = status.getException().getLocalizedMessage();
+	@McpTool (name = "db2ListSchemas", 
+			description = "Retrieve Db2 for z/OS schemas", 
+			annotations = @McpTool.McpAnnotations(
+					title = "Get Db2 Schemas")) 
+	public Schemas getDb2Schemas() {
+		List<String> schemas = new ArrayList<String>();
+		QueryModel model = Util.instance().runSQL("SELECT DISTINCT CREATOR FROM SYSIBM.SYSTABLES");
+		if (model.successes == 1) {
+			ResultSet set = model.executions.get(0).resultSets[0];
+			for (String[] row: set.getRows()) {
+				schemas.add(row[0]);
 			}
-			this.details = status.getJsonObject();
 		}
+		return new Schemas(schemas.toArray(String[]::new));
+		
+	}
+	
+	@McpTool (name = "db2ListTables", 
+			description = "Retrieve Db2 for z/OS tables and views", 
+			annotations = @McpTool.McpAnnotations(
+					title = "Get Db2 Tables")) 
+	public Tables getDb2Tables(
+			@McpToolParam(
+					description = "Db2 for z/OS schema", 
+					required = false) 
+			String schema) {
+		
+		List<Table> tables = new ArrayList<Table>();
+		
+		String schemaClause = (schema == null || schema.isBlank()) 
+				? "CURRENT_SCHEMA" : "'" + schema + "'";
+
+		QueryModel columnModel = Util.instance().runSQL("""
+SELECT TBCREATOR, TBNAME,
+NAME, COLNO,  
+CASE
+  WHEN SOURCETYPEID <> 0 THEN RTRIM(TYPESCHEMA) CONCAT '.' CONCAT TYPENAME 
+  ELSE TYPENAME 
+END, 
+CASE
+  WHEN COLTYPE = 'BLOB' THEN LENGTH2
+  WHEN COLTYPE = 'CLOB' THEN LENGTH2
+  WHEN COLTYPE = 'DBCLOB' THEN LENGTH2
+  WHEN COLTYPE = 'ROWID' THEN LENGTH2
+  WHEN SOURCETYPEID = 404 THEN LENGTH2
+  WHEN SOURCETYPEID = 408 THEN LENGTH2
+  WHEN SOURCETYPEID = 412 THEN LENGTH2
+  WHEN SOURCETYPEID = 904 THEN LENGTH2
+  ELSE LENGTH 
+END, 
+SCALE,
+CASE WHEN NULLS = 'Y' THEN 'Yes' ELSE 'No' END, 
+CASE WHEN UPDATES = 'Y' THEN 'Yes' ELSE 'No' END, 
+DEFAULTVALUE, 
+TRIM(CASE
+  WHEN ENCODING_SCHEME = 'A' THEN 'ASCII'
+  WHEN ENCODING_SCHEME = 'E' THEN 'EBCDIC'
+  WHEN ENCODING_SCHEME = 'U' THEN 'Unicode'
+  ELSE ENCODING_SCHEME 
+END), 
+TRIM(CASE
+  WHEN GENERATED_ATTR = 'A' THEN 'Always'
+  WHEN GENERATED_ATTR = 'D' THEN 'Default'
+  ELSE GENERATED_ATTR 
+END)
+FROM SYSIBM.SYSCOLUMNS 
+WHERE TBCREATOR = """ + schemaClause + " ORDER BY 1, 2, 4");
+	
+		if (columnModel.successes == 1) {
+
+			QueryModel tableModel = Util.instance().runSQL("""
+SELECT 
+  TB1.NAME AS \"Name\", 
+  RTRIM(TB1.CREATOR) AS \"Schema\",
+  CASE TB1.TYPE
+    WHEN 'T' THEN 'Table'
+    WHEN 'M' THEN 'Materialized query table'
+    WHEN 'A' THEN 'Alias'
+    WHEN 'C' THEN 'Clone table'
+    WHEN 'D' THEN 'Accelerator-only table'
+    WHEN 'G' THEN 'Created global temporary table'
+    WHEN 'H' THEN 'History table'
+    WHEN 'M' THEN 'Materialized query table'
+    WHEN 'R' THEN 'Archive table'
+    WHEN 'X' THEN 'Auxiliary table'
+    WHEN 'V' THEN 'View'
+    ELSE 'Table' 
+  END AS \"Type\" 
+  FROM SYSIBM.SYSTABLES TB1
+  WHERE TB1.TYPE NOT IN ('P', 'X')
+  AND TB1.CREATOR = """ + schemaClause + " ORDER BY 2, 1");
+		
+			if (tableModel.successes == 1) {
+				Map<String, List<Column>> columns = new HashMap<String, List<Column>>();
+				
+				for (String[] row: columnModel.executions.get(0).resultSets[0].getRows()) {
+					String schemaTable = row[0].stripTrailing() + "." + row[1].stripTrailing();
+					if (!columns.containsKey(schemaTable)) {
+						columns.put(schemaTable, new ArrayList<Column>());
+					}
+					columns.get(schemaTable).add(
+							new Column(row[2], row[4], row[5], row[6], row[7],
+									row[8], row[9], row[10], row[11]));
+						
+				}
+				
+				for (String[] row: tableModel.executions.get(0).resultSets[0].getRows()) {
+					String schemaTable = row[1].stripTrailing() + "." + row[0].stripTrailing();
+					tables.add(new Table(row[0], row[1], row[2], columns.get(schemaTable).toArray(Column[]::new)));
+				}
+			} else {
+				Util.instance().queryModelToJson(tableModel);
+			}
+		} else {
+			Util.instance().queryModelToJson(columnModel);
+		}
+
+		return new Tables(tables.toArray(Table[]::new));
 	}
 }
