@@ -121,7 +121,7 @@ public class AcpSchema {
 			@JsonProperty
 			String mimeType,
 			@JsonProperty(required = true)
-			String uri) {}
+			String uri) implements EmbeddedResourceResource {}
 
 
 	@JsonInclude(JsonInclude.Include.NON_ABSENT)
@@ -163,7 +163,7 @@ public class AcpSchema {
 		TerminalOutputResponse,
 		ReleaseTerminalResponse,
 		WaitForTerminalExitResponse,
-		KillTerminalResponse,
+		KillTerminalCommandResponse,
 		ExtMethodResponse {}
 
 	@JsonInclude(JsonInclude.Include.NON_ABSENT)
@@ -176,6 +176,8 @@ public class AcpSchema {
 		EmbeddedResourceBlock {}
 	
 	// ------------ anonymous block types -----------
+	@JsonInclude(JsonInclude.Include.NON_ABSENT)
+	@JsonIgnoreProperties(ignoreUnknown = true)
 	public record TextBlock (
 			@JsonProperty("_meta")
 			Map<String, Object> meta,
@@ -187,6 +189,8 @@ public class AcpSchema {
 			String type) implements ContentBlock {}
 			
 
+	@JsonInclude(JsonInclude.Include.NON_ABSENT)
+	@JsonIgnoreProperties(ignoreUnknown = true)
 	public record ImageBlock (
 			@JsonProperty("_meta")
 			Map<String, Object> meta,
@@ -201,6 +205,8 @@ public class AcpSchema {
 			@JsonProperty
 			String uri) implements ContentBlock {}
 			
+	@JsonInclude(JsonInclude.Include.NON_ABSENT)
+	@JsonIgnoreProperties(ignoreUnknown = true)
 	public record AudioBlock (
 			@JsonProperty("_meta")
 			Map<String, Object> meta,
@@ -213,6 +219,8 @@ public class AcpSchema {
 			@JsonProperty(required = true, defaultValue = "image")
 			String type) implements ContentBlock {}
 			
+	@JsonInclude(JsonInclude.Include.NON_ABSENT)
+	@JsonIgnoreProperties(ignoreUnknown = true)
 	public record ResourceLinkBlock (
 			@JsonProperty("_meta")
 			Map<String, Object> meta,
@@ -233,6 +241,8 @@ public class AcpSchema {
 			@JsonProperty(required = true)
 			String uri) implements ContentBlock {}
 			
+	@JsonInclude(JsonInclude.Include.NON_ABSENT)
+	@JsonIgnoreProperties(ignoreUnknown = true)
 	public record EmbeddedResourceBlock (
 			@JsonProperty("_meta")
 			Map<String, Object> meta,
@@ -245,101 +255,192 @@ public class AcpSchema {
 			
 	// ------------ end anonymous block types -----------
 	
-	//TODO stopped here
-	"CreateTerminalRequest": {
+	@JsonInclude(JsonInclude.Include.NON_ABSENT)
+	@JsonIgnoreProperties(ignoreUnknown = true)
+	public record CreateTerminalResponse(
+			@JsonProperty("_meta")
+			Map<String, Object> meta,
+			@JsonProperty(required = true)
+			String  terminalId) {}
 
 	@JsonInclude(JsonInclude.Include.NON_ABSENT)
 	@JsonIgnoreProperties(ignoreUnknown = true)
-	@JsonClassDescription("")
 	public record EmbeddedResource(
-			@JsonProperty 
+			@JsonProperty("_meta")
+			Map<String, Object> meta,
+			@JsonProperty
+			Annotations annotations,
+			@JsonProperty(required = true)
+			EmbeddedResourceResource resource) {}
 	
-			
-	String aaa) {
-
-	}
+	public sealed interface EmbeddedResourceResource permits
+			TextResourceContents,
+			BlobResourceContents {}
 
 	@JsonInclude(JsonInclude.Include.NON_ABSENT)
 	@JsonIgnoreProperties(ignoreUnknown = true)
-	@JsonClassDescription("")
-	public record EmbeddedResourceResource(
-			@JsonProperty 
-	
-			
-	String aaa) {
-
-	}
-
-	@JsonInclude(JsonInclude.Include.NON_ABSENT)
-	@JsonIgnoreProperties(ignoreUnknown = true)
-	@JsonClassDescription("")
 	public record EnvVariable(
-			@JsonProperty 
-	
-			
-	String aaa) {
-
-	}
+			@JsonProperty("_meta")
+			Map<String, Object> meta,
+			@JsonProperty(required = true)
+			String name,
+			@JsonProperty(required = true)
+			String value) {}
+		
 
 	@JsonInclude(JsonInclude.Include.NON_ABSENT)
 	@JsonIgnoreProperties(ignoreUnknown = true)
-	@JsonClassDescription("")
 	public record FileSystemCapability(
-			@JsonProperty 
-	
-			
-	String aaa) {
-
-	}
+			@JsonProperty("_meta")
+			Map<String, Object> meta,
+			@JsonProperty(defaultValue = "false")
+	        Boolean readTextFile,
+		    @JsonProperty(defaultValue = "false")
+			Boolean writeTextFile) {}
 
 	@JsonInclude(JsonInclude.Include.NON_ABSENT)
 	@JsonIgnoreProperties(ignoreUnknown = true)
-	@JsonClassDescription("")
 	public record HttpHeader(
-			@JsonProperty 
+			@JsonProperty("_meta")
+			Map<String, Object> meta,
+			@JsonProperty(required = true)
+			String name,
+			@JsonProperty(required = true)
+		    String value) {}
 	
-			
-	String aaa) {
-
-	}
+	@JsonInclude(JsonInclude.Include.NON_ABSENT)
+	@JsonIgnoreProperties(ignoreUnknown = true)
+	public record ImageContent(
+			@JsonProperty("_meta")
+			Map<String, Object> meta,
+			@JsonProperty("_meta")
+			Annotations annotations,
+			@JsonProperty(required = true)
+			String data,
+			@JsonProperty(required = true)
+			String mimeType,
+			@JsonProperty
+			String uri) {}
+	
+	@JsonInclude(JsonInclude.Include.NON_ABSENT)
+	@JsonIgnoreProperties(ignoreUnknown = true)
+	public record InitializeRequest (
+			@JsonProperty("_meta")
+			Map<String, Object> meta,
+	        @JsonProperty
+	        ClientCapabilities clientCapabilities,
+	        @JsonProperty(required = true)
+	        ProtocolVersion protocolVersion) implements ClientRequest {}
 
 	@JsonInclude(JsonInclude.Include.NON_ABSENT)
 	@JsonIgnoreProperties(ignoreUnknown = true)
-	@JsonClassDescription("")
-	public record ImageContent(
-			@JsonProperty 
+	public record InitializeResponse (
+			@JsonProperty("_meta")
+			Map<String, Object> meta,
+	        @JsonProperty
+	        AgentCapabilities agentCapabilities,
+	        @JsonProperty
+	        AuthMethod authMethods,
+	        @JsonProperty(required = true)
+	        ProtocolVersion protocolVersion) implements AgentResponse {}
+
 	
+	@JsonInclude(JsonInclude.Include.NON_ABSENT)
+	@JsonIgnoreProperties(ignoreUnknown = true)
+	public record  KillTerminalCommandRequest(
+			@JsonProperty("_meta")
+			Map<String, Object> meta,
+			@JsonProperty(required = true)
+	        String sessionId,
+	        @JsonProperty(required = true)
+	        String terminalId) implements AgentRequest {}
+	        
 			
-	String aaa) {
 
-	}
+	@JsonInclude(JsonInclude.Include.NON_ABSENT)
+	@JsonIgnoreProperties(ignoreUnknown = true)
+	public record  KillTerminalCommandResponse(
+			@JsonProperty("_meta")
+			Map<String, Object> meta) implements ClientResponse {}
+	
+	@JsonInclude(JsonInclude.Include.NON_ABSENT)
+	@JsonIgnoreProperties(ignoreUnknown = true)
+	public record  LoadSessionRequest(
+			@JsonProperty("_meta")
+			Map<String, Object> meta,
+			@JsonProperty(required = true)
+	        String cwd,
+	        @JsonProperty(required = true)
+	        McpServer[] mcpServers,
+	        @JsonProperty(required = true)
+	        String sessionId) implements ClientRequest {}
+	        
+			
 
+	@JsonInclude(JsonInclude.Include.NON_ABSENT)
+	@JsonIgnoreProperties(ignoreUnknown = true)
+	public record  LoadSessionResponse(
+			@JsonProperty("_meta")
+			Map<String, Object> meta,
+			SessionModeState modes) implements AgentResponse {}
+
+	
 	@JsonInclude(JsonInclude.Include.NON_ABSENT)
 	@JsonIgnoreProperties(ignoreUnknown = true)
 	@JsonClassDescription("")
 	public record McpCapabilities(
-			@JsonProperty 
-	
-//"default": {
-//            "http": false,
-//            "sse": false
-//          },
-			
-	String aaa) {
+			@JsonProperty("_meta")
+			Map<String, Object> meta,
+			@JsonProperty(defaultValue = "false")
+			Boolean http,
+			@JsonProperty(defaultValue = "false")
+		    Boolean sse) {}
 
-	}
+	public sealed interface McpServer permits 
+			HttpTransport,
+			SseTransport,
+			StdioTransport {}
 
 	@JsonInclude(JsonInclude.Include.NON_ABSENT)
 	@JsonIgnoreProperties(ignoreUnknown = true)
-	@JsonClassDescription("")
-	public record McpServer(
-			@JsonProperty 
+	public record HttpTransport(
+			@JsonProperty(required = true)
+			HttpHeader[] headers,
+			@JsonProperty(required = true)
+			String name,
+			@JsonProperty(defaultValue = "http")
+			String type,
+			@JsonProperty(required = true)
+			String url) implements McpServer {}
+
+	@JsonInclude(JsonInclude.Include.NON_ABSENT)
+	@JsonIgnoreProperties(ignoreUnknown = true)
+	public record SseTransport(
+			@JsonProperty(required = true)
+			HttpHeader[] headers,
+			@JsonProperty(required = true)
+			String name,
+			@JsonProperty(defaultValue = "sse")
+			String type,
+			@JsonProperty(required = true)
+			String url) implements McpServer {}
 	
-			
-	String aaa) {
+	@JsonInclude(JsonInclude.Include.NON_ABSENT)
+	@JsonIgnoreProperties(ignoreUnknown = true)
+	public record StdioTransport(
+			@JsonProperty(required = true)
+			String[] args,
+			@JsonProperty(required = true)
+			String command,
+			@JsonProperty(required = true)
+			EnvVariable[] env,
+			@JsonProperty(required = true)
+			String name)  implements McpServer {}
 
-	}
-
+	
+	//TODO next up
+	
+	
 	@JsonInclude(JsonInclude.Include.NON_ABSENT)
 	@JsonIgnoreProperties(ignoreUnknown = true)
 	@JsonClassDescription("")
