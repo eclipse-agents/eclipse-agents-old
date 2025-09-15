@@ -2,12 +2,13 @@ package org.eclipse.acp.schema;
 
 import java.util.Map;
 
+import org.eclipse.acp.schema.AcpSchema.ClientResponse;
+
 import com.fasterxml.jackson.annotation.JsonClassDescription;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import io.modelcontextprotocol.spec.McpSchema.InitializeRequest;
 
 public class AcpSchema {
 
@@ -130,7 +131,7 @@ public class AcpSchema {
 			@JsonProperty("_meta")
 			Map<String, Object> meta,
 			@JsonProperty(required = true)
-			String sessionId) { }
+			String sessionId) implements ClientNotification {}
 	
 	
 	@JsonInclude(JsonInclude.Include.NON_ABSENT)
@@ -257,6 +258,25 @@ public class AcpSchema {
 	
 	@JsonInclude(JsonInclude.Include.NON_ABSENT)
 	@JsonIgnoreProperties(ignoreUnknown = true)
+	public record CreateTerminalRequest(
+			@JsonProperty("_meta")
+			Map<String, Object> meta,
+			@JsonProperty
+			String[] args,
+			@JsonProperty(required = true)
+			String command,
+			@JsonProperty
+			String cwd,
+			@JsonProperty
+			EnvVariable env,
+			@JsonProperty
+			Integer outputByteLimit,
+			@JsonProperty(required = true)
+			String sessionId) implements AgentRequest {}
+
+	
+	@JsonInclude(JsonInclude.Include.NON_ABSENT)
+	@JsonIgnoreProperties(ignoreUnknown = true)
 	public record CreateTerminalResponse(
 			@JsonProperty("_meta")
 			Map<String, Object> meta,
@@ -330,7 +350,7 @@ public class AcpSchema {
 	        @JsonProperty
 	        ClientCapabilities clientCapabilities,
 	        @JsonProperty(required = true)
-	        ProtocolVersion protocolVersion) implements ClientRequest {}
+	        Integer protocolVersion) implements ClientRequest {}
 
 	@JsonInclude(JsonInclude.Include.NON_ABSENT)
 	@JsonIgnoreProperties(ignoreUnknown = true)
@@ -342,7 +362,7 @@ public class AcpSchema {
 	        @JsonProperty
 	        AuthMethod authMethods,
 	        @JsonProperty(required = true)
-	        ProtocolVersion protocolVersion) implements AgentResponse {}
+	        Integer protocolVersion) implements AgentResponse {}
 
 	
 	@JsonInclude(JsonInclude.Include.NON_ABSENT)
@@ -387,7 +407,7 @@ public class AcpSchema {
 	
 	@JsonInclude(JsonInclude.Include.NON_ABSENT)
 	@JsonIgnoreProperties(ignoreUnknown = true)
-	@JsonClassDescription("")
+	
 	public record McpCapabilities(
 			@JsonProperty("_meta")
 			Map<String, Object> meta,
@@ -438,325 +458,545 @@ public class AcpSchema {
 			String name)  implements McpServer {}
 
 	
-	//TODO next up
+	@JsonInclude(JsonInclude.Include.NON_ABSENT)
+	@JsonIgnoreProperties(ignoreUnknown = true)
+	public record NewSessionRequest(
+			@JsonProperty("_meta")
+			Map<String, Object> meta,
+			@JsonProperty(required = true)
+			String cwd,
+			@JsonProperty(required = true)
+			McpServer[] mcpServers) implements ClientRequest {};
+	
+	@JsonInclude(JsonInclude.Include.NON_ABSENT)
+	@JsonIgnoreProperties(ignoreUnknown = true)
+	public record NewSessionResponse(
+			@JsonProperty("_meta")
+			Map<String, Object> meta,
+			@JsonProperty
+			SessionModeState modes,
+			@JsonProperty(required = true)
+			String sessionId) implements AgentResponse {};
+
 	
 	
 	@JsonInclude(JsonInclude.Include.NON_ABSENT)
 	@JsonIgnoreProperties(ignoreUnknown = true)
-	@JsonClassDescription("")
 	public record PermissionOption(
-			@JsonProperty 
+			@JsonProperty("_meta")
+			Map<String, Object> meta,
+			@JsonProperty(required = true)
+			PermissionOptionKind kind,
+			@JsonProperty(required = true)
+			String name,
+			@JsonProperty(required = true)
+			String optionId) {}
 	
-			
-	String aaa) {
-
-	}
+	enum PermissionOptionKind { allow_once, allow_always, reject_once, reject_always }
+    
 
 	@JsonInclude(JsonInclude.Include.NON_ABSENT)
 	@JsonIgnoreProperties(ignoreUnknown = true)
-	@JsonClassDescription("")
-	public record PermissionOptionId(
-			@JsonProperty 
-	
-			
-	String aaa) {
-
-	}
-
-	@JsonInclude(JsonInclude.Include.NON_ABSENT)
-	@JsonIgnoreProperties(ignoreUnknown = true)
-	@JsonClassDescription("")
-	public record PermissionOptionKind(
-			@JsonProperty 
-	
-			
-	String aaa) {
-
-	}
-
-	@JsonInclude(JsonInclude.Include.NON_ABSENT)
-	@JsonIgnoreProperties(ignoreUnknown = true)
-	@JsonClassDescription("")
 	public record Plan(
-			@JsonProperty 
-	
-			
-	String aaa) {
-
-	}
+			@JsonProperty("_meta")
+			Map<String, Object> meta,
+			@JsonProperty(required = true)
+			PlanEntry entries) {}
 
 	@JsonInclude(JsonInclude.Include.NON_ABSENT)
 	@JsonIgnoreProperties(ignoreUnknown = true)
-	@JsonClassDescription("")
 	public record PlanEntry(
-			@JsonProperty 
-	
-			
-	String aaa) {
+			@JsonProperty("_meta")
+			Map<String, Object> meta,
+			@JsonProperty(required = true)
+			String content,
+			@JsonProperty(required = true)
+			PlanEntryPriority priority,
+			@JsonProperty(required = true)
+			PlanEntryStatus status) {}
 
-	}
+	public enum PlanEntryPriority { high, medium, low }
+	
+	public enum PlanEntryStatus {pending, in_progress, completed};
 
 	@JsonInclude(JsonInclude.Include.NON_ABSENT)
 	@JsonIgnoreProperties(ignoreUnknown = true)
-	@JsonClassDescription("")
-	public record PlanEntryPriority(
-			@JsonProperty 
-	
-			
-	String aaa) {
-
-	}
-
-	@JsonInclude(JsonInclude.Include.NON_ABSENT)
-	@JsonIgnoreProperties(ignoreUnknown = true)
-	@JsonClassDescription("")
-	public record PlanEntryStatus(
-			@JsonProperty 
-	
-			
-	String aaa) {
-
-	}
-
-	@JsonInclude(JsonInclude.Include.NON_ABSENT)
-	@JsonIgnoreProperties(ignoreUnknown = true)
-	@JsonClassDescription("")
 	public record PromptCapabilities(
-			@JsonProperty 
+			@JsonProperty("_meta")
+			Map<String, Object> meta,
+			@JsonProperty(defaultValue = "false")
+			boolean audio,
+			@JsonProperty(defaultValue = "false")
+			boolean embeddedContext,
+			@JsonProperty(defaultValue = "false")
+			boolean image) {}
 	
-			
-	String aaa) {
-
-	}
+	
+	@JsonInclude(JsonInclude.Include.NON_ABSENT)
+	@JsonIgnoreProperties(ignoreUnknown = true)
+	public record PromptRequest(
+			@JsonProperty("_meta")
+			Map<String, Object> meta,
+			@JsonProperty(required = true)
+			ContentBlock[] prompt,
+			@JsonProperty(required = true)
+			String sessionId) implements ClientRequest {}
 
 	@JsonInclude(JsonInclude.Include.NON_ABSENT)
 	@JsonIgnoreProperties(ignoreUnknown = true)
-	@JsonClassDescription("")
-	public record ProtocolVersion(
-			@JsonProperty 
-	
-			
-	String aaa) {
-
-	}
+	public record PromptResponse(
+			@JsonProperty("_meta")
+			Map<String, Object> meta,
+			@JsonProperty(required = true)
+			StopReason stopReason) implements AgentResponse {}
 
 	@JsonInclude(JsonInclude.Include.NON_ABSENT)
 	@JsonIgnoreProperties(ignoreUnknown = true)
-	@JsonClassDescription("")
+	public record ReadTextFileRequest(
+			@JsonProperty("_meta")
+			Map<String, Object> meta,
+			@JsonProperty
+			Integer limit,
+			@JsonProperty
+			Integer line,
+			@JsonProperty(required = true)
+			String path,
+			@JsonProperty(required = true)
+			String sessionId) implements AgentRequest {}
+	   
+	
+	@JsonInclude(JsonInclude.Include.NON_ABSENT)
+	@JsonIgnoreProperties(ignoreUnknown = true)
+	public record ReadTextFileResponse(
+			@JsonProperty("_meta")
+			Map<String, Object> meta,
+			@JsonProperty(required = true)
+			String content) implements ClientResponse {}
+
+	@JsonInclude(JsonInclude.Include.NON_ABSENT)
+	@JsonIgnoreProperties(ignoreUnknown = true)
+	public record ReleaseTerminalRequest(
+			@JsonProperty("_meta")
+			Map<String, Object> meta,
+			@JsonProperty(required = true)
+			String sessionId,
+			@JsonProperty(required = true)
+			String terminalId) implements AgentRequest {}
+
+	
+	@JsonInclude(JsonInclude.Include.NON_ABSENT)
+	@JsonIgnoreProperties(ignoreUnknown = true)
+	public record ReleaseTerminalResponse(
+			@JsonProperty("_meta")
+			Map<String, Object> meta) implements ClientResponse {}
+
+
+	enum Outcome { cancelled, selected};
+     
+	@JsonInclude(JsonInclude.Include.NON_ABSENT)
+	@JsonIgnoreProperties(ignoreUnknown = true)
 	public record RequestPermissionOutcome(
-			@JsonProperty 
+			@JsonProperty(required = true)
+			Outcome outcome,
+			@JsonProperty
+			String optionId) {}
 	
-			
-	String aaa) {
-
-	}
 
 	@JsonInclude(JsonInclude.Include.NON_ABSENT)
 	@JsonIgnoreProperties(ignoreUnknown = true)
-	@JsonClassDescription("")
+	public record RequestPermissionRequest(
+			@JsonProperty("_meta")
+			Map<String, Object> meta,
+			@JsonProperty(required = true)
+			PermissionOption[] options,
+			@JsonProperty(required = true)
+	        String sessionId,
+	        @JsonProperty(required = true)
+	        ToolCallUpdate toolCall) implements AgentRequest {}
+	 
+	
+	@JsonInclude(JsonInclude.Include.NON_ABSENT)
+	@JsonIgnoreProperties(ignoreUnknown = true)
+	public record RequestPermissionResponse(
+			@JsonProperty("_meta")
+			Map<String, Object> meta,
+			@JsonProperty(required = true)
+			RequestPermissionOutcome outcome) implements ClientResponse {}
+
+	
+	@JsonInclude(JsonInclude.Include.NON_ABSENT)
+	@JsonIgnoreProperties(ignoreUnknown = true)
 	public record ResourceLink(
+			@JsonProperty("_meta")
+			Map<String, Object> meta,
 			@JsonProperty 
-	
-			
-	String aaa) {
+			Annotations annotations,
+			@JsonProperty
+			String description,
+			@JsonProperty
+			String mimeType,
+			@JsonProperty(required = true)
+			String name,
+			@JsonProperty
+			Integer size,
+		    @JsonProperty
+		    String title,
+		    @JsonProperty(required = true)
+		    String uri) {}
 
-	}
+	
+	public enum Role { assistant, user };
+		
 
 	@JsonInclude(JsonInclude.Include.NON_ABSENT)
 	@JsonIgnoreProperties(ignoreUnknown = true)
-	@JsonClassDescription("")
-	public record Role(
-			@JsonProperty 
-	
-			
-	String aaa) {
-
-	}
-
-	@JsonInclude(JsonInclude.Include.NON_ABSENT)
-	@JsonIgnoreProperties(ignoreUnknown = true)
-	@JsonClassDescription("")
-	public record SessionId(
-			@JsonProperty 
-	
-			
-	String aaa) {
-
-	}
-
-	@JsonInclude(JsonInclude.Include.NON_ABSENT)
-	@JsonIgnoreProperties(ignoreUnknown = true)
-	@JsonClassDescription("")
 	public record SessionMode(
+			@JsonProperty("_meta")
+			Map<String, Object> meta,
 			@JsonProperty 
-	
-			
-	String aaa) {
+			String description,
+			@JsonProperty(required = true)
+			String id,
+			@JsonProperty(required = true)
+			String name) {}
 
-	}
 
 	@JsonInclude(JsonInclude.Include.NON_ABSENT)
 	@JsonIgnoreProperties(ignoreUnknown = true)
-	@JsonClassDescription("")
-	public record SessionModeId(
-			@JsonProperty 
-	
-			
-	String aaa) {
-
-	}
-
-	@JsonInclude(JsonInclude.Include.NON_ABSENT)
-	@JsonIgnoreProperties(ignoreUnknown = true)
-	@JsonClassDescription("")
 	public record SessionModeState(
-			@JsonProperty 
+			@JsonProperty("_meta")
+			Map<String, Object> meta,
+			@JsonProperty(required = true)
+			SessionMode[] availableModes,
+			@JsonProperty(required = true)
+			String currentModeId) {}
 	
-			
-	String aaa) {
-
-	}
 
 	@JsonInclude(JsonInclude.Include.NON_ABSENT)
 	@JsonIgnoreProperties(ignoreUnknown = true)
-	@JsonClassDescription("")
-	public record SessionUpdate(
-			@JsonProperty 
+	public record SessionNotification(
+			@JsonProperty("_meta")
+			Map<String, Object> meta,
+			@JsonProperty(required = true)
+			String sessionId,
+			@JsonProperty(required = true)
+			SessionUpdate update) implements AgentNotification {}
+   
+
+
+	public sealed interface SessionUpdate permits 
+		SessionUserMessageChunk,
+		SessionAgentMessageChunk,
+		SessionAgentThoughChunk,
+		SessionToolCall,
+		SessionToolCallUpdate,
+		SessionPlan,
+		SessionAvailableCommandsUpdate,
+		SessionModeUpdate {}
 	
+	
+	public record SessionUserMessageChunk(
+			@JsonProperty(required = true)
+			ContentBlock content,
+			@JsonProperty(defaultValue = "user_message_chunk")
+			String sessionUpdate) implements SessionUpdate {}
+	
+	public record SessionAgentMessageChunk(
+			@JsonProperty(required = true)
+			ContentBlock content,
+			@JsonProperty(defaultValue = "agent_message_chunk")
+			String sessionUpdate) implements SessionUpdate {}
+	
+	public record SessionAgentThoughChunk(
+			@JsonProperty(required = true)
+			ContentBlock content,
+			@JsonProperty(defaultValue = "agent_thought_chunk")
+			String sessionUpdate) implements SessionUpdate {}
+	
+	public record SessionToolCall(
+			@JsonProperty("_meta")
+			Map<String, Object> meta,
+			@JsonProperty
+			ToolCallContent[] content,
+			@JsonProperty
+			ToolKind kind,
+			@JsonProperty
+			ToolCallLocation[] locations,
+			@JsonProperty
+			Object rawInput,
+			@JsonProperty
+			Object rawOutput,
+			@JsonProperty(defaultValue = "tool_call")
+			String sessionUpdate,
+			@JsonProperty
+			ToolCallStatus status,
+			@JsonProperty(required = true)
+			String title,
+			@JsonProperty(required = true)
+			String toolCallId) implements SessionUpdate {}
 			
-	String aaa) {
+	public record SessionToolCallUpdate(
+			@JsonProperty("_meta")
+			Map<String, Object> meta,
+			@JsonProperty
+			ToolCallContent[] content,
+			@JsonProperty
+			ToolKind kind,
+			@JsonProperty
+			ToolCallLocation[] locations,
+			@JsonProperty
+			Object rawInput,
+			@JsonProperty
+			Object rawOutput,
+			@JsonProperty(defaultValue = "tool_call_update")
+			String sessionUpdate,
+			@JsonProperty
+			ToolCallStatus status,
+			@JsonProperty(required = true)
+			String toolCallId) implements SessionUpdate {}
+	
+	public record SessionPlan(
+			@JsonProperty("_meta")
+			Map<String, Object> meta,
+			@JsonProperty(required = true)
+			PlanEntry[] entries,
+			@JsonProperty(defaultValue = "plan")
+			String sessionUpdate) implements SessionUpdate {}
+	
+	public record SessionAvailableCommandsUpdate(
+			@JsonProperty(required = true)
+			AvailableCommand[] commands,
+			@JsonProperty(defaultValue = "available_commands_update")
+			String sessionUpdate) implements SessionUpdate {}
+	
+	public record SessionModeUpdate(
+			@JsonProperty(required = true)
+			String currentModeId,
+			@JsonProperty(defaultValue = "current_mode_update")
+			String sessionUpdate) implements SessionUpdate {}
 
-	}
-
+	
 	@JsonInclude(JsonInclude.Include.NON_ABSENT)
 	@JsonIgnoreProperties(ignoreUnknown = true)
-	@JsonClassDescription("")
+	public record SetSessionModeRequest (
+			@JsonProperty("_meta")
+			Map<String, Object> meta,
+			@JsonProperty(required = true)
+			SessionMode modeId,
+			@JsonProperty(required = true)
+			String sessionId) implements ClientRequest {}
+
+	
+	@JsonInclude(JsonInclude.Include.NON_ABSENT)
+	@JsonIgnoreProperties(ignoreUnknown = true)	
 	public record SetSessionModeResponse(
-			@JsonProperty 
-	
-			
-	String aaa) {
-
-	}
+			@JsonProperty("_meta")
+			Map<String, Object> meta) implements AgentResponse {}
 
 	@JsonInclude(JsonInclude.Include.NON_ABSENT)
 	@JsonIgnoreProperties(ignoreUnknown = true)
-	@JsonClassDescription("")
-	public record StopReason(
-			@JsonProperty 
-	
-			
-	String aaa) {
+	public enum StopReason { end_turn, max_tokens, max_turn_requests, refusal, cancelled }
 
-	}
 
 	@JsonInclude(JsonInclude.Include.NON_ABSENT)
 	@JsonIgnoreProperties(ignoreUnknown = true)
-	@JsonClassDescription("")
 	public record TerminalExitStatus(
+			@JsonProperty("_meta")
+			Map<String, Object> meta,
 			@JsonProperty 
-	
-			
-	String aaa) {
-
-	}
+			Integer exitCode,
+			@JsonProperty
+			String signal) {}
 
 	@JsonInclude(JsonInclude.Include.NON_ABSENT)
 	@JsonIgnoreProperties(ignoreUnknown = true)
-	@JsonClassDescription("")
+	public record TerminalOutputRequest(
+			@JsonProperty("_meta")
+			Map<String, Object> meta,
+			@JsonProperty(required = true)
+			String sessionId,
+			@JsonProperty(required = true)
+			String terminalId) implements AgentRequest {}
+	
+	@JsonInclude(JsonInclude.Include.NON_ABSENT)
+	@JsonIgnoreProperties(ignoreUnknown = true)
+	public record TerminalOutputResponse(
+			@JsonProperty("_meta")
+			Map<String, Object> meta,
+			@JsonProperty
+			TerminalExitStatus exitStatus,
+			@JsonProperty(required = true)
+			String output,
+			@JsonProperty(required = true)
+			Boolean truncated) implements ClientResponse {}
+
+  
+
+	@JsonInclude(JsonInclude.Include.NON_ABSENT)
+	@JsonIgnoreProperties(ignoreUnknown = true)
 	public record TextContent(
-			@JsonProperty 
-	
-			
-	String aaa) {
+			@JsonProperty("_meta")
+			Map<String, Object> meta,
+			@JsonProperty
+			Annotations annotations,
+			@JsonProperty(required = true)
+			String text) {
 
 	}
 
 	@JsonInclude(JsonInclude.Include.NON_ABSENT)
 	@JsonIgnoreProperties(ignoreUnknown = true)
-	@JsonClassDescription("")
+	
 	public record TextResourceContents(
+			@JsonProperty("_meta")
+			Map<String, Object> meta,
 			@JsonProperty 
-	
-			String aaa) {
-
-	}
+			String mimeType,
+			@JsonProperty(required = true)
+			String text,
+			@JsonProperty(required = true)
+			String uri) implements EmbeddedResourceResource {}
+		
 
 	@JsonInclude(JsonInclude.Include.NON_ABSENT)
 	@JsonIgnoreProperties(ignoreUnknown = true)
-	@JsonClassDescription("")
 	public record ToolCall(
+			@JsonProperty("_meta")
+			Map<String, Object> meta,
 			@JsonProperty 
-	
-			
-	String aaa) {
+			ToolCallContent[] content,
+			@JsonProperty 
+			ToolKind kind,
+			@JsonProperty 
+			ToolCallLocation[] locations,
+			@JsonProperty 
+			Object rawInput,
+			@JsonProperty 
+			Object rawOutput,
+			@JsonProperty 
+			ToolCallStatus status,
+			@JsonProperty(required = true)
+			String title,
+			@JsonProperty(required = true)
+			String toolCallId) {}
 
-	}
 
 	@JsonInclude(JsonInclude.Include.NON_ABSENT)
 	@JsonIgnoreProperties(ignoreUnknown = true)
-	@JsonClassDescription("")
-	public record ToolCallContent(
-			@JsonProperty 
-	
-			
-	String aaa) {
+	public sealed interface ToolCallContent permits
+		ToolCallContentContent,
+		ToolCallContentDiff,
+		ToolCallContentTerminal {}
 
-	}
+	public record ToolCallContentContent(
+			@JsonProperty(required = true)
+			ContentBlock content,
+			@JsonProperty(defaultValue = "content")
+			String type) implements ToolCallContent {}
+	
+	
+	public record ToolCallContentDiff(
+			@JsonProperty("_meta")
+			Map<String, Object> meta,
+			@JsonProperty(required = true)
+			String newText,
+			@JsonProperty
+			String oldText,
+			@JsonProperty(required = true)
+			String path,
+			@JsonProperty(defaultValue = "diff")
+			String type) implements ToolCallContent {}
+	
+	public record ToolCallContentTerminal(
+			@JsonProperty(required = true)
+			String terminalId,
+			@JsonProperty(defaultValue = "terminal")
+			String type) implements ToolCallContent {}
+
+
 
 	@JsonInclude(JsonInclude.Include.NON_ABSENT)
 	@JsonIgnoreProperties(ignoreUnknown = true)
-	@JsonClassDescription("")
-	public record ToolCallId(
-			@JsonProperty 
-	
-			
-	String aaa) {
-
-	}
-
-	@JsonInclude(JsonInclude.Include.NON_ABSENT)
-	@JsonIgnoreProperties(ignoreUnknown = true)
-	@JsonClassDescription("")
 	public record ToolCallLocation(
+			@JsonProperty("_meta")
+			Map<String, Object> meta,
 			@JsonProperty 
+			Integer line,
+			@JsonProperty(required = true)
+			String path) {}
+
+	public enum ToolCallStatus{ pending, in_progress, completed, failed }
 	
-			
-	String aaa) {
-
-	}
-
+	
 	@JsonInclude(JsonInclude.Include.NON_ABSENT)
 	@JsonIgnoreProperties(ignoreUnknown = true)
-	@JsonClassDescription("")
-	public record ToolCallStatus(
-			@JsonProperty 
-	
-			
-	String aaa) {
-
-	}
-
-	@JsonInclude(JsonInclude.Include.NON_ABSENT)
-	@JsonIgnoreProperties(ignoreUnknown = true)
-	@JsonClassDescription("")
 	public record ToolCallUpdate(
+			@JsonProperty("_meta")
+			Map<String, Object> meta,
 			@JsonProperty 
-	
+			ToolCallContent[] content,
+			@JsonProperty 
+			ToolKind kind,
+			@JsonProperty 
+			ToolCallLocation[] locations,
+			@JsonProperty 
+			Object rawInput,
+			@JsonProperty 
+			Object rawOutput,
+			@JsonProperty 
+			ToolCallStatus status,
+			@JsonProperty
+			String title,
+			@JsonProperty(required = true)
+			String toolCallId) {}
 			
-	String aaa) {
 
+
+	public enum ToolKind {
+		  read, edit, delete, move, search, execute, think, fetch, switch_mode, other
 	}
 
 	@JsonInclude(JsonInclude.Include.NON_ABSENT)
 	@JsonIgnoreProperties(ignoreUnknown = true)
-	@JsonClassDescription("")
-	public record ToolKind(
-			@JsonProperty 
-	
-			
-	String aaa) {
+	public record WaitForTerminalExitRequest(
+			@JsonProperty("_meta")
+			Map<String, Object> meta,
+			@JsonProperty(required = true)
+			String sessionId,
+			@JsonProperty(required = true)
+			String terminalId) implements AgentRequest {}
 
-	}
+	
+	@JsonInclude(JsonInclude.Include.NON_ABSENT)
+	@JsonIgnoreProperties(ignoreUnknown = true)
+	public record WaitForTerminalExitResponse(
+			@JsonProperty("_meta")
+			Map<String, Object> meta,
+			Integer exitCode,
+			String signal) implements ClientResponse {}
+
+	
+	@JsonInclude(JsonInclude.Include.NON_ABSENT)
+	@JsonIgnoreProperties(ignoreUnknown = true)
+	public record WriteTextFileRequest(
+			@JsonProperty("_meta")
+			Map<String, Object> meta,
+			@JsonProperty(required = true)
+			String content,
+			@JsonProperty(required = true)
+			String path,
+			@JsonProperty(required = true)
+			String sessionId) implements AgentRequest {}
+
+	@JsonInclude(JsonInclude.Include.NON_ABSENT)
+	@JsonIgnoreProperties(ignoreUnknown = true)
+	public record WriteTextFileResponse(
+			@JsonProperty("_meta")
+			Map<String, Object> meta) implements ClientResponse {}
+	
+
+	public record ExtNotification() implements AgentNotification, ClientNotification{};
+	public record ExtMethodRequest() implements AgentRequest, ClientRequest {};
+	public record ExtMethodResponse() implements AgentResponse, ClientResponse{};
 
 }
