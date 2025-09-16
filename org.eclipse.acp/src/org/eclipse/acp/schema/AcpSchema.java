@@ -2,9 +2,6 @@ package org.eclipse.acp.schema;
 
 import java.util.Map;
 
-import org.eclipse.acp.schema.AcpSchema.ClientResponse;
-
-import com.fasterxml.jackson.annotation.JsonClassDescription;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -161,6 +158,7 @@ public class AcpSchema {
 		WriteTextFileResponse,
 		ReadTextFileResponse,
 		RequestPermissionResponse,
+		CreateTerminalResponse,
 		TerminalOutputResponse,
 		ReleaseTerminalResponse,
 		WaitForTerminalExitResponse,
@@ -281,7 +279,7 @@ public class AcpSchema {
 			@JsonProperty("_meta")
 			Map<String, Object> meta,
 			@JsonProperty(required = true)
-			String  terminalId) {}
+			String  terminalId) implements ClientResponse {}
 
 	@JsonInclude(JsonInclude.Include.NON_ABSENT)
 	@JsonIgnoreProperties(ignoreUnknown = true)

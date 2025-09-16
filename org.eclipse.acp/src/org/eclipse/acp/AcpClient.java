@@ -8,11 +8,11 @@
  *******************************************************************************/
 package org.eclipse.acp;
 
-public class AcpClient implements IAcpClient {
+public class AcpClient implements IAcpAgent {
 
-	private ContextStore<IAcpServer> store;
+	private ContextStore<IAcpClient> store;
 
-	public AcpClient(ContextStore<IAcpServer> store) {
+	public AcpClient(ContextStore<IAcpClient> store) {
 		this.store = store;
 	}
 
