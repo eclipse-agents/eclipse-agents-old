@@ -4,5 +4,7 @@ org.eclipse.mcp/debug = false
 org.eclipse.mcp/debug/extensions = false
 # Trace switch for built-in platform extensions
 org.eclipse.mcp/debug/extensions/platform = false
+# Trace switch for built-in platform extensions
+org.eclipse.mcp/debug/acp = false
 # Trace switch for other MCP extensions
 org.eclipse.mcp/debug/extensions/others = false
