@@ -29,10 +29,7 @@ import org.eclipse.mcp.acp.AcpSchema.WriteTextFileResponse;
 
 public class AcpClient implements IAcpClient {
 
-	private ContextStore<IAcpAgent> store;
-
-	public AcpClient(ContextStore<IAcpAgent> store) {
-		this.store = store;
+	public AcpClient() {
 	}
 
 	@Override
