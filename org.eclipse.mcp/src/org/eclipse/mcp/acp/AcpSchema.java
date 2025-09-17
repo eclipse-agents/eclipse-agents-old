@@ -360,7 +360,7 @@ public class AcpSchema {
 	        @JsonProperty
 	        AgentCapabilities agentCapabilities,
 	        @JsonProperty
-	        AuthMethod authMethods,
+	        AuthMethod[] authMethods,
 	        @JsonProperty(required = true)
 	        Integer protocolVersion) implements AgentResponse {}
 

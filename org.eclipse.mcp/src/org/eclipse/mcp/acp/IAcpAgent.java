@@ -19,7 +19,6 @@ import org.eclipse.mcp.acp.AcpSchema.PromptResponse;
 import org.eclipse.mcp.acp.AcpSchema.SetSessionModeRequest;
 import org.eclipse.mcp.acp.AcpSchema.SetSessionModeResponse;
 
-@JsonSegment("session")
 public interface IAcpAgent {
 
 	@JsonRequest
@@ -28,19 +27,19 @@ public interface IAcpAgent {
 	@JsonRequest
 	CompletableFuture<AuthenticateResponse> authenticate(AuthenticateRequest request);
 	
-	@JsonRequest(value = "new", useSegment = true)
-	CompletableFuture<NewSessionRequest> _new(NewSessionResponse request);
+	@JsonRequest(value = "session/new")
+	CompletableFuture<NewSessionResponse> _new(NewSessionRequest request);
 	
-	@JsonRequest(useSegment = true)
+	@JsonRequest(value = "session/load")
 	CompletableFuture<LoadSessionResponse> load(LoadSessionRequest Response);
 	
-	@JsonRequest(useSegment = true)
+	@JsonRequest(value = "session/set_mode")
 	CompletableFuture<SetSessionModeResponse> set_mode(SetSessionModeRequest request);
 	
-	@JsonRequest(useSegment = true)
+	@JsonRequest(value = "session/prompt")
 	CompletableFuture<PromptResponse> prompt(PromptRequest request);
 	
-	@JsonNotification(useSegment = true)
+	@JsonNotification(value = "session/cancel")
 	void cancel(CancelNotification request);
 	
 }

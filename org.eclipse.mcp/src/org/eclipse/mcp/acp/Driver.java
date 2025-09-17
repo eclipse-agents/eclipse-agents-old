@@ -5,12 +5,26 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
+import org.eclipse.lsp4j.jsonrpc.Endpoint;
+import org.eclipse.lsp4j.jsonrpc.JsonRpcException;
+import org.eclipse.lsp4j.jsonrpc.Launcher;
+import org.eclipse.lsp4j.jsonrpc.Launcher.Builder;
+import org.eclipse.lsp4j.jsonrpc.MessageConsumer;
+import org.eclipse.lsp4j.jsonrpc.RemoteEndpoint;
+import org.eclipse.lsp4j.jsonrpc.json.ConcurrentMessageProcessor;
+import org.eclipse.lsp4j.jsonrpc.json.MessageJsonHandler;
+import org.eclipse.lsp4j.jsonrpc.json.StreamMessageConsumer;
+import org.eclipse.lsp4j.jsonrpc.messages.Message;
+import org.eclipse.lsp4j.jsonrpc.services.ServiceEndpoints;
 import org.eclipse.mcp.acp.AcpSchema.ClientCapabilities;
 import org.eclipse.mcp.acp.AcpSchema.FileSystemCapability;
 import org.eclipse.mcp.acp.AcpSchema.InitializeRequest;
@@ -23,7 +37,7 @@ public class Driver {
 	
 		String gemini = "/usr/local/bin/gemini";
 		String node = "/usr/local/bin/node";
-		
+	
 		
 		List<String> commandAndArgs = new ArrayList<String>();
 //		commandAndArgs.add("gemini");
@@ -47,49 +61,96 @@ public class Driver {
 			}
 		}
 		
-		BufferedReader br = new BufferedReader(new InputStreamReader(in, "UTF-8"));
-//		String line = br.readLine();
-//		while (line != null) {
-//			System.err.println(line);
-//			if (br.)
-//		}
+//		Gson gson = new Gson();
+//		gson.fromJson("{\"protocolVersion\":1,\"authMethods\":[{\"id\":\"oauth-personal\",\"name\":\"Log in with Google\",\"description\":null},{\"id\":\"gemini-api-key\",\"name\":\"Use Gemini API key\",\"description\":\"Requires setting the `GEMINI_API_KEY` environment variable\"},{\"id\":\"vertex-ai\",\"name\":\"Vertex AI\",\"description\":null}],\"agentCapabilities\":{\"loadSession\":false,\"promptCapabilities\":{\"image\":true,\"audio\":true,\"embeddedContext\":true}}}", InitializeResponse.class);
+//		
 		
-		OutputStreamWriter writer = new OutputStreamWriter(out);
-		writer.write("{\"jsonrpc\": \"2.0\",\"id\": 0,\"method\": \"initialize\",\"params\": {\"protocolVersion\": 1,\"clientCapabilities\": {\"fs\": {\"readTextFile\": true,\"writeTextFile\": true},\"terminal\": true}}}\r\n");
-		writer.flush();
+		AcpClient acpClient = new AcpClient(null, null);
+		final Object lock = new Object();
 		
-		String line = br.readLine();
-		while (line != null) {
-			System.err.println(line);
-			line = br.readLine();
-		}
-		
-		ContextStore<IAcpAgent> contextStore = new ContextStore<>();
-		AcpClient acpClient = new AcpClient(contextStore);
+		Builder<IAcpAgent> builder = new Builder<IAcpAgent>() {
 
-		
-		AcpClientLauncher<IAcpAgent> launcher = new AcpClientLauncher<IAcpAgent>(acpClient, IAcpAgent.class, in, out);
-		AcpClientThread thread = new AcpClientThread(launcher) {
-			
 			@Override
-			public void statusChanged() {
-				// TODO Auto-generated method stub
-				
+			protected RemoteEndpoint createRemoteEndpoint(MessageJsonHandler jsonHandler) {
+				MessageConsumer outgoingMessageStream = new StreamMessageConsumer(output, jsonHandler) {
+					@Override
+					public void consume(Message message) {
+						try {
+							String content = jsonHandler.serialize(message);
+							byte[] contentBytes = content.getBytes(StandardCharsets.UTF_8.name());
+							
+							synchronized (lock) {
+								output.write(contentBytes);
+								output.write("\n".getBytes(StandardCharsets.UTF_8.name()));
+								output.flush();
+							}
+						} catch (IOException exception) {
+							throw new JsonRpcException(exception);
+						}
+						super.consume(message);
+					}
+					
+				};
+				outgoingMessageStream = wrapMessageConsumer(outgoingMessageStream);
+				Endpoint localEndpoint = ServiceEndpoints.toEndpoint(localServices);
+				RemoteEndpoint remoteEndpoint;
+				if (exceptionHandler == null)
+					remoteEndpoint = new RemoteEndpoint(outgoingMessageStream, localEndpoint);
+				else
+					remoteEndpoint = new RemoteEndpoint(outgoingMessageStream, localEndpoint, exceptionHandler);
+				jsonHandler.setMethodProvider(remoteEndpoint);
+				remoteEndpoint.setJsonHandler(jsonHandler);
+				return remoteEndpoint;
 			}
+			
+			public Launcher<IAcpAgent> create() {
+				// Validate input
+				if (input == null)
+					throw new IllegalStateException("Input stream must be configured.");
+				if (output == null)
+					throw new IllegalStateException("Output stream must be configured.");
+				if (localServices == null)
+					throw new IllegalStateException("Local service must be configured.");
+				if (remoteInterfaces == null)
+					throw new IllegalStateException("Remote interface must be configured.");
+
+				// Create the JSON handler, remote endpoint and remote proxy
+				MessageJsonHandler jsonHandler = createJsonHandler();
+				if (messageTracer != null) {
+					messageTracer.setJsonHandler(jsonHandler);
+				}
+				RemoteEndpoint remoteEndpoint = createRemoteEndpoint(jsonHandler);
+				IAcpAgent remoteProxy = createProxy(remoteEndpoint);
+
+				// Create the message processor
+				final var reader = new StdinoutMessageProducer(input, jsonHandler, remoteEndpoint);
+				MessageConsumer messageConsumer = wrapMessageConsumer(remoteEndpoint);
+				ConcurrentMessageProcessor msgProcessor = createMessageProcessor(reader, messageConsumer, remoteProxy);
+				ExecutorService execService = executorService != null ? executorService : Executors.newCachedThreadPool();
+				return createLauncher(execService, remoteProxy, remoteEndpoint, msgProcessor);
+			}
+
+			
+			
 		};
-		thread.start();
 		
-		Thread.sleep(5000);
-//		while (thread.getDssServer() == null) {
-//			try {
-//				Thread.sleep(1000);
-//			} catch (InterruptedException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
-//		}
+		PrintWriter tracer = new PrintWriter(System.out);
 		
-		IAcpAgent agent = thread.getDssServer();
+		Launcher<IAcpAgent> launcher = builder
+			.setLocalService(acpClient)
+			.setRemoteInterface(IAcpAgent.class)
+			.setInput(in)
+			.setOutput(out)
+			.traceMessages(tracer)
+			.create();
+		
+		launcher.startListening();
+		
+		
+
+		RemoteEndpoint re = launcher.getRemoteEndpoint();
+		
+		IAcpAgent agent = launcher.getRemoteProxy();
 		FileSystemCapability fsc = new FileSystemCapability(null, true, true);
 		ClientCapabilities capabilities = new ClientCapabilities(null, fsc, true);
 		InitializeRequest initialize = new InitializeRequest(null, capabilities, 1);
