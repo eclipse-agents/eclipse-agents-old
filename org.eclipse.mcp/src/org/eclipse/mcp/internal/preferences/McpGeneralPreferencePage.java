@@ -16,6 +16,7 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferenceManager;
 import org.eclipse.jface.preference.PreferencePage;
 import org.eclipse.mcp.Activator;
+import org.eclipse.mcp.acp.GeminiService;
 import org.eclipse.mcp.internal.ServerManager.IServerListener;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
@@ -49,7 +50,10 @@ public class McpGeneralPreferencePage extends PreferencePage
 	Button serverEnable;
 	Text serverPort;
 	Text messages;
-
+	Text node;
+	Text gemini;
+	Button launchGemini;
+	
 	public McpGeneralPreferencePage() {
 		super();
 
@@ -122,6 +126,21 @@ public class McpGeneralPreferencePage extends PreferencePage
 		messages.setLayoutData(new GridData(GridData.FILL_BOTH));
 		((GridData)messages.getLayoutData()).horizontalSpan = 4;
 		
+		node = new Text(parent, SWT.MULTI | SWT.READ_ONLY | SWT.BORDER);
+		node.setLayoutData(new GridData(GridData.FILL_BOTH));
+		((GridData)node.getLayoutData()).horizontalSpan = 4;
+		
+		gemini = new Text(parent, SWT.MULTI | SWT.READ_ONLY | SWT.BORDER);
+		gemini.setLayoutData(new GridData(GridData.FILL_BOTH));
+		((GridData)gemini.getLayoutData()).horizontalSpan = 4;
+		
+		launchGemini = new Button(parent, SWT.PUSH);
+		launchGemini.setText("Launch Gemini over ACP");
+		launchGemini.addSelectionListener(this);
+		launchGemini.setLayoutData(new GridData(GridData.FILL_BOTH));
+		((GridData)launchGemini.getLayoutData()).horizontalSpan = 4;
+		
+		
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(parent,
 				"org.eclipse.mcp.internal.preferences.McpGeneralPreferencePage"); //$NON-NLS-1$
 
@@ -157,6 +176,9 @@ public class McpGeneralPreferencePage extends PreferencePage
 		IPreferenceStore store = getPreferenceStore();
 		serverEnable.setSelection(store.getBoolean(P_SERVER_ENABLED));
 		serverPort.setText("" + store.getInt(P_SERVER_HTTP_PORT));
+		
+		node.setText(store.getString(P_ACP_NODE));
+		gemini.setText(store.getString(P_ACP_GEMINI));
 	}
 
 	private void savePreferences() {
@@ -172,7 +194,10 @@ public class McpGeneralPreferencePage extends PreferencePage
 				
 		store.setValue(P_SERVER_ENABLED, serverEnable.getSelection());
 		store.setValue(P_SERVER_HTTP_PORT, Integer.parseInt(serverPort.getText()));;
-
+		
+		store.setValue(P_ACP_NODE, node.getText());
+		store.setValue(P_ACP_GEMINI, gemini.getText());;
+		
 		if (restartServer) {
 			Activator.getDefault().requestServerRestart();
 		}
@@ -195,6 +220,8 @@ public class McpGeneralPreferencePage extends PreferencePage
 
 		serverEnable.setSelection(store.getDefaultBoolean(P_SERVER_ENABLED));
 		serverPort.setText("" + store.getDefaultInt(P_SERVER_HTTP_PORT));
+		node.setText(store.getDefaultString(P_ACP_NODE));
+		gemini.setText(store.getDefaultString(P_ACP_GEMINI));
 		
 		updateValidation();
 	}
@@ -207,6 +234,10 @@ public class McpGeneralPreferencePage extends PreferencePage
 	@Override
 	public void widgetSelected(SelectionEvent event) {
 		updateValidation();
+		
+		if (event.getSource() == launchGemini) {
+			new GeminiService(node.getText(), gemini.getText()).start();
+		}
 	}
 
 	@Override

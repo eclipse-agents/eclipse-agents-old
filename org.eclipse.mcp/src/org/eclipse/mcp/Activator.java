@@ -62,7 +62,6 @@ public class Activator extends AbstractUIPlugin {
 					Tracer.trace().trace(Tracer.DEBUG, event.getBundle().getBundleId() + " STARTED"); //$NON-NLS-1$
 					extensionManager = new ExtensionManager();
 					serverManager = new ServerManager();
-//					new GeminiService().start(); 
 				}
 			}
 		});
