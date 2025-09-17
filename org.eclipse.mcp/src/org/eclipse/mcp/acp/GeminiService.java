@@ -5,17 +5,27 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
+import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.mcp.acp.AcpSchema.ClientCapabilities;
 import org.eclipse.mcp.acp.AcpSchema.FileSystemCapability;
+import org.eclipse.mcp.acp.AcpSchema.HttpHeader;
 import org.eclipse.mcp.acp.AcpSchema.InitializeRequest;
 import org.eclipse.mcp.acp.AcpSchema.InitializeResponse;
+import org.eclipse.mcp.acp.AcpSchema.McpServer;
+import org.eclipse.mcp.acp.AcpSchema.NewSessionRequest;
+import org.eclipse.mcp.acp.AcpSchema.NewSessionResponse;
+import org.eclipse.mcp.acp.AcpSchema.SseTransport;
+import org.eclipse.ui.console.ConsolePlugin;
+import org.eclipse.ui.console.IConsole;
+import org.eclipse.ui.console.IConsoleManager;
+import org.eclipse.ui.console.IOConsole;
+import org.eclipse.ui.console.IOConsoleOutputStream;
 
 public class GeminiService {
 
@@ -46,44 +56,64 @@ public class GeminiService {
 					System.err.println(line);
 					line = br.readLine();
 				}
+				return;
 			}
 			
+			ConsolePlugin plugin = ConsolePlugin.getDefault();
+			IConsoleManager conMan = plugin.getConsoleManager();
+			IOConsole console = new IOConsole("Gemini CLI", null, null, false);
+			conMan.addConsoles(new IConsole[] { (IConsole) console });
+			IOConsoleOutputStream output = console.newOutputStream();
 			
-			AcpClient acpClient = new AcpClient();
-
-			
-			AcpClientLauncher<IAcpAgent> launcher = new AcpClientLauncher<IAcpAgent>(acpClient, IAcpAgent.class, in, out);
+			AcpClient acpClient = new AcpClient(console, output);
+			AcpClientLauncher launcher = new AcpClientLauncher(acpClient, in, out);
 			AcpClientThread thread = new AcpClientThread(launcher) {
-				
 				@Override
 				public void statusChanged() {
-					// TODO Auto-generated method stub
-					
+					System.err.println(getStatus());
 				}
 			};
 			thread.start();
 			
-			Thread.sleep(5000);
-//		while (thread.getDssServer() == null) {
-//			try {
-//				Thread.sleep(1000);
-//			} catch (InterruptedException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
-//		}
-			
-			IAcpAgent agent = thread.getDssServer();
-			FileSystemCapability fsc = new FileSystemCapability(null, true, true);
-			ClientCapabilities capabilities = new ClientCapabilities(null, fsc, true);
-			InitializeRequest initialize = new InitializeRequest(null, capabilities, 1);
-			CompletableFuture<InitializeResponse> response = agent.initialize(initialize);
-			
-			Thread.sleep(5000);
-			
-			System.out.println(response);
-			//= new AcpClientThread(launcher);
-			response.get();
+			new Thread("Acp Initialization") {
+				@Override
+				public void run() {
+					
+					try {
+						Thread.sleep(1000);
+
+						IAcpAgent agent = thread.getAgent();
+						FileSystemCapability fsc = new FileSystemCapability(null, true, true);
+						ClientCapabilities capabilities = new ClientCapabilities(null, fsc, true);
+						InitializeRequest initialize = new InitializeRequest(null, capabilities, 1);
+						InitializeResponse response = agent.initialize(initialize).get();
+						
+						
+						McpServer server = new SseTransport(
+								new HttpHeader[0],
+								"Eclipse MCP",
+								"sse",
+								"http://localhost:8683/sse"); 
+						
+						IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+						NewSessionRequest request = new NewSessionRequest(
+								null,
+								root.getRawLocationURI().toString(),
+								new McpServer[] { server });
+						
+						
+						NewSessionResponse nse = agent._new(request).get();
+						nse.modes();
+						
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (ExecutionException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			};
 			
 			
 			agentProcess.onExit().thenRun(new Runnable() {
@@ -100,12 +130,6 @@ public class GeminiService {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (ExecutionException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}

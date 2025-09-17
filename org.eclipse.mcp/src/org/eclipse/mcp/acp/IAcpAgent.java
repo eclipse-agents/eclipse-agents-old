@@ -28,7 +28,7 @@ public interface IAcpAgent {
 	CompletableFuture<AuthenticateResponse> authenticate(AuthenticateRequest request);
 	
 	@JsonRequest(value = "session/new")
-	CompletableFuture<NewSessionRequest> _new(NewSessionResponse request);
+	CompletableFuture<NewSessionResponse> _new(NewSessionRequest request);
 	
 	@JsonRequest(value = "session/load")
 	CompletableFuture<LoadSessionResponse> load(LoadSessionRequest Response);

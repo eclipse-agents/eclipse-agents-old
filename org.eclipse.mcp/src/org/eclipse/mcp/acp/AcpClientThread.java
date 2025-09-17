@@ -19,10 +19,10 @@ import org.eclipse.mcp.internal.Tracer;
 
 public abstract class AcpClientThread extends Thread {
 
-	private AcpClientLauncher<IAcpAgent> launcher;
+	private AcpClientLauncher launcher;
 	private Exception lastException;
 
-	public AcpClientThread(AcpClientLauncher<IAcpAgent> launcher) {
+	public AcpClientThread(AcpClientLauncher launcher) {
 		super("ACP-Client-Thread");
 		this.launcher = launcher;
 	}
@@ -53,7 +53,7 @@ public abstract class AcpClientThread extends Thread {
 		statusChanged();
 	}
 
-	public IAcpAgent getDssServer() {
+	public IAcpAgent getAgent() {
 		if (launcher != null) {
 			return launcher.getRemoteProxy();
 		}
@@ -64,7 +64,7 @@ public abstract class AcpClientThread extends Thread {
 		if (lastException != null) {
 			return new Status(Status.ERROR, Activator.PLUGIN_ID, 
 					MessageFormat.format("Messages.DssClientThread_generic_error", ""), lastException); //$NON-NLS-1$
-		} else if (getDssServer() == null) {
+		} else if (getAgent() == null) {
 			return new Status(Status.ERROR, Activator.PLUGIN_ID, 
 					MessageFormat.format("Messages.DssClientThread_remote_proxy_error", "")); //$NON-NLS-1$
 		} else if (!this.isAlive()) {

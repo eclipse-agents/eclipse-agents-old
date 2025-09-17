@@ -30,8 +30,6 @@ import org.eclipse.mcp.acp.AcpSchema.FileSystemCapability;
 import org.eclipse.mcp.acp.AcpSchema.InitializeRequest;
 import org.eclipse.mcp.acp.AcpSchema.InitializeResponse;
 
-import com.google.gson.Gson;
-
 public class Driver {
 
 	
@@ -39,7 +37,7 @@ public class Driver {
 	
 		String gemini = "/usr/local/bin/gemini";
 		String node = "/usr/local/bin/node";
-		
+	
 		
 		List<String> commandAndArgs = new ArrayList<String>();
 //		commandAndArgs.add("gemini");
@@ -63,11 +61,11 @@ public class Driver {
 			}
 		}
 		
-		Gson gson = new Gson();
-		gson.fromJson("{\"protocolVersion\":1,\"authMethods\":[{\"id\":\"oauth-personal\",\"name\":\"Log in with Google\",\"description\":null},{\"id\":\"gemini-api-key\",\"name\":\"Use Gemini API key\",\"description\":\"Requires setting the `GEMINI_API_KEY` environment variable\"},{\"id\":\"vertex-ai\",\"name\":\"Vertex AI\",\"description\":null}],\"agentCapabilities\":{\"loadSession\":false,\"promptCapabilities\":{\"image\":true,\"audio\":true,\"embeddedContext\":true}}}", InitializeResponse.class);
+//		Gson gson = new Gson();
+//		gson.fromJson("{\"protocolVersion\":1,\"authMethods\":[{\"id\":\"oauth-personal\",\"name\":\"Log in with Google\",\"description\":null},{\"id\":\"gemini-api-key\",\"name\":\"Use Gemini API key\",\"description\":\"Requires setting the `GEMINI_API_KEY` environment variable\"},{\"id\":\"vertex-ai\",\"name\":\"Vertex AI\",\"description\":null}],\"agentCapabilities\":{\"loadSession\":false,\"promptCapabilities\":{\"image\":true,\"audio\":true,\"embeddedContext\":true}}}", InitializeResponse.class);
+//		
 		
-		
-		AcpClient acpClient = new AcpClient();
+		AcpClient acpClient = new AcpClient(null, null);
 		final Object lock = new Object();
 		
 		Builder<IAcpAgent> builder = new Builder<IAcpAgent>() {
