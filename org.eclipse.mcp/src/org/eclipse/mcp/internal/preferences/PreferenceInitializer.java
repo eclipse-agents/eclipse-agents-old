@@ -20,5 +20,8 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer impleme
 
 		store.setDefault(P_SERVER_ENABLED, false);
 		store.setDefault(P_SERVER_HTTP_PORT, 8673);
+		
+		store.setDefault(P_ACP_NODE, "/usr/local/bin/node");
+		store.setDefault(P_ACP_GEMINI, "/usr/local/bin/gemini");
 	}
 }

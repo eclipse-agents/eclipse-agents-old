@@ -29,11 +29,15 @@ import org.eclipse.ui.console.IOConsoleOutputStream;
 
 public class GeminiService {
 
+	String gemini = "/usr/local/bin/gemini";
+	String node = "/usr/local/bin/node";
+	
+	public GeminiService(String node, String gemini) {
+		this.node = node;
+		this.gemini = gemini;
+	}
+	
 	public void start() {
-		
-		String gemini = "/usr/local/bin/gemini";
-		String node = "/usr/local/bin/node";
-		
 		
 		try {
 			List<String> commandAndArgs = new ArrayList<String>();
@@ -103,7 +107,17 @@ public class GeminiService {
 						
 						
 						NewSessionResponse nse = agent._new(request).get();
-						nse.modes();
+						try {
+							nse.modes();
+							output.write("Select a mode:\n");
+							for (int i = 1; i < nse.modes().availableModes().length; i++) {
+								output.write("\t" + i + nse.modes().availableModes()[i].name());
+							}
+							int read = console.getInputStream().read();
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
 						
 					} catch (InterruptedException e) {
 						// TODO Auto-generated catch block
@@ -113,7 +127,7 @@ public class GeminiService {
 						e.printStackTrace();
 					}
 				}
-			};
+			}.start();
 			
 			
 			agentProcess.onExit().thenRun(new Runnable() {
