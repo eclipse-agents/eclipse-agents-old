@@ -24,12 +24,14 @@ public class Tracer implements DebugOptionsListener, DebugTrace {
 	public static final String DEBUG = "/debug";
 	public static final String EXTENTIONS = "/debug/extensions";
 	public static final String PLATFORM = "/debug/extensions/platform";
+	public static final String ACP = "/debug/acp";
 	public static final String OTHERS = "/debug/extensions/others";
 	
 	public enum OPTION {
 		DEBUG("/debug"),
 		EXTENTIONS("/debug/extensions"),
 		PLATFORM("/debug/extensions/platform"),
+		ACP("/debug/acp"),
 		OTHERS("org.eclipse.mcp/debug/extensions/others");
 		
 		private String location;

@@ -16,13 +16,8 @@ import java.util.concurrent.ExecutionException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 
-import com.ibm.db2.core.ContextStore;
-import com.ibm.db2.core.DssClient;
 import com.ibm.db2.core.DssServer;
-import com.ibm.ftt.common.tracing.Trace;
-import com.ibm.systemz.db2.Activator;
-import com.ibm.systemz.db2.Messages;
-import com.ibm.systemz.db2.Tracer;
+import com.ibm.jvm.Trace;
 
 public abstract class DssClientThread extends Thread {
 
@@ -43,9 +38,9 @@ public abstract class DssClientThread extends Thread {
 	public void run() {
 		
 		Tracer.trace(getClass(), Trace.FINE, "starting Db2 for z/OS tooling client on port " + port); //$NON-NLS-1$
-		ContextStore<DssServer> contextStore = new ContextStore<>();
+		ContextStore<AcpAgent> contextStore = new ContextStore<>();
 		// Create the server.
-		DssClient dssClient = new DssClientImpl(contextStore);
+		AcpClient dssClient = new AcpClient(contextStore);
 
 		String host = "localhost"; //$NON-NLS-1$
 

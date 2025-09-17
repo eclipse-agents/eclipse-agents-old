@@ -6,10 +6,11 @@
  * The source code for this program is not published or otherwise divested of its trade secrets, irrespective of what
  * has been deposited with the U.S. Copyright Office.
  *******************************************************************************/
-package org.eclipse.acp;
+package org.eclipse.mcp.acp;
 
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.net.Socket;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -17,12 +18,12 @@ import java.util.concurrent.Future;
 import org.eclipse.lsp4j.jsonrpc.Launcher;
 import org.eclipse.lsp4j.jsonrpc.RemoteEndpoint;
 
-public class DssClientLauncher<T> implements Launcher<T> {
+public class AcpClientLauncher<T> implements Launcher<T> {
 
 	private final Launcher<T> launcher;
 	private boolean traceLsp4jJsonrpc = Boolean.getBoolean("org.eclipse.acp.trace.lsp4j.jsonrpc"); //$NON-NLS-1$
 	
-	public DssClientLauncher(Object localService, Class<T> remoteInterface, Socket socket) {
+	public AcpClientLauncher(Object localService, Class<T> remoteInterface, InputStream is, OutputStream os) {
 		try {
 			
 			PrintWriter tracer = traceLsp4jJsonrpc ? new PrintWriter(System.out) : null;
@@ -30,8 +31,8 @@ public class DssClientLauncher<T> implements Launcher<T> {
 			this.launcher = new Builder<T>()
 					.setLocalService(localService)
 					.setRemoteInterface(remoteInterface)
-					.setInput(socket.getInputStream())
-					.setOutput(socket.getOutputStream())
+					.setInput(is)
+					.setOutput(os)
 					.traceMessages(tracer)
 					.create();
 

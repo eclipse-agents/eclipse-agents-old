@@ -1,4 +1,4 @@
-package org.eclipse.acp.schema;
+package org.eclipse.mcp.acp;
 
 import java.util.Map;
 
@@ -136,7 +136,9 @@ public class AcpSchema {
 	public record ClientCapabilities(
 			@JsonProperty("_meta")
 			Map<String, Object> meta,
+			@JsonProperty
 			FileSystemCapability fs,
+			@JsonProperty
 			boolean terminal) {}
 			
 	
