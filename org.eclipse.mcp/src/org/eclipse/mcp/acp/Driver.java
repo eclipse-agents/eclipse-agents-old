@@ -25,10 +25,13 @@ import org.eclipse.lsp4j.jsonrpc.json.MessageJsonHandler;
 import org.eclipse.lsp4j.jsonrpc.json.StreamMessageConsumer;
 import org.eclipse.lsp4j.jsonrpc.messages.Message;
 import org.eclipse.lsp4j.jsonrpc.services.ServiceEndpoints;
-import org.eclipse.mcp.acp.AcpSchema.ClientCapabilities;
-import org.eclipse.mcp.acp.AcpSchema.FileSystemCapability;
-import org.eclipse.mcp.acp.AcpSchema.InitializeRequest;
-import org.eclipse.mcp.acp.AcpSchema.InitializeResponse;
+import org.eclipse.mcp.acp.protocol.AcpClient;
+import org.eclipse.mcp.acp.protocol.IAcpAgent;
+import org.eclipse.mcp.acp.protocol.StdinoutMessageProducer;
+import org.eclipse.mcp.acp.protocol.AcpSchema.ClientCapabilities;
+import org.eclipse.mcp.acp.protocol.AcpSchema.FileSystemCapability;
+import org.eclipse.mcp.acp.protocol.AcpSchema.InitializeRequest;
+import org.eclipse.mcp.acp.protocol.AcpSchema.InitializeResponse;
 
 public class Driver {
 

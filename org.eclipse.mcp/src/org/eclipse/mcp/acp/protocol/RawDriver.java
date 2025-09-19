@@ -1,4 +1,4 @@
-package org.eclipse.mcp.acp;
+package org.eclipse.mcp.acp.protocol;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -12,13 +12,13 @@ import java.util.concurrent.ExecutionException;
 
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.mcp.acp.AcpSchema.ClientCapabilities;
-import org.eclipse.mcp.acp.AcpSchema.FileSystemCapability;
-import org.eclipse.mcp.acp.AcpSchema.HttpHeader;
-import org.eclipse.mcp.acp.AcpSchema.InitializeRequest;
-import org.eclipse.mcp.acp.AcpSchema.McpServer;
-import org.eclipse.mcp.acp.AcpSchema.NewSessionRequest;
-import org.eclipse.mcp.acp.AcpSchema.SseTransport;
+import org.eclipse.mcp.acp.protocol.AcpSchema.ClientCapabilities;
+import org.eclipse.mcp.acp.protocol.AcpSchema.FileSystemCapability;
+import org.eclipse.mcp.acp.protocol.AcpSchema.HttpHeader;
+import org.eclipse.mcp.acp.protocol.AcpSchema.InitializeRequest;
+import org.eclipse.mcp.acp.protocol.AcpSchema.McpServer;
+import org.eclipse.mcp.acp.protocol.AcpSchema.NewSessionRequest;
+import org.eclipse.mcp.acp.protocol.AcpSchema.SseTransport;
 
 import com.google.gson.Gson;
 

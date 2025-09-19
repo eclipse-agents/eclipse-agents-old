@@ -1,4 +1,4 @@
-package org.eclipse.mcp.acp;
+package org.eclipse.mcp.acp.agent;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -12,33 +12,42 @@ import java.util.concurrent.ExecutionException;
 
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.mcp.acp.AcpSchema.ClientCapabilities;
-import org.eclipse.mcp.acp.AcpSchema.FileSystemCapability;
-import org.eclipse.mcp.acp.AcpSchema.HttpHeader;
-import org.eclipse.mcp.acp.AcpSchema.InitializeRequest;
-import org.eclipse.mcp.acp.AcpSchema.InitializeResponse;
-import org.eclipse.mcp.acp.AcpSchema.McpServer;
-import org.eclipse.mcp.acp.AcpSchema.NewSessionRequest;
-import org.eclipse.mcp.acp.AcpSchema.NewSessionResponse;
-import org.eclipse.mcp.acp.AcpSchema.SseTransport;
+import org.eclipse.mcp.Activator;
+import org.eclipse.mcp.acp.protocol.AcpClient;
+import org.eclipse.mcp.acp.protocol.AcpClientLauncher;
+import org.eclipse.mcp.acp.protocol.AcpClientThread;
+import org.eclipse.mcp.acp.protocol.AcpSchema.ClientCapabilities;
+import org.eclipse.mcp.acp.protocol.AcpSchema.FileSystemCapability;
+import org.eclipse.mcp.acp.protocol.AcpSchema.HttpHeader;
+import org.eclipse.mcp.acp.protocol.AcpSchema.InitializeRequest;
+import org.eclipse.mcp.acp.protocol.AcpSchema.InitializeResponse;
+import org.eclipse.mcp.acp.protocol.AcpSchema.McpServer;
+import org.eclipse.mcp.acp.protocol.AcpSchema.NewSessionRequest;
+import org.eclipse.mcp.acp.protocol.AcpSchema.NewSessionResponse;
+import org.eclipse.mcp.acp.protocol.AcpSchema.SseTransport;
+import org.eclipse.mcp.acp.protocol.IAcpAgent;
+import org.eclipse.mcp.internal.preferences.IPreferenceConstants;
 import org.eclipse.ui.console.ConsolePlugin;
 import org.eclipse.ui.console.IConsole;
 import org.eclipse.ui.console.IConsoleManager;
 import org.eclipse.ui.console.IOConsole;
 import org.eclipse.ui.console.IOConsoleOutputStream;
 
-public class GeminiService {
+public class GeminiService implements IAgentService {
 
-	String gemini = "/usr/local/bin/gemini";
-	String node = "/usr/local/bin/node";
+
+	AcpClientThread thread;
+	Process agentProcess;
 	
-	public GeminiService(String node, String gemini) {
-		this.node = node;
-		this.gemini = gemini;
+	public GeminiService() {
+		
 	}
 	
 	public void start() {
-		
+				
+		String node = Activator.getDefault().getPreferenceStore().getString(IPreferenceConstants.P_ACP_NODE); 
+		String gemini = Activator.getDefault().getPreferenceStore().getString(IPreferenceConstants.P_ACP_GEMINI);
+
 		try {
 			List<String> commandAndArgs = new ArrayList<String>();
 //		commandAndArgs.add("gemini");
@@ -63,15 +72,15 @@ public class GeminiService {
 				return;
 			}
 			
-			ConsolePlugin plugin = ConsolePlugin.getDefault();
-			IConsoleManager conMan = plugin.getConsoleManager();
-			IOConsole console = new IOConsole("Gemini CLI", null, null, false);
-			conMan.addConsoles(new IConsole[] { (IConsole) console });
-			IOConsoleOutputStream output = console.newOutputStream();
+//			ConsolePlugin plugin = ConsolePlugin.getDefault();
+//			IConsoleManager conMan = plugin.getConsoleManager();
+//			IOConsole console = new IOConsole("Gemini CLI", null, null, false);
+//			conMan.addConsoles(new IConsole[] { (IConsole) console });
+//			IOConsoleOutputStream output = console.newOutputStream();
 			
 			AcpClient acpClient = new AcpClient(console, output);
 			AcpClientLauncher launcher = new AcpClientLauncher(acpClient, in, out);
-			AcpClientThread thread = new AcpClientThread(launcher) {
+			thread = new AcpClientThread(launcher) {
 				@Override
 				public void statusChanged() {
 					System.err.println(getStatus());
@@ -147,5 +156,20 @@ public class GeminiService {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+
+	@Override
+	public void stop() {
+		agentProcess.destroy();
+	}
+
+	@Override
+	public IAcpAgent getAgent() {
+		return thread.getAgent();
+	}
+
+	@Override
+	public String getName() {
+		return "Gemini CLI";
 	}
 }

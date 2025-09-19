@@ -92,6 +92,10 @@
 		</component>
 	</extension>
 	
+	<extension point="org.eclipse.ui.views">
+      <view id="org.eclipse.mcp.acp.view.AcpView" name="ACP Chat" class="org.eclipse.mcp.acp.view.AcpView" icon="icons/templates.png" />
+   </extension>
+	
 	 <extension point="org.eclipse.ui.menus">
       <menuContribution locationURI="toolbar:org.eclipse.mcp.acp.view.AcpView">
          <command commandId="org.eclipse.mcp.acp.cmd.model" tooltip="Select Model" style="pulldown"/>
@@ -111,8 +115,8 @@
 
    <extension point="org.eclipse.ui.commands">
       <category description="ACP" id="org.eclipse.mcp.acp.cmd.category" name="ACP" />
-      <command name="Model" description="Select Model" categoryId="org.eclipse.mcp.acp.cmd.category" defaultHandler="com.ibm.systemz.wcaz4e.actions.CommandHandler" id="org.eclipse.mcp.acp.cmd.model" />
-      <command name="Mode" description="Select Mode" categoryId="org.eclipse.mcp.acp.cmd.category" defaultHandler="com.ibm.systemz.wcaz4e.actions.CommandHandler" id="org.eclipse.mcp.acp.cmd.mode" />
+      <command name="Model" description="Select Model" categoryId="org.eclipse.mcp.acp.cmd.category" defaultHandler="org.eclipse.mcp.acp.view.CommandHandler" id="org.eclipse.mcp.acp.cmd.model" />
+      <command name="Mode" description="Select Mode" categoryId="org.eclipse.mcp.acp.cmd.category" defaultHandler="org.eclipse.mcp.acp.view.CommandHandler" id="org.eclipse.mcp.acp.cmd.mode" />
    </extension>
 
    <extension point="org.eclipse.ui.commandImages">

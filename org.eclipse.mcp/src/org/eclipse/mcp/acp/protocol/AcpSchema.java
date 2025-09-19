@@ -1,4 +1,4 @@
-package org.eclipse.mcp.acp;
+package org.eclipse.mcp.acp.protocol;
 
 import java.util.Map;
 

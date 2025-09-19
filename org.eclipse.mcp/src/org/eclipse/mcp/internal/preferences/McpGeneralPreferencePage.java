@@ -16,7 +16,7 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferenceManager;
 import org.eclipse.jface.preference.PreferencePage;
 import org.eclipse.mcp.Activator;
-import org.eclipse.mcp.acp.GeminiService;
+import org.eclipse.mcp.acp.agent.GeminiService;
 import org.eclipse.mcp.internal.ServerManager.IServerListener;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
