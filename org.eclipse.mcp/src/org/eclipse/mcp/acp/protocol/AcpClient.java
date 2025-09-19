@@ -6,52 +6,49 @@
  * The source code for this program is not published or otherwise divested of its trade secrets, irrespective of what
  * has been deposited with the U.S. Copyright Office.
  *******************************************************************************/
-package org.eclipse.mcp.acp;
+package org.eclipse.mcp.acp.protocol;
 
 import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 
-import org.eclipse.mcp.acp.AcpSchema.CreateTerminalRequest;
-import org.eclipse.mcp.acp.AcpSchema.CreateTerminalResponse;
-import org.eclipse.mcp.acp.AcpSchema.KillTerminalCommandRequest;
-import org.eclipse.mcp.acp.AcpSchema.KillTerminalCommandResponse;
-import org.eclipse.mcp.acp.AcpSchema.ReadTextFileRequest;
-import org.eclipse.mcp.acp.AcpSchema.ReadTextFileResponse;
-import org.eclipse.mcp.acp.AcpSchema.ReleaseTerminalResponse;
-import org.eclipse.mcp.acp.AcpSchema.RequestPermissionRequest;
-import org.eclipse.mcp.acp.AcpSchema.RequestPermissionResponse;
-import org.eclipse.mcp.acp.AcpSchema.SessionNotification;
-import org.eclipse.mcp.acp.AcpSchema.TerminalOutputRequest;
-import org.eclipse.mcp.acp.AcpSchema.TerminalOutputResponse;
-import org.eclipse.mcp.acp.AcpSchema.WaitForTerminalExitRequest;
-import org.eclipse.mcp.acp.AcpSchema.WaitForTerminalExitResponse;
-import org.eclipse.mcp.acp.AcpSchema.WriteTextFileRequest;
-import org.eclipse.mcp.acp.AcpSchema.WriteTextFileResponse;
-import org.eclipse.ui.console.IOConsole;
-import org.eclipse.ui.console.IOConsoleOutputStream;
+import org.eclipse.mcp.acp.agent.IAgentService;
+import org.eclipse.mcp.acp.protocol.AcpSchema.CreateTerminalRequest;
+import org.eclipse.mcp.acp.protocol.AcpSchema.CreateTerminalResponse;
+import org.eclipse.mcp.acp.protocol.AcpSchema.KillTerminalCommandRequest;
+import org.eclipse.mcp.acp.protocol.AcpSchema.KillTerminalCommandResponse;
+import org.eclipse.mcp.acp.protocol.AcpSchema.ReadTextFileRequest;
+import org.eclipse.mcp.acp.protocol.AcpSchema.ReadTextFileResponse;
+import org.eclipse.mcp.acp.protocol.AcpSchema.ReleaseTerminalResponse;
+import org.eclipse.mcp.acp.protocol.AcpSchema.RequestPermissionRequest;
+import org.eclipse.mcp.acp.protocol.AcpSchema.RequestPermissionResponse;
+import org.eclipse.mcp.acp.protocol.AcpSchema.SessionNotification;
+import org.eclipse.mcp.acp.protocol.AcpSchema.TerminalOutputRequest;
+import org.eclipse.mcp.acp.protocol.AcpSchema.TerminalOutputResponse;
+import org.eclipse.mcp.acp.protocol.AcpSchema.WaitForTerminalExitRequest;
+import org.eclipse.mcp.acp.protocol.AcpSchema.WaitForTerminalExitResponse;
+import org.eclipse.mcp.acp.protocol.AcpSchema.WriteTextFileRequest;
+import org.eclipse.mcp.acp.protocol.AcpSchema.WriteTextFileResponse;
 
 public class AcpClient implements IAcpClient {
 
-	IOConsole console;
-	IOConsoleOutputStream output;
+	IAgentService service;
 	
-	public AcpClient(IOConsole console, IOConsoleOutputStream output) {
-		this.console = console;
-		this.output = output;
+	public AcpClient(IAgentService service) {
+		this.service = service;
 	}
 
 	@Override
 	public CompletableFuture<RequestPermissionResponse> requestPermission(RequestPermissionRequest request) {
-		try {
-			output.write("Request Permission: " + request.toolCall().title());
-			for (int i = 0; i < request.options().length; i++) {
-				output.write("\t" + i + ". " + request.options()[i].name());
-			}
-			console.getInputStream().read();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+//		try {
+//			output.write("Request Permission: " + request.toolCall().title());
+//			for (int i = 0; i < request.options().length; i++) {
+//				output.write("\t" + i + ". " + request.options()[i].name());
+//			}
+//			console.getInputStream().read();
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 		// TODO Auto-generated method stub
 		return null;
 	}

@@ -1,23 +1,26 @@
-package org.eclipse.mcp.acp;
+/*******************************************************************************
+ * IBM Confidential - OCO Source Materials
+ * 
+ * 5724-T07 IBM Rational Developer for System z Copyright IBM Corporation 2022, 2025
+ * 
+ * The source code for this program is not published or otherwise divested of its trade secrets, irrespective of what
+ * has been deposited with the U.S. Copyright Office.
+ *******************************************************************************/
+package org.eclipse.mcp.acp.protocol;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import org.eclipse.lsp4j.jsonrpc.Endpoint;
 import org.eclipse.lsp4j.jsonrpc.JsonRpcException;
 import org.eclipse.lsp4j.jsonrpc.Launcher;
-import org.eclipse.lsp4j.jsonrpc.Launcher.Builder;
 import org.eclipse.lsp4j.jsonrpc.MessageConsumer;
 import org.eclipse.lsp4j.jsonrpc.RemoteEndpoint;
 import org.eclipse.lsp4j.jsonrpc.json.ConcurrentMessageProcessor;
@@ -25,48 +28,15 @@ import org.eclipse.lsp4j.jsonrpc.json.MessageJsonHandler;
 import org.eclipse.lsp4j.jsonrpc.json.StreamMessageConsumer;
 import org.eclipse.lsp4j.jsonrpc.messages.Message;
 import org.eclipse.lsp4j.jsonrpc.services.ServiceEndpoints;
-import org.eclipse.mcp.acp.AcpSchema.ClientCapabilities;
-import org.eclipse.mcp.acp.AcpSchema.FileSystemCapability;
-import org.eclipse.mcp.acp.AcpSchema.InitializeRequest;
-import org.eclipse.mcp.acp.AcpSchema.InitializeResponse;
+import org.eclipse.mcp.acp.agent.IAgentService;
 
-public class Driver {
+public class AcpClientLauncher implements Launcher<IAcpAgent> {
 
+	private final Launcher<IAcpAgent> launcher;
+	private boolean traceLsp4jJsonrpc = true; //Boolean.getBoolean("org.eclipse.acp.trace.lsp4j.jsonrpc"); //$NON-NLS-1$
+	private Object lock = new Object();
 	
-	public static void main(String[] args) throws IOException, InterruptedException, ExecutionException {
-	
-		String gemini = "/usr/local/bin/gemini";
-		String node = "/usr/local/bin/node";
-	
-		
-		List<String> commandAndArgs = new ArrayList<String>();
-//		commandAndArgs.add("gemini");
-		commandAndArgs.add(node);
-		commandAndArgs.add(gemini);
-		commandAndArgs.add("--experimental-acp");
-//		commandAndArgs.add("--debug");
-		
-		ProcessBuilder pb = new ProcessBuilder(commandAndArgs);
-		Process agentProcess = pb.start();
-		InputStream in = agentProcess.getInputStream();
-		OutputStream out = agentProcess.getOutputStream();
-		InputStream err = agentProcess.getErrorStream();
-		
-		if (!agentProcess.isAlive()) {
-			BufferedReader br = new BufferedReader(new InputStreamReader(err, "UTF-8"));
-			String line = br.readLine();
-			while (line != null) {
-				System.err.println(line);
-				line = br.readLine();
-			}
-		}
-		
-//		Gson gson = new Gson();
-//		gson.fromJson("{\"protocolVersion\":1,\"authMethods\":[{\"id\":\"oauth-personal\",\"name\":\"Log in with Google\",\"description\":null},{\"id\":\"gemini-api-key\",\"name\":\"Use Gemini API key\",\"description\":\"Requires setting the `GEMINI_API_KEY` environment variable\"},{\"id\":\"vertex-ai\",\"name\":\"Vertex AI\",\"description\":null}],\"agentCapabilities\":{\"loadSession\":false,\"promptCapabilities\":{\"image\":true,\"audio\":true,\"embeddedContext\":true}}}", InitializeResponse.class);
-//		
-		
-		AcpClient acpClient = new AcpClient(null, null);
-		final Object lock = new Object();
+	public AcpClientLauncher(IAcpClient acpClient, InputStream is, OutputStream os) {
 		
 		Builder<IAcpAgent> builder = new Builder<IAcpAgent>() {
 
@@ -129,52 +99,43 @@ public class Driver {
 				ExecutorService execService = executorService != null ? executorService : Executors.newCachedThreadPool();
 				return createLauncher(execService, remoteProxy, remoteEndpoint, msgProcessor);
 			}
-
-			
-			
 		};
 		
-		PrintWriter tracer = new PrintWriter(System.out);
-		
-		Launcher<IAcpAgent> launcher = builder
-			.setLocalService(acpClient)
-			.setRemoteInterface(IAcpAgent.class)
-			.setInput(in)
-			.setOutput(out)
-			.traceMessages(tracer)
-			.create();
-		
-		launcher.startListening();
-		
-		
+		try {
+			
+			PrintWriter tracer = traceLsp4jJsonrpc ? new PrintWriter(System.out) : null;
 
-		RemoteEndpoint re = launcher.getRemoteEndpoint();
-		
-		IAcpAgent agent = launcher.getRemoteProxy();
-		FileSystemCapability fsc = new FileSystemCapability(null, true, true);
-		ClientCapabilities capabilities = new ClientCapabilities(null, fsc, true);
-		InitializeRequest initialize = new InitializeRequest(null, capabilities, 1);
-		CompletableFuture<InitializeResponse> response = agent.initialize(initialize);
-		
-		Thread.sleep(5000);
-		
-		System.out.println(response);
-		//= new AcpClientThread(launcher);
-		response.get();
-		
-		
-		agentProcess.onExit().thenRun(new Runnable() {
-			@Override
-			public void run() {
-				int exitValue = agentProcess.exitValue();
-				String output = null;
-				String errorString = null;
+			this.launcher = builder
+					.setLocalService(acpClient)
+					.setRemoteInterface(IAcpAgent.class)
+					.setInput(is)
+					.setOutput(os)
+					.traceMessages(tracer)
+					.create();
 
-				System.out.println("Gemini Exit:" + exitValue);
-			}
-		});;
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
 	}
 
+	public Future<Void> startListening() {
+		return CompletableFuture.runAsync(() -> {
+			try {
+				this.launcher.startListening().get();
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+		}, Executors.newSingleThreadExecutor());
+	}
+
+	public IAcpAgent getRemoteProxy() {
+		return this.launcher.getRemoteProxy();
+	}
+
+	@Override
+	public RemoteEndpoint getRemoteEndpoint() {
+		return null;
+	}
+	
+	
 }
-
-

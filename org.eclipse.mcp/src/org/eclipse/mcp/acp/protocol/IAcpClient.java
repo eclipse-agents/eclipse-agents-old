@@ -1,26 +1,26 @@
-package org.eclipse.mcp.acp;
+package org.eclipse.mcp.acp.protocol;
 
 import java.util.concurrent.CompletableFuture;
 
 import org.eclipse.lsp4j.jsonrpc.services.JsonNotification;
 import org.eclipse.lsp4j.jsonrpc.services.JsonRequest;
 import org.eclipse.lsp4j.jsonrpc.services.JsonSegment;
-import org.eclipse.mcp.acp.AcpSchema.CreateTerminalRequest;
-import org.eclipse.mcp.acp.AcpSchema.CreateTerminalResponse;
-import org.eclipse.mcp.acp.AcpSchema.KillTerminalCommandRequest;
-import org.eclipse.mcp.acp.AcpSchema.KillTerminalCommandResponse;
-import org.eclipse.mcp.acp.AcpSchema.ReadTextFileRequest;
-import org.eclipse.mcp.acp.AcpSchema.ReadTextFileResponse;
-import org.eclipse.mcp.acp.AcpSchema.ReleaseTerminalResponse;
-import org.eclipse.mcp.acp.AcpSchema.RequestPermissionRequest;
-import org.eclipse.mcp.acp.AcpSchema.RequestPermissionResponse;
-import org.eclipse.mcp.acp.AcpSchema.SessionNotification;
-import org.eclipse.mcp.acp.AcpSchema.TerminalOutputRequest;
-import org.eclipse.mcp.acp.AcpSchema.TerminalOutputResponse;
-import org.eclipse.mcp.acp.AcpSchema.WaitForTerminalExitRequest;
-import org.eclipse.mcp.acp.AcpSchema.WaitForTerminalExitResponse;
-import org.eclipse.mcp.acp.AcpSchema.WriteTextFileRequest;
-import org.eclipse.mcp.acp.AcpSchema.WriteTextFileResponse;
+import org.eclipse.mcp.acp.protocol.AcpSchema.CreateTerminalRequest;
+import org.eclipse.mcp.acp.protocol.AcpSchema.CreateTerminalResponse;
+import org.eclipse.mcp.acp.protocol.AcpSchema.KillTerminalCommandRequest;
+import org.eclipse.mcp.acp.protocol.AcpSchema.KillTerminalCommandResponse;
+import org.eclipse.mcp.acp.protocol.AcpSchema.ReadTextFileRequest;
+import org.eclipse.mcp.acp.protocol.AcpSchema.ReadTextFileResponse;
+import org.eclipse.mcp.acp.protocol.AcpSchema.ReleaseTerminalResponse;
+import org.eclipse.mcp.acp.protocol.AcpSchema.RequestPermissionRequest;
+import org.eclipse.mcp.acp.protocol.AcpSchema.RequestPermissionResponse;
+import org.eclipse.mcp.acp.protocol.AcpSchema.SessionNotification;
+import org.eclipse.mcp.acp.protocol.AcpSchema.TerminalOutputRequest;
+import org.eclipse.mcp.acp.protocol.AcpSchema.TerminalOutputResponse;
+import org.eclipse.mcp.acp.protocol.AcpSchema.WaitForTerminalExitRequest;
+import org.eclipse.mcp.acp.protocol.AcpSchema.WaitForTerminalExitResponse;
+import org.eclipse.mcp.acp.protocol.AcpSchema.WriteTextFileRequest;
+import org.eclipse.mcp.acp.protocol.AcpSchema.WriteTextFileResponse;
 
 @JsonSegment("server")
 public interface IAcpClient {

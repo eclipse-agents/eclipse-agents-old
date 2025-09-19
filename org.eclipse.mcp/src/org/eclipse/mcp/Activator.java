@@ -14,7 +14,6 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.jface.resource.ResourceLocator;
-import org.eclipse.mcp.acp.GeminiService;
 import org.eclipse.mcp.internal.ExtensionManager;
 import org.eclipse.mcp.internal.Images;
 import org.eclipse.mcp.internal.ServerManager;

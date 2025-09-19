@@ -91,4 +91,41 @@
 			</bundle>
 		</component>
 	</extension>
+	
+	<extension point="org.eclipse.ui.views">
+      <view id="org.eclipse.mcp.acp.view.AcpView" name="ACP Chat" class="org.eclipse.mcp.acp.view.AcpView" icon="icons/templates.png" />
+   </extension>
+	
+	 <extension point="org.eclipse.ui.menus">
+      <menuContribution locationURI="toolbar:org.eclipse.mcp.acp.view.AcpView">
+         <command commandId="org.eclipse.mcp.acp.cmd.model" tooltip="Select Model" style="pulldown"/>
+         <command commandId="org.eclipse.mcp.acp.cmd.mode" tooltip="Select Mode"  style="pulldown"/>
+      </menuContribution>
+      <menuContribution locationURI="menu:org.eclipse.mcp.acp.cmd.model">
+         <dynamic 
+                  id="org.eclipse.mcp.acp.view.ToolbarButtonContributor"
+                  class="org.eclipse.mcp.acp.view.ToolbarButtonContributor"/>
+      </menuContribution>
+      <menuContribution locationURI="menu:org.eclipse.mcp.acp.cmd.mode">
+         <dynamic 
+                  id="org.eclipse.mcp.acp.view.ToolbarButtonContributor"
+                  class="org.eclipse.mcp.acp.view.ToolbarButtonContributor"/>
+      </menuContribution>
+   </extension>
+
+   <extension point="org.eclipse.ui.commands">
+      <category description="ACP" id="org.eclipse.mcp.acp.cmd.category" name="ACP" />
+      <command name="Model" description="Select Model" categoryId="org.eclipse.mcp.acp.cmd.category" defaultHandler="org.eclipse.mcp.acp.view.CommandHandler" id="org.eclipse.mcp.acp.cmd.model" />
+      <command name="Mode" description="Select Mode" categoryId="org.eclipse.mcp.acp.cmd.category" defaultHandler="org.eclipse.mcp.acp.view.CommandHandler" id="org.eclipse.mcp.acp.cmd.mode" />
+   </extension>
+
+   <extension point="org.eclipse.ui.commandImages">
+      <image commandId="org.eclipse.mcp.acp.cmd.model" icon="icons/new_template.png"/>
+      <image commandId="org.eclipse.mcp.acp.cmd.mode" icon="icons/template_obj.png" />
+   </extension>
+
+   <extension point="org.eclipse.ui.bindings">
+      <key sequence="M1+M3+M 1" commandId="org.eclipse.mcp.acp.cmd.model" schemeId="org.eclipse.ui.defaultAcceleratorConfiguration" contextId="org.eclipse.mcp.acp.AcpView"/>
+      <key sequence="M1+M3+M 2" commandId="org.eclipse.mcp.acp.cmd.mode" schemeId="org.eclipse.ui.defaultAcceleratorConfiguration" contextId="org.eclipse.mcp.acp.AcpView"/>
+   </extension>
 </plugin>
