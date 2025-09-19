@@ -17,7 +17,4 @@ public class SetAcpModelAction extends Action {
 	public void run() {
 		AcpService.instance().setAcpService(service);
 	}
-	
-	
-
 }

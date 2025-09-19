@@ -16,6 +16,7 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferenceManager;
 import org.eclipse.jface.preference.PreferencePage;
 import org.eclipse.mcp.Activator;
+import org.eclipse.mcp.acp.AcpService;
 import org.eclipse.mcp.acp.agent.GeminiService;
 import org.eclipse.mcp.internal.ServerManager.IServerListener;
 import org.eclipse.swt.SWT;
@@ -236,7 +237,7 @@ public class McpGeneralPreferencePage extends PreferencePage
 		updateValidation();
 		
 		if (event.getSource() == launchGemini) {
-			new GeminiService(node.getText(), gemini.getText()).start();
+			AcpService.instance().setAcpService(AcpService.instance().getAgents()[0]);
 		}
 	}
 

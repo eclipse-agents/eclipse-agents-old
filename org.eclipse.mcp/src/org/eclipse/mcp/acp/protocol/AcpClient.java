@@ -11,6 +11,7 @@ package org.eclipse.mcp.acp.protocol;
 import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 
+import org.eclipse.mcp.acp.agent.IAgentService;
 import org.eclipse.mcp.acp.protocol.AcpSchema.CreateTerminalRequest;
 import org.eclipse.mcp.acp.protocol.AcpSchema.CreateTerminalResponse;
 import org.eclipse.mcp.acp.protocol.AcpSchema.KillTerminalCommandRequest;
@@ -27,31 +28,27 @@ import org.eclipse.mcp.acp.protocol.AcpSchema.WaitForTerminalExitRequest;
 import org.eclipse.mcp.acp.protocol.AcpSchema.WaitForTerminalExitResponse;
 import org.eclipse.mcp.acp.protocol.AcpSchema.WriteTextFileRequest;
 import org.eclipse.mcp.acp.protocol.AcpSchema.WriteTextFileResponse;
-import org.eclipse.ui.console.IOConsole;
-import org.eclipse.ui.console.IOConsoleOutputStream;
 
 public class AcpClient implements IAcpClient {
 
-	IOConsole console;
-	IOConsoleOutputStream output;
+	IAgentService service;
 	
-	public AcpClient(IOConsole console, IOConsoleOutputStream output) {
-		this.console = console;
-		this.output = output;
+	public AcpClient(IAgentService service) {
+		this.service = service;
 	}
 
 	@Override
 	public CompletableFuture<RequestPermissionResponse> requestPermission(RequestPermissionRequest request) {
-		try {
-			output.write("Request Permission: " + request.toolCall().title());
-			for (int i = 0; i < request.options().length; i++) {
-				output.write("\t" + i + ". " + request.options()[i].name());
-			}
-			console.getInputStream().read();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+//		try {
+//			output.write("Request Permission: " + request.toolCall().title());
+//			for (int i = 0; i < request.options().length; i++) {
+//				output.write("\t" + i + ". " + request.options()[i].name());
+//			}
+//			console.getInputStream().read();
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 		// TODO Auto-generated method stub
 		return null;
 	}

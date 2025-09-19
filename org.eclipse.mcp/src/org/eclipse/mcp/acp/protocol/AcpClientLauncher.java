@@ -23,12 +23,12 @@ import org.eclipse.lsp4j.jsonrpc.JsonRpcException;
 import org.eclipse.lsp4j.jsonrpc.Launcher;
 import org.eclipse.lsp4j.jsonrpc.MessageConsumer;
 import org.eclipse.lsp4j.jsonrpc.RemoteEndpoint;
-import org.eclipse.lsp4j.jsonrpc.Launcher.Builder;
 import org.eclipse.lsp4j.jsonrpc.json.ConcurrentMessageProcessor;
 import org.eclipse.lsp4j.jsonrpc.json.MessageJsonHandler;
 import org.eclipse.lsp4j.jsonrpc.json.StreamMessageConsumer;
 import org.eclipse.lsp4j.jsonrpc.messages.Message;
 import org.eclipse.lsp4j.jsonrpc.services.ServiceEndpoints;
+import org.eclipse.mcp.acp.agent.IAgentService;
 
 public class AcpClientLauncher implements Launcher<IAcpAgent> {
 
@@ -36,7 +36,7 @@ public class AcpClientLauncher implements Launcher<IAcpAgent> {
 	private boolean traceLsp4jJsonrpc = true; //Boolean.getBoolean("org.eclipse.acp.trace.lsp4j.jsonrpc"); //$NON-NLS-1$
 	private Object lock = new Object();
 	
-	public AcpClientLauncher(Object localService, InputStream is, OutputStream os) {
+	public AcpClientLauncher(IAcpClient acpClient, InputStream is, OutputStream os) {
 		
 		Builder<IAcpAgent> builder = new Builder<IAcpAgent>() {
 
@@ -106,7 +106,7 @@ public class AcpClientLauncher implements Launcher<IAcpAgent> {
 			PrintWriter tracer = traceLsp4jJsonrpc ? new PrintWriter(System.out) : null;
 
 			this.launcher = builder
-					.setLocalService(localService)
+					.setLocalService(acpClient)
 					.setRemoteInterface(IAcpAgent.class)
 					.setInput(is)
 					.setOutput(os)

@@ -7,12 +7,14 @@ import org.eclipse.mcp.acp.agent.IAgentService;
 import org.eclipse.mcp.acp.protocol.AcpSchema.InitializeResponse;
 import org.eclipse.mcp.acp.protocol.AcpSchema.NewSessionResponse;
 import org.eclipse.mcp.acp.protocol.AcpSchema.SessionModeState;
+import org.eclipse.mcp.acp.view.AcpConsole;
 
 public class AcpService {
 
 	private static AcpService instance;
 	
 	private IAgentService service = null;
+	private AcpConsole console;
 	private InitializeResponse initializeResponse;
 	private SessionModeState sessionModeState;
 	private String sessionId;
@@ -40,6 +42,9 @@ public class AcpService {
 		if (this.service != service) {
 			if (this.service != null) {
 				this.service.stop();
+			}
+			if (console != null) {
+				console.destroy();
 			}
 			
 			this.service = service;
@@ -89,7 +94,7 @@ public class AcpService {
 	}
 		
 	public void sessionCreated(NewSessionResponse newSessionResponse) {
-		sessionModeState = newSessionResponse.modes()
+		sessionModeState = newSessionResponse.modes();
 		sessionId = newSessionResponse.sessionId();
 	}
 		

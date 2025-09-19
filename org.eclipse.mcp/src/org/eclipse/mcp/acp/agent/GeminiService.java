@@ -38,6 +38,9 @@ public class GeminiService implements IAgentService {
 
 	AcpClientThread thread;
 	Process agentProcess;
+	InputStream inputStream;
+	OutputStream outputStream;
+	InputStream errorStream;
 	
 	public GeminiService() {
 		
@@ -57,13 +60,13 @@ public class GeminiService implements IAgentService {
 //		commandAndArgs.add("--debug");
 			
 			ProcessBuilder pb = new ProcessBuilder(commandAndArgs);
-			Process agentProcess = pb.start();
-			InputStream in = agentProcess.getInputStream();
-			OutputStream out = agentProcess.getOutputStream();
-			InputStream err = agentProcess.getErrorStream();
+			agentProcess = pb.start();
+			inputStream = agentProcess.getInputStream();
+			outputStream = agentProcess.getOutputStream();
+			errorStream = agentProcess.getErrorStream();
 			
 			if (!agentProcess.isAlive()) {
-				BufferedReader br = new BufferedReader(new InputStreamReader(err, "UTF-8"));
+				BufferedReader br = new BufferedReader(new InputStreamReader(errorStream, "UTF-8"));
 				String line = br.readLine();
 				while (line != null) {
 					System.err.println(line);
@@ -72,14 +75,8 @@ public class GeminiService implements IAgentService {
 				return;
 			}
 			
-//			ConsolePlugin plugin = ConsolePlugin.getDefault();
-//			IConsoleManager conMan = plugin.getConsoleManager();
-//			IOConsole console = new IOConsole("Gemini CLI", null, null, false);
-//			conMan.addConsoles(new IConsole[] { (IConsole) console });
-//			IOConsoleOutputStream output = console.newOutputStream();
-			
-			AcpClient acpClient = new AcpClient(console, output);
-			AcpClientLauncher launcher = new AcpClientLauncher(acpClient, in, out);
+			AcpClient acpClient = new AcpClient(this);
+			AcpClientLauncher launcher = new AcpClientLauncher(acpClient, inputStream, outputStream);
 			thread = new AcpClientThread(launcher) {
 				@Override
 				public void statusChanged() {
@@ -88,55 +85,7 @@ public class GeminiService implements IAgentService {
 			};
 			thread.start();
 			
-			new Thread("Acp Initialization") {
-				@Override
-				public void run() {
-					
-					try {
-						Thread.sleep(1000);
-
-						IAcpAgent agent = thread.getAgent();
-						FileSystemCapability fsc = new FileSystemCapability(null, true, true);
-						ClientCapabilities capabilities = new ClientCapabilities(null, fsc, true);
-						InitializeRequest initialize = new InitializeRequest(null, capabilities, 1);
-						InitializeResponse response = agent.initialize(initialize).get();
-						
-						
-						McpServer server = new SseTransport(
-								new HttpHeader[0],
-								"Eclipse MCP",
-								"sse",
-								"http://localhost:8683/sse"); 
-						
-						IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-						NewSessionRequest request = new NewSessionRequest(
-								null,
-								root.getRawLocationURI().toString(),
-								new McpServer[] { server });
-						
-						
-						NewSessionResponse nse = agent._new(request).get();
-						try {
-							nse.modes();
-							output.write("Select a mode:\n");
-							for (int i = 1; i < nse.modes().availableModes().length; i++) {
-								output.write("\t" + i + nse.modes().availableModes()[i].name());
-							}
-							int read = console.getInputStream().read();
-						} catch (IOException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-						
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					} catch (ExecutionException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				}
-			}.start();
+			
 			
 			
 			agentProcess.onExit().thenRun(new Runnable() {
@@ -172,4 +121,21 @@ public class GeminiService implements IAgentService {
 	public String getName() {
 		return "Gemini CLI";
 	}
+
+	@Override
+	public InputStream getInputStream() {
+		return inputStream;
+	}
+
+	@Override
+	public OutputStream getOutputStream() {
+		return outputStream;
+	}
+
+	@Override
+	public InputStream getErrorStream() {
+		return errorStream;
+	}
+	
+	
 }
