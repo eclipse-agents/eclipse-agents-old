@@ -8,9 +8,9 @@
  *******************************************************************************/
 package org.eclipse.mcp.acp.protocol;
 
-import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 
+import org.eclipse.mcp.acp.AcpService;
 import org.eclipse.mcp.acp.agent.IAgentService;
 import org.eclipse.mcp.acp.protocol.AcpSchema.CreateTerminalRequest;
 import org.eclipse.mcp.acp.protocol.AcpSchema.CreateTerminalResponse;
@@ -97,8 +97,7 @@ public class AcpClient implements IAcpClient {
 
 	@Override
 	public void update(SessionNotification notification) {
-		// TODO Auto-generated method stub
-		System.out.println();
+		AcpService.instance().agentNotifies(notification);
 	}
 
 }

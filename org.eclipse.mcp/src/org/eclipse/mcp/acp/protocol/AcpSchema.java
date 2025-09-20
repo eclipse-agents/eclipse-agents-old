@@ -217,7 +217,7 @@ public class AcpSchema {
 			String data,
 			@JsonProperty(required = true)
 			String mimeType,
-			@JsonProperty(required = true, defaultValue = "image")
+			@JsonProperty(required = true, defaultValue = "audio")
 			String type) implements ContentBlock {}
 			
 	@JsonInclude(JsonInclude.Include.NON_ABSENT)
@@ -687,7 +687,7 @@ public class AcpSchema {
 	public sealed interface SessionUpdate permits 
 		SessionUserMessageChunk,
 		SessionAgentMessageChunk,
-		SessionAgentThoughChunk,
+		SessionAgentThoughtChunk,
 		SessionToolCall,
 		SessionToolCallUpdate,
 		SessionPlan,
@@ -707,7 +707,7 @@ public class AcpSchema {
 			@JsonProperty(defaultValue = "agent_message_chunk")
 			String sessionUpdate) implements SessionUpdate {}
 	
-	public record SessionAgentThoughChunk(
+	public record SessionAgentThoughtChunk(
 			@JsonProperty(required = true)
 			ContentBlock content,
 			@JsonProperty(defaultValue = "agent_thought_chunk")

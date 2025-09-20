@@ -22,7 +22,6 @@ import org.eclipse.mcp.acp.protocol.AcpSchema.WaitForTerminalExitResponse;
 import org.eclipse.mcp.acp.protocol.AcpSchema.WriteTextFileRequest;
 import org.eclipse.mcp.acp.protocol.AcpSchema.WriteTextFileResponse;
 
-@JsonSegment("server")
 public interface IAcpClient {
 
 

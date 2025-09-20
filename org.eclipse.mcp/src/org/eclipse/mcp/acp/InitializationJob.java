@@ -29,6 +29,8 @@ public class InitializationJob extends Job {
 	String oldSessionId;
 	
 	// Outputs
+	NewSessionRequest newSessionRequest = null;
+	InitializeRequest initializeRequest = null;
 	NewSessionResponse newSessionResponse = null;
 	InitializeResponse initializeResponse = null;
 
@@ -55,9 +57,9 @@ public class InitializationJob extends Job {
 		try {
 			FileSystemCapability fsc = new FileSystemCapability(null, true, true);
 			ClientCapabilities capabilities = new ClientCapabilities(null, fsc, true);
-			InitializeRequest initialize = new InitializeRequest(null, capabilities, 1);
+			initializeRequest = new InitializeRequest(null, capabilities, 1);
 			
-			initializeResponse = this.service.getAgent().initialize(initialize).get();
+			initializeResponse = this.service.getAgent().initialize(initializeRequest).get();
 			
 			if (monitor.isCanceled()) {
 				return Status.CANCEL_STATUS;
@@ -77,7 +79,7 @@ public class InitializationJob extends Job {
 
 			} else {
 
-				McpServer[] servers = null;
+				McpServer[] servers = new McpServer[0];
 				
 				if (supportsSseMcp) {
 					System.err.println(service.getName() + " supports SSE MCP");
@@ -101,16 +103,16 @@ public class InitializationJob extends Job {
 				}
 				
 				IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-				NewSessionRequest request = new NewSessionRequest(
+				newSessionRequest = new NewSessionRequest(
 						null,
-						root.getRawLocationURI().toString(),
+						root.getRawLocation().toOSString(),
 						servers);
 				
 				
 				if (monitor.isCanceled()) {
 					return Status.CANCEL_STATUS;
 				} 
-				newSessionResponse = this.service.getAgent()._new(request).get();
+				newSessionResponse = this.service.getAgent()._new(newSessionRequest).get();
 				
 			}
 		} catch (InterruptedException e) {
@@ -129,4 +131,13 @@ public class InitializationJob extends Job {
 	public InitializeResponse getInitializeResponse() {
 		return initializeResponse;
 	}
+
+	public NewSessionRequest getNewSessionRequest() {
+		return newSessionRequest;
+	}
+
+	public InitializeRequest getInitializeRequest() {
+		return initializeRequest;
+	}
+	
 }

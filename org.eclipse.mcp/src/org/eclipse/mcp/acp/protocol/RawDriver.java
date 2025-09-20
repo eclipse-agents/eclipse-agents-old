@@ -62,6 +62,21 @@ public class RawDriver {
 //			if (br.)
 //		}
 		
+//		{
+//			  "jsonrpc": "2.0",
+//			  "id": "1",
+//			  "method": "initialize",
+//			  "params": {
+//			    "clientCapabilities": {
+//			      "fs": {
+//			        "readTextFile": true,
+//			        "writeTextFile": true
+//			      },
+//			      "terminal": true
+//			    },
+//			    "protocolVersion": 1
+//			  }
+//			}
 		
 		FileSystemCapability fsc = new FileSystemCapability(null, true, true);
 		ClientCapabilities capabilities = new ClientCapabilities(null, fsc, true);
@@ -87,8 +102,19 @@ public class RawDriver {
 		
 		NewSessionRequest session = new NewSessionRequest(
 				null,
-				"/Users/jflicke/git/eclipse-mcp",
-				new McpServer[] { server });
+				"file:/Users/jflicke/git/eclipse-mcp",
+//				new McpServer[] { server });
+				new McpServer[0]);
+		
+//		{
+//			  "jsonrpc": "2.0",
+//			  "id": "2",
+//			  "method": "session/new",
+//			  "params": {
+//			    "cwd": "file:/Users/jflicke/runtime-IDz17cleanNew",
+//			    "mcpServers": []
+//			  }
+//			}
 		request = new JSONRPCRequest("2.0", "session/new", "1", session);
 		System.err.println(gson.toJson(request));
 		writer.write(gson.toJson(request));
