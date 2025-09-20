@@ -17,4 +17,8 @@ public class SetAcpModelAction extends Action {
 	public void run() {
 		AcpService.instance().setAcpService(service);
 	}
+	
+	public IAgentService getAgentService() {
+		return service;
+	}
 }

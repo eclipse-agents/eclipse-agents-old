@@ -5,48 +5,60 @@ import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
+import org.eclipse.mcp.acp.AcpService;
+import org.eclipse.mcp.acp.agent.IAgentService;
+import org.eclipse.mcp.acp.protocol.AcpSchema.ContentBlock;
+import org.eclipse.mcp.acp.protocol.AcpSchema.TextBlock;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.StyledText;
-import org.eclipse.swt.events.KeyEvent;
-import org.eclipse.swt.events.KeyListener;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.TraverseEvent;
+import org.eclipse.swt.events.TraverseListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IMemento;
-import org.eclipse.ui.IPartListener2;
 import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PartInitException;
-import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.console.IConsole;
 import org.eclipse.ui.console.IConsoleConstants;
 import org.eclipse.ui.console.IConsoleView;
-import org.eclipse.ui.internal.console.IConsoleHelpContextIds;
+import org.eclipse.ui.console.IOConsoleOutputStream;
 import org.eclipse.ui.part.IPage;
 import org.eclipse.ui.part.IPageBookViewPage;
 import org.eclipse.ui.part.PageBook;
 import org.eclipse.ui.part.PageBookView;
 
 
-public class AcpView extends PageBookView implements IConsoleView, KeyListener, IPropertyChangeListener  {
 
-	public static final String ID  = "com.ibm.systemz.wcaz4e.explanation.CodeExplanationView"; //$NON-NLS-1$
+public class AcpView extends PageBookView implements IConsoleView, IPropertyChangeListener, ModifyListener, TraverseListener  {
+
+	public static final String ID  = "org.eclipse.mcp.acp.view.AcpView"; //$NON-NLS-1$
 
 
-	StyledText outputText;
+
 	Text inputText;
 	boolean disposed = false;
+	AcpConsole console;
 	
 	boolean scrolllock, wordwrap, pinned;
-	AcpConsole console;
+	IOConsoleOutputStream outputStream;
+	IOConsoleOutputStream traceStream;
+	IOConsoleOutputStream errorStream;
+	
 	PageRec rec = null;
 	
 	Composite middle;
 	Composite topMiddle;
+	Combo model, mode;
+	boolean listening = true;
 
 	@Override
 	public void createPartControl(Composite parent) {
+		
 		console = new AcpConsole();
 		
 //		createActions();
@@ -68,8 +80,22 @@ public class AcpView extends PageBookView implements IConsoleView, KeyListener, 
 		gd.minimumHeight = 60;
 		gd.heightHint = 60;
 		inputText.setLayoutData(gd);
-		inputText.addKeyListener(this);
 		inputText.setText("Hello");
+		inputText.addTraverseListener(this);
+		
+		Composite bottom = new Composite(middle, SWT.NONE);
+		bottom.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		bottom.setLayout(new GridLayout(2, false));
+		
+		model = new Combo(bottom, SWT.READ_ONLY);
+		for (IAgentService service: AcpService.instance().getAgents()) {
+			model.add(service.getName());
+		}
+		model.addModifyListener(this);
+		
+		mode = new Combo(bottom, SWT.READ_ONLY);
+		mode.addModifyListener(this);
+		
 		
 	}
 
@@ -88,18 +114,7 @@ public class AcpView extends PageBookView implements IConsoleView, KeyListener, 
 	public void dispose() {
 		super.dispose();
 		this.disposed = true;
-	}
-
-	@Override
-	public void keyPressed(KeyEvent arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void keyReleased(KeyEvent arg0) {
-		// TODO Auto-generated method stub
-		
+//		AcpService.instance().removeAcpListener(this);
 	}
 
 	@Override
@@ -193,7 +208,7 @@ public class AcpView extends PageBookView implements IConsoleView, KeyListener, 
 		IPage page = rec.page;
 		page.dispose();
 		rec.dispose();
-		console.removePropertyChangeListener(this);
+		getConsole().removePropertyChangeListener(this);
 	}
 
 	@Override
@@ -210,5 +225,33 @@ public class AcpView extends PageBookView implements IConsoleView, KeyListener, 
 	public void propertyChange(PropertyChangeEvent arg0) {
 		// TODO Auto-generated method stub
 		
+	}
+
+	@Override
+	public void modifyText(ModifyEvent e) {
+		if (!listening) {
+			return;
+		}
+		
+		if (e.getSource() == model) {
+			AcpService.instance().setAcpService(AcpService.instance().getAgents()[model.getSelectionIndex()]);
+		} else if (e.getSource() == mode) {
+			
+		}
+	}
+
+	@Override
+	public void keyTraversed(TraverseEvent event) {
+		if (event.detail == SWT.TRAVERSE_RETURN && (event.stateMask & SWT.SHIFT) != 0) {
+			
+			String sessionId = AcpService.instance().getSessionId();
+			String prompt = inputText.getText();
+			inputText.setText("");
+			inputText.clearSelection();
+			
+			TextBlock block = new TextBlock(null, null, prompt, "text");
+			
+			AcpService.instance().prompt(new ContentBlock[] { block });
+		}
 	}
 }

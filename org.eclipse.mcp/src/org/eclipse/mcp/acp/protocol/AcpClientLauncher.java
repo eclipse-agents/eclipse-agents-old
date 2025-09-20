@@ -28,13 +28,35 @@ import org.eclipse.lsp4j.jsonrpc.json.MessageJsonHandler;
 import org.eclipse.lsp4j.jsonrpc.json.StreamMessageConsumer;
 import org.eclipse.lsp4j.jsonrpc.messages.Message;
 import org.eclipse.lsp4j.jsonrpc.services.ServiceEndpoints;
-import org.eclipse.mcp.acp.agent.IAgentService;
+import org.eclipse.mcp.acp.protocol.AcpSchema.AudioBlock;
+import org.eclipse.mcp.acp.protocol.AcpSchema.ContentBlock;
+import org.eclipse.mcp.acp.protocol.AcpSchema.EmbeddedResourceBlock;
+import org.eclipse.mcp.acp.protocol.AcpSchema.ImageBlock;
+import org.eclipse.mcp.acp.protocol.AcpSchema.ResourceLinkBlock;
+import org.eclipse.mcp.acp.protocol.AcpSchema.SessionAgentMessageChunk;
+import org.eclipse.mcp.acp.protocol.AcpSchema.SessionAgentThoughtChunk;
+import org.eclipse.mcp.acp.protocol.AcpSchema.SessionAvailableCommandsUpdate;
+import org.eclipse.mcp.acp.protocol.AcpSchema.SessionModeUpdate;
+import org.eclipse.mcp.acp.protocol.AcpSchema.SessionPlan;
+import org.eclipse.mcp.acp.protocol.AcpSchema.SessionToolCall;
+import org.eclipse.mcp.acp.protocol.AcpSchema.SessionToolCallUpdate;
+import org.eclipse.mcp.acp.protocol.AcpSchema.SessionUpdate;
+import org.eclipse.mcp.acp.protocol.AcpSchema.TextBlock;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.TypeAdapter;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
 
 public class AcpClientLauncher implements Launcher<IAcpAgent> {
 
 	private final Launcher<IAcpAgent> launcher;
 	private boolean traceLsp4jJsonrpc = true; //Boolean.getBoolean("org.eclipse.acp.trace.lsp4j.jsonrpc"); //$NON-NLS-1$
 	private Object lock = new Object();
+	private Gson gson;
 	
 	public AcpClientLauncher(IAcpClient acpClient, InputStream is, OutputStream os) {
 		
@@ -57,7 +79,7 @@ public class AcpClientLauncher implements Launcher<IAcpAgent> {
 						} catch (IOException exception) {
 							throw new JsonRpcException(exception);
 						}
-						super.consume(message);
+//						super.consume(message);
 					}
 					
 				};
@@ -101,6 +123,79 @@ public class AcpClientLauncher implements Launcher<IAcpAgent> {
 			}
 		};
 		
+		TypeAdapter<SessionUpdate> sessionAdapter = new TypeAdapter<SessionUpdate>() {
+			@Override
+			public void write(JsonWriter out, SessionUpdate value) throws IOException {
+				out.jsonValue(gson.toJson(value));
+			}
+
+			@Override
+			public SessionUpdate read(JsonReader in) throws IOException {
+				if (in.peek() == com.google.gson.stream.JsonToken.NULL) {
+	                in.nextNull();
+	       
+	            }
+				
+				JsonObject jsonObject = JsonParser.parseReader(in).getAsJsonObject();
+	            String sessionUpdate = jsonObject.get("sessionUpdate").getAsString();
+	            switch(sessionUpdate) {
+	            case "user_message_chunk":
+	            	return gson.fromJson(jsonObject, SessionAgentMessageChunk.class);
+	            case "agent_thought_chunk":
+	            	return gson.fromJson(jsonObject, SessionAgentThoughtChunk.class);
+	            case "tool_call":
+	            	return gson.fromJson(jsonObject, SessionToolCall.class);
+	            case "tool_call_update":
+	            	return gson.fromJson(jsonObject,  SessionToolCallUpdate.class);
+	            case "plan":
+	            	return gson.fromJson(jsonObject, SessionPlan.class);
+	            case "available_commands_update":
+	            	return gson.fromJson(jsonObject, SessionAvailableCommandsUpdate.class);
+	            case "current_mode_update":
+	            	return gson.fromJson(jsonObject, SessionModeUpdate.class);
+	            }
+
+	            return null;
+			}
+			
+		};
+		
+		TypeAdapter<ContentBlock> contentBlockAdapter = new TypeAdapter<ContentBlock>(){
+			
+			@Override
+			public void write(JsonWriter out, ContentBlock value) throws IOException {
+				out.jsonValue(gson.toJson(value));
+			}
+
+			@Override
+			public ContentBlock read(JsonReader in) throws IOException {
+				if (in.peek() == com.google.gson.stream.JsonToken.NULL) {
+	                in.nextNull();
+	                return null;
+	            }
+			
+				JsonObject jsonObject = JsonParser.parseReader(in).getAsJsonObject();
+				String typeString = jsonObject.get("type").getAsString();
+				
+				switch (typeString) {
+				case "text":
+					return gson.fromJson(jsonObject, TextBlock.class);
+				case "image":
+					return gson.fromJson(jsonObject, ImageBlock.class);
+				case "audio":
+					return gson.fromJson(jsonObject, AudioBlock.class);
+				case "resource_link":
+					return gson.fromJson(jsonObject, ResourceLinkBlock.class);
+				case "resource":
+					return gson.fromJson(jsonObject, EmbeddedResourceBlock.class);
+				}
+				return null;
+			}
+		};
+		
+		gson = new GsonBuilder().registerTypeAdapter(ContentBlock.class, contentBlockAdapter).create();
+		
+		
 		try {
 			
 			PrintWriter tracer = traceLsp4jJsonrpc ? new PrintWriter(System.out) : null;
@@ -111,7 +206,10 @@ public class AcpClientLauncher implements Launcher<IAcpAgent> {
 					.setInput(is)
 					.setOutput(os)
 					.traceMessages(tracer)
-					.create();
+					.configureGson(gsonBuilder->{
+						gsonBuilder.registerTypeAdapter(SessionUpdate.class, sessionAdapter);
+						gsonBuilder.registerTypeAdapter(ContentBlock.class, contentBlockAdapter);
+				}).create();
 
 		} catch (Exception e) {
 			throw new RuntimeException(e);

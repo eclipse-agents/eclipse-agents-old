@@ -4,7 +4,6 @@ import java.util.concurrent.CompletableFuture;
 
 import org.eclipse.lsp4j.jsonrpc.services.JsonNotification;
 import org.eclipse.lsp4j.jsonrpc.services.JsonRequest;
-import org.eclipse.lsp4j.jsonrpc.services.JsonSegment;
 import org.eclipse.mcp.acp.protocol.AcpSchema.AuthenticateRequest;
 import org.eclipse.mcp.acp.protocol.AcpSchema.AuthenticateResponse;
 import org.eclipse.mcp.acp.protocol.AcpSchema.CancelNotification;
