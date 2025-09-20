@@ -44,11 +44,10 @@ import org.eclipse.mcp.acp.protocol.AcpSchema.SessionUpdate;
 import org.eclipse.mcp.acp.protocol.AcpSchema.TextBlock;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.TypeAdapter;
-import com.google.gson.TypeAdapterFactory;
-import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 
@@ -57,7 +56,7 @@ public class AcpClientLauncher implements Launcher<IAcpAgent> {
 	private final Launcher<IAcpAgent> launcher;
 	private boolean traceLsp4jJsonrpc = true; //Boolean.getBoolean("org.eclipse.acp.trace.lsp4j.jsonrpc"); //$NON-NLS-1$
 	private Object lock = new Object();
-	private Gson gson = new Gson();
+	private Gson gson;
 	
 	public AcpClientLauncher(IAcpClient acpClient, InputStream is, OutputStream os) {
 		
@@ -124,6 +123,79 @@ public class AcpClientLauncher implements Launcher<IAcpAgent> {
 			}
 		};
 		
+		TypeAdapter<SessionUpdate> sessionAdapter = new TypeAdapter<SessionUpdate>() {
+			@Override
+			public void write(JsonWriter out, SessionUpdate value) throws IOException {
+				out.jsonValue(gson.toJson(value));
+			}
+
+			@Override
+			public SessionUpdate read(JsonReader in) throws IOException {
+				if (in.peek() == com.google.gson.stream.JsonToken.NULL) {
+	                in.nextNull();
+	       
+	            }
+				
+				JsonObject jsonObject = JsonParser.parseReader(in).getAsJsonObject();
+	            String sessionUpdate = jsonObject.get("sessionUpdate").getAsString();
+	            switch(sessionUpdate) {
+	            case "user_message_chunk":
+	            	return gson.fromJson(jsonObject, SessionAgentMessageChunk.class);
+	            case "agent_thought_chunk":
+	            	return gson.fromJson(jsonObject, SessionAgentThoughtChunk.class);
+	            case "tool_call":
+	            	return gson.fromJson(jsonObject, SessionToolCall.class);
+	            case "tool_call_update":
+	            	return gson.fromJson(jsonObject,  SessionToolCallUpdate.class);
+	            case "plan":
+	            	return gson.fromJson(jsonObject, SessionPlan.class);
+	            case "available_commands_update":
+	            	return gson.fromJson(jsonObject, SessionAvailableCommandsUpdate.class);
+	            case "current_mode_update":
+	            	return gson.fromJson(jsonObject, SessionModeUpdate.class);
+	            }
+
+	            return null;
+			}
+			
+		};
+		
+		TypeAdapter<ContentBlock> contentBlockAdapter = new TypeAdapter<ContentBlock>(){
+			
+			@Override
+			public void write(JsonWriter out, ContentBlock value) throws IOException {
+				out.jsonValue(gson.toJson(value));
+			}
+
+			@Override
+			public ContentBlock read(JsonReader in) throws IOException {
+				if (in.peek() == com.google.gson.stream.JsonToken.NULL) {
+	                in.nextNull();
+	                return null;
+	            }
+			
+				JsonObject jsonObject = JsonParser.parseReader(in).getAsJsonObject();
+				String typeString = jsonObject.get("type").getAsString();
+				
+				switch (typeString) {
+				case "text":
+					return gson.fromJson(jsonObject, TextBlock.class);
+				case "image":
+					return gson.fromJson(jsonObject, ImageBlock.class);
+				case "audio":
+					return gson.fromJson(jsonObject, AudioBlock.class);
+				case "resource_link":
+					return gson.fromJson(jsonObject, ResourceLinkBlock.class);
+				case "resource":
+					return gson.fromJson(jsonObject, EmbeddedResourceBlock.class);
+				}
+				return null;
+			}
+		};
+		
+		gson = new GsonBuilder().registerTypeAdapter(ContentBlock.class, contentBlockAdapter).create();
+		
+		
 		try {
 			
 			PrintWriter tracer = traceLsp4jJsonrpc ? new PrintWriter(System.out) : null;
@@ -135,95 +207,9 @@ public class AcpClientLauncher implements Launcher<IAcpAgent> {
 					.setOutput(os)
 					.traceMessages(tracer)
 					.configureGson(gsonBuilder->{
-						gsonBuilder.registerTypeAdapter(SessionUpdate.class, new TypeAdapter<SessionUpdate>() {
-							@Override
-							public void write(JsonWriter out, SessionUpdate value) throws IOException {
-								out.nullValue();
-							}
-
-							@Override
-							public SessionUpdate read(JsonReader in) throws IOException {
-								if (in.peek() == com.google.gson.stream.JsonToken.NULL) {
-					                in.nextNull();
-					                return null;
-					            }
-								
-								
-
-								JsonObject jsonObject = JsonParser.parseReader(in).getAsJsonObject();
-					            String sessionUpdate = jsonObject.get("sessionUpdate").getAsString();
-					            switch(sessionUpdate) {
-					            case "user_message_chunk":
-					            	return gson.fromJson(jsonObject, SessionAgentMessageChunk.class);
-					            case "agent_thought_chunk":
-					            	return gson.fromJson(jsonObject, SessionAgentThoughtChunk.class);
-					            case "tool_call":
-					            	return gson.fromJson(jsonObject, SessionToolCall.class);
-					            case "tool_call_update":
-					            	return gson.fromJson(jsonObject,  SessionToolCallUpdate.class);
-					            case "plan":
-					            	return gson.fromJson(jsonObject, SessionPlan.class);
-					            case "available_commands_update":
-					            	return gson.fromJson(jsonObject, SessionAvailableCommandsUpdate.class);
-					            case "current_mode_update":
-					            	return gson.fromJson(jsonObject, SessionModeUpdate.class);
-					            }
-
-					            return null;
-							}
-							
-						});
-						
-						gsonBuilder.registerTypeAdapterFactory(new TypeAdapterFactory() {
-
-							@Override
-							public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
-								if (type.getRawType() != ContentBlock.class) { // Replace MyClass with your target class
-					                return null; // Let Gson handle other types
-					            }
-								// Get the default delegate adapter for MyClass
-					            final TypeAdapter<T> delegate = gson.getDelegateAdapter(this, type);
-					            
-					            return new TypeAdapter<T>() {
-					                @Override
-					                public void write(JsonWriter out, T value) throws IOException {
-					                    delegate.write(out, value);
-					                }
-
-					                @Override
-					                public T read(JsonReader in) throws IOException {
-					                    // Use the delegate adapter for default deserialization
-					                    T value = delegate.read(in);
-
-					                    if (in.peek() == com.google.gson.stream.JsonToken.NULL) {
-							                in.nextNull();
-							                return null;
-							            }
-		
-										JsonObject jsonObject = JsonParser.parseReader(in).getAsJsonObject();
-										String type = jsonObject.get("type").getAsString();
-										
-										switch (type) {
-										case "text":
-											return (T)gson.fromJson(jsonObject, TextBlock.class);
-										case "image":
-											return (T)gson.fromJson(jsonObject, ImageBlock.class);
-										case "audio":
-											return (T)gson.fromJson(jsonObject, AudioBlock.class);
-										case "resource_link":
-											return (T)gson.fromJson(jsonObject, ResourceLinkBlock.class);
-										case "resource":
-											return (T)gson.fromJson(jsonObject, EmbeddedResourceBlock.class);
-										}
-		
-										return null;
-
-					                }
-					            };
-							}
-						});
-					})
-					.create();
+						gsonBuilder.registerTypeAdapter(SessionUpdate.class, sessionAdapter);
+						gsonBuilder.registerTypeAdapter(ContentBlock.class, contentBlockAdapter);
+				}).create();
 
 		} catch (Exception e) {
 			throw new RuntimeException(e);
