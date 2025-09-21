@@ -25,7 +25,7 @@ import org.eclipse.mcp.acp.protocol.AcpSchema.WriteTextFileResponse;
 public interface IAcpClient {
 
 
-   @JsonRequest(value = "request_permission")
+   @JsonRequest(value = "session/request_permission")
    CompletableFuture<RequestPermissionResponse> requestPermission(RequestPermissionRequest request);
    
    @JsonRequest(value = "fs/read_text_file")

@@ -118,6 +118,8 @@ public class StdinoutMessageProducer implements MessageProducer, Closeable, Mess
 			callback = message -> LOG.log(Level.INFO, "Received message: " + message);
 
 		try {
+			System.err.println(line);
+			
 			Message message = jsonHandler.parseMessage(line);
 			callback.consume(message);	
 		} catch (MessageIssueException exception) {

@@ -32,7 +32,7 @@ import org.eclipse.ui.console.IOConsoleOutputStream;
 
 public class AcpConsole extends IOConsole implements IAcpListener {
 
-	IOConsoleOutputStream outputStream, traceStream, errorStream;
+	IOConsoleOutputStream outputStream, traceStream, errorStream, thoughtStream;
 	String sessionId;
 	
 	public AcpConsole() {
@@ -43,6 +43,16 @@ public class AcpConsole extends IOConsole implements IAcpListener {
 		traceStream.setColor(Activator.getDisplay().getSystemColor(SWT.COLOR_YELLOW));
 		errorStream = newOutputStream();
 		errorStream.setColor(Activator.getDisplay().getSystemColor(SWT.COLOR_RED));
+		
+		thoughtStream = newOutputStream();
+//		thoughtStream.setColor(Activator.getDisplay().getSystemColor(SWT.COLOR_RED));
+		try {
+			thoughtStream.write("Hello ␛[31mGREEN␛[m world!");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		
 		AcpService.instance().addAcpListener(this);
 	}
