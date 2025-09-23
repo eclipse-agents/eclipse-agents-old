@@ -2,6 +2,7 @@ package org.eclipse.mcp.acp.view;
 
 import java.io.IOException;
 
+import org.eclipse.jface.text.IDocumentPartitioner;
 import org.eclipse.mcp.Activator;
 import org.eclipse.mcp.acp.AcpService;
 import org.eclipse.mcp.acp.IAcpListener;
@@ -12,9 +13,12 @@ import org.eclipse.mcp.acp.protocol.AcpSchema.ClientNotification;
 import org.eclipse.mcp.acp.protocol.AcpSchema.ClientRequest;
 import org.eclipse.mcp.acp.protocol.AcpSchema.ClientResponse;
 import org.eclipse.mcp.acp.protocol.AcpSchema.ContentBlock;
+import org.eclipse.mcp.acp.protocol.AcpSchema.EmbeddedResourceBlock;
 import org.eclipse.mcp.acp.protocol.AcpSchema.NewSessionResponse;
 import org.eclipse.mcp.acp.protocol.AcpSchema.PlanEntry;
 import org.eclipse.mcp.acp.protocol.AcpSchema.PlanEntryStatus;
+import org.eclipse.mcp.acp.protocol.AcpSchema.PromptRequest;
+import org.eclipse.mcp.acp.protocol.AcpSchema.ResourceLinkBlock;
 import org.eclipse.mcp.acp.protocol.AcpSchema.SessionAgentMessageChunk;
 import org.eclipse.mcp.acp.protocol.AcpSchema.SessionAgentThoughtChunk;
 import org.eclipse.mcp.acp.protocol.AcpSchema.SessionAvailableCommandsUpdate;
@@ -32,27 +36,28 @@ import org.eclipse.ui.console.IOConsoleOutputStream;
 
 public class AcpConsole extends IOConsole implements IAcpListener {
 
-	IOConsoleOutputStream outputStream, traceStream, errorStream, thoughtStream;
+	IOConsoleOutputStream userStream, agentStream, thoughtStream, traceStream, errorStream;
 	String sessionId;
 	
 	public AcpConsole() {
 		super("ACP Console", null);
 		
-		outputStream = newOutputStream();
+		agentStream = newOutputStream();
+		
 		traceStream = newOutputStream();
 		traceStream.setColor(Activator.getDisplay().getSystemColor(SWT.COLOR_YELLOW));
+		
 		errorStream = newOutputStream();
 		errorStream.setColor(Activator.getDisplay().getSystemColor(SWT.COLOR_RED));
 		
 		thoughtStream = newOutputStream();
-//		thoughtStream.setColor(Activator.getDisplay().getSystemColor(SWT.COLOR_RED));
-		try {
-			thoughtStream.write("Hello ␛[31mGREEN␛[m world!");
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		thoughtStream.setColor(Activator.getDisplay().getSystemColor(SWT.COLOR_GREEN));
+		thoughtStream.setFontStyle(SWT.ITALIC);
 		
+		userStream = newOutputStream();
+		
+//		IDocumentPartitioner dp = getDocument().getDocumentPartitioner();
+//		getDocument().setDocumentPartitioner(new AcpDocumentPartitioner(dp));
 		
 		AcpService.instance().addAcpListener(this);
 	}
@@ -69,7 +74,9 @@ public class AcpConsole extends IOConsole implements IAcpListener {
 		
 		//TODO needed?
 		try {
-			outputStream.close();
+			userStream.close();
+			agentStream.close();
+			thoughtStream.close();
 			traceStream.close();
 			errorStream.close();
 		} catch (IOException e) {
@@ -78,38 +85,17 @@ public class AcpConsole extends IOConsole implements IAcpListener {
 		}
 	}
 
-	public void write(String prefix, ContentBlock block) {
+	public void write(IOConsoleOutputStream stream, ContentBlock block) {
 		if (block instanceof TextBlock) {
 			String text = ((TextBlock)block).text();
-			write(prefix);
-			write(text);
+			write(stream, text);
 		}
 	}
 	
-	public void write(String s) {
-		if (!outputStream.isClosed()) {
+	public void write(IOConsoleOutputStream stream, String s) {
+		if (!stream.isClosed()) {
 			try {
-				outputStream.write(s);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-	}
-
-	public void trace(String s) {
-		if (!traceStream.isClosed()) {
-			try {
-				traceStream.write(s);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-	}
-
-	public void error(String s) {
-		if (!errorStream.isClosed()) {
-			try {
-				errorStream.write(s);
+				stream.write(s);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -118,7 +104,18 @@ public class AcpConsole extends IOConsole implements IAcpListener {
 
 	@Override
 	public void clientRequests(ClientRequest req) {
-		
+		if (req instanceof PromptRequest) {
+			ContentBlock[] cbs = ((PromptRequest)req).prompt();
+			for (ContentBlock cb: cbs) {
+				if (cb instanceof TextBlock) {
+					write(userStream, ((TextBlock)cb).text());
+				} else if (cb instanceof EmbeddedResourceBlock) {
+					
+				} else if (cb instanceof ResourceLinkBlock) {
+					
+				}
+			}
+		}
 	}
 
 	@Override
@@ -159,15 +156,15 @@ public class AcpConsole extends IOConsole implements IAcpListener {
 				
 				if (update instanceof SessionUserMessageChunk) {
 					ContentBlock block = ((SessionUserMessageChunk)update).content();
-					write(">>>\n", block);
+					write(userStream, block);
 				}
 				if (update instanceof SessionAgentMessageChunk) {
 					ContentBlock block = ((SessionAgentMessageChunk)update).content();
-					write("<<<\n", block);
+					write(agentStream, block);
 				}
 				if (update instanceof SessionAgentThoughtChunk) {
 					ContentBlock block = ((SessionAgentThoughtChunk)update).content();
-					write("???\n", block);
+					write(thoughtStream, block);
 				}
 				if (update instanceof SessionToolCall) {
 					
@@ -179,7 +176,7 @@ public class AcpConsole extends IOConsole implements IAcpListener {
 					PlanEntry[] entries = ((SessionPlan)update).entries();
 					for (int i = 1; i <= entries.length; i++) {
 						if (entries[i].status() == PlanEntryStatus.in_progress) {
-							write("Step " + i + " of " + (entries.length + 1) + ": " + entries[i].content());
+							write(thoughtStream, "Step " + i + " of " + (entries.length + 1) + ": " + entries[i].content());
 						}
 					}
 				}
@@ -193,5 +190,6 @@ public class AcpConsole extends IOConsole implements IAcpListener {
 			
 		}
 	}
+	
 	
 }

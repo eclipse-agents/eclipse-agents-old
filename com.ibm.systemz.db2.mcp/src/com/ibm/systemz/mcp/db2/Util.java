@@ -121,20 +121,23 @@ public class Util implements IPreferenceConstants {
 				}
 
 			} else {
-				Activator.getDisplay().syncExec(new Runnable() {
-					@Override
-					public void run() {
-						MessageDialog.openError(Activator.getDisplay().getActiveShell(), Messages.RunSQLAction_ErrorDialogTitle, Messages.RunSQLAction_NoActiveConnection);
-						
-						PreferencesUtil.createPreferenceDialogOn(
-								Activator.getDisplay().getActiveShell(),
-								"com.ibm.systemz.mcp.db2.tools.properties.Db2zOSMcpProperties", //$NON-NLS-1$
-								new String[] {
-										"com.ibm.systemz.mcp.db2.tools.properties.Db2zOSMcpProperties" //$NON-NLS-1$
-								},
-								null).open();
-					}
-				});
+				connectionId = Activator.getDefault().getPreferenceStore().getString(P_CONNECTIONID);
+				if (connectionId == null) {
+					Activator.getDisplay().syncExec(new Runnable() {
+						@Override
+						public void run() {
+							MessageDialog.openError(Activator.getDisplay().getActiveShell(), Messages.RunSQLAction_ErrorDialogTitle, Messages.RunSQLAction_NoActiveConnection);
+							
+							PreferencesUtil.createPreferenceDialogOn(
+									Activator.getDisplay().getActiveShell(),
+									"com.ibm.systemz.mcp.db2.tools.properties.Db2zOSMcpProperties", //$NON-NLS-1$
+									new String[] {
+											"com.ibm.systemz.mcp.db2.tools.properties.Db2zOSMcpProperties" //$NON-NLS-1$
+									},
+									null).open();
+						}
+					});
+				}
 				connectionId = Activator.getDefault().getPreferenceStore().getString(P_CONNECTIONID);
 			}
 				
