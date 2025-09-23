@@ -1,7 +1,5 @@
 package org.eclipse.mcp.acp;
 
-import java.io.IOException;
-
 import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
@@ -18,7 +16,6 @@ import org.eclipse.mcp.acp.protocol.AcpSchema.InitializeResponse;
 import org.eclipse.mcp.acp.protocol.AcpSchema.NewSessionResponse;
 import org.eclipse.mcp.acp.protocol.AcpSchema.PromptRequest;
 import org.eclipse.mcp.acp.protocol.AcpSchema.SessionModeState;
-import org.eclipse.mcp.acp.view.AcpConsole;
 
 public class AcpService {
 

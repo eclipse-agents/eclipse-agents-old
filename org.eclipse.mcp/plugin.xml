@@ -92,6 +92,14 @@
 		</component>
 	</extension>
 	
+	<extension point="org.eclipse.ui.console.consoleFactories">
+       <consoleFactory 
+          label="Agent Chat"
+          class="org.eclipse.mcp.acp.view.AcpChatFactory"
+          icon="icons/template_obj.png">
+       </consoleFactory>
+    </extension>
+	
 	<extension point="org.eclipse.ui.views">
       <view id="org.eclipse.mcp.acp.view.AcpView" name="ACP Chat" class="org.eclipse.mcp.acp.view.AcpView" icon="icons/templates.png" />
    </extension>
