@@ -177,13 +177,13 @@ public class Tools {
 						IEditorPart editor = IDE.openEditor(page, (IFile) resource, true);
 						result[0] = new EditorAdapter().fromEditorName(editor.getTitle()).toJson();
 
-						if (editor instanceof ITextEditor) {
+						if (editor instanceof ITextEditor && selectionOffset != null) {
 							try {
 								ITextEditor textEditor = (ITextEditor) editor;
 								IDocument document = textEditor.getDocumentProvider()
 										.getDocument(textEditor.getEditorInput());
 								if (selectionOffset >= 0 && document.getLength() > selectionOffset) {
-									if (selectionLength > 0
+									if (selectionLength != null && selectionLength > 0
 											&& document.getLength() > selectionOffset + selectionLength) {
 										textEditor.selectAndReveal(selectionOffset, selectionLength);
 									} else {

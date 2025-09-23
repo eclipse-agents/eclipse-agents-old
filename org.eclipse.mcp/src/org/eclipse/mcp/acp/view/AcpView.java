@@ -96,7 +96,6 @@ public class AcpView extends PageBookView implements IConsoleView, IPropertyChan
 		mode = new Combo(bottom, SWT.READ_ONLY);
 		mode.addModifyListener(this);
 		
-		
 	}
 
 	@Override
@@ -201,6 +200,7 @@ public class AcpView extends PageBookView implements IConsoleView, IPropertyChan
 			rec = new PageRec(part, page);
 		}
 		return rec;
+		
 	}
 
 	@Override
@@ -254,4 +254,6 @@ public class AcpView extends PageBookView implements IConsoleView, IPropertyChan
 			AcpService.instance().prompt(new ContentBlock[] { block });
 		}
 	}
+	
+	
 }
