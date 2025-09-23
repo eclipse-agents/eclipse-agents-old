@@ -8,9 +8,25 @@
  *******************************************************************************/
 package org.eclipse.mcp.acp.protocol;
 
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.util.concurrent.CompletableFuture;
 
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.IDocument;
+import org.eclipse.lsp4j.jsonrpc.JsonRpcException;
 import org.eclipse.mcp.Activator;
 import org.eclipse.mcp.acp.AcpService;
 import org.eclipse.mcp.acp.agent.IAgentService;
@@ -40,7 +56,16 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.ui.IEditorInput;
+import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.IEditorReference;
+import org.eclipse.ui.IFileEditorInput;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.SelectionDialog;
+import org.eclipse.ui.part.FileEditorInput;
+import org.eclipse.ui.texteditor.ITextEditor;
 
 public class AcpClient implements IAcpClient {
 
@@ -101,14 +126,114 @@ public class AcpClient implements IAcpClient {
 
 	@Override
 	public CompletableFuture<ReadTextFileResponse> readTextFile(ReadTextFileRequest request) {
-		// TODO Auto-generated method stub
-		return null;
+		Path  absolutePath = new Path(request.path());
+		CompletableFuture<ReadTextFileResponse> result = new CompletableFuture<ReadTextFileResponse>();
+		Activator.getDisplay().syncExec(new Runnable() {
+			public void run() {
+				ITextEditor editor = findFileEditor(absolutePath);
+				if (editor != null) {
+	 				IDocument doc = editor.getDocumentProvider().getDocument(editor.getEditorInput());
+					int offset = 0;
+					int length = doc.getLength() - 1;
+					try {
+						if (request.line() != null) {
+							int line = request.line();
+							offset = doc.getLineOffset(line);
+							
+							if (request.limit() != null) {
+								int endLine = line + request.limit() - 1;
+								length = doc.getLineOffset(endLine) + doc.getLineLength(endLine);
+							}
+						}
+						String text = doc.get(offset, length);
+						result.complete(new ReadTextFileResponse(null, text));
+					} catch (BadLocationException e) {
+						e.printStackTrace();
+						throw new JsonRpcException(e);
+					}
+				}
+			}			
+		});
+
+		if (!result.isDone()) {
+			IFile file = findFile(absolutePath);
+			if (file != null) {
+				StringBuffer buffer = new StringBuffer();
+				int firstLine = request.line() == null ? 0 : request.line();
+				int lineLimit = request.limit() == null ? -1 : request.limit();
+				
+				try {
+					InputStreamReader reader = new InputStreamReader(((IFile)file).getContents());
+					BufferedReader breader = new BufferedReader(reader);
+					int i = 0;
+					String line = breader.readLine();
+					
+					while (line != null) {
+						if (i >= firstLine) {
+							if (lineLimit == -1 || i < firstLine + lineLimit) {
+								if (!buffer.isEmpty()) {
+									buffer.append("\n");
+								}
+								buffer.append(line);
+							}
+						}
+						line = breader.readLine();
+						i++;
+					}
+					breader.close();
+					result.complete(new ReadTextFileResponse(null, buffer.toString()));
+				} catch (CoreException e) {
+					e.printStackTrace();
+					throw new JsonRpcException(e);
+				} catch (IOException e) {
+					e.printStackTrace();
+					throw new JsonRpcException(e);
+				}
+			}
+		}
+		
+		return result;
 	}
 
 	@Override
 	public CompletableFuture<WriteTextFileResponse> writeTextFile(WriteTextFileRequest request) {
-		// TODO Auto-generated method stub
-		return null;
+		Path  absolutePath = new Path(request.path());
+		CompletableFuture<WriteTextFileResponse> result = new CompletableFuture<WriteTextFileResponse>();
+		Activator.getDisplay().syncExec(new Runnable() {
+			public void run() {
+				ITextEditor editor = findFileEditor(absolutePath);
+				if (editor != null) {
+					IDocument doc = editor.getDocumentProvider().getDocument(editor.getEditorInput());
+					doc.set(request.content());
+					result.complete(new WriteTextFileResponse(null));
+				}
+			}
+		});
+
+		if (!result.isDone()) {
+			IFile file = findFile(absolutePath);
+			if (file != null) {
+			    try {
+			        byte[] bytes = request.content().getBytes(file.getCharset());
+			        ByteArrayInputStream newContentStream = new ByteArrayInputStream(bytes);
+			        IProgressMonitor monitor = new NullProgressMonitor(); // Or a real progress monitor
+			        file.setContents(newContentStream, IFile.NONE, monitor); // IFile.NONE for no update flags
+			        result.complete(new WriteTextFileResponse(null));
+			    } catch (CoreException e) {
+			    	e.printStackTrace();
+			    	throw new JsonRpcException(e);
+			    } catch (UnsupportedEncodingException e) {
+					e.printStackTrace();
+					throw new JsonRpcException(e);
+				}
+			}
+		}
+
+		if (!result.isDone()) {
+			throw new JsonRpcException(new Exception("write failed"));
+		}
+		
+		return result;
 	}
 
 	@Override
@@ -144,6 +269,44 @@ public class AcpClient implements IAcpClient {
 	@Override
 	public void update(SessionNotification notification) {
 		AcpService.instance().agentNotifies(notification);
+	}
+	
+	private ITextEditor findFileEditor(Path absolutePath) {
+		for (IWorkbenchWindow ww : PlatformUI.getWorkbench().getWorkbenchWindows()) {
+			for (IWorkbenchPage page : ww.getPages()) {
+				for (IEditorReference reference : page.getEditorReferences()) {
+					IEditorPart part = reference.getEditor(false);
+					if (part != null && part instanceof ITextEditor) {
+						IEditorInput input = part.getEditorInput();
+						if (input instanceof FileEditorInput) {
+							IFile file = ((IFileEditorInput)input).getFile();
+							if (file.getRawLocation().equals(absolutePath)) {
+								return (ITextEditor)part;
+							}
+						}
+					}
+				}
+			}
+		}
+		return null;
+	}
+	
+	private IFile findFile(Path absolutePath) {
+		IFile file = ResourcesPlugin.getWorkspace().getRoot().getFileForLocation(absolutePath);
+		if (file != null) {
+			if (!file.exists()) {
+				try {
+					file.refreshLocal(0, new NullProgressMonitor());
+				} catch (CoreException e) {
+					e.printStackTrace();
+				}
+			}
+			
+			if (file.exists()) {
+				return file;
+			}
+		}
+		return null;
 	}
 
 }
