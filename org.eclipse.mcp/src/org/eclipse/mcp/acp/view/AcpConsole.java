@@ -131,7 +131,7 @@ public class AcpConsole extends IOConsole implements IAcpListener {
 		if (resp instanceof NewSessionResponse) {
 			clearConsole();
 			this.sessionId = ((NewSessionResponse)resp).sessionId();
-			write("Session: " + ((NewSessionResponse)resp).sessionId());
+			write("Session: " + ((NewSessionResponse)resp).sessionId() + "\n\n");
 			
 //			write("""
 //# Heading 1

@@ -3,6 +3,11 @@ package org.eclipse.mcp.acp.view;
 
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.Separator;
+import org.eclipse.jface.fieldassist.AutoCompleteField;
+import org.eclipse.jface.fieldassist.ContentProposalAdapter;
+import org.eclipse.jface.fieldassist.IContentProposal;
+import org.eclipse.jface.fieldassist.IContentProposalProvider;
+import org.eclipse.jface.fieldassist.TextContentAdapter;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.mcp.acp.AcpService;
@@ -82,6 +87,8 @@ public class AcpView extends PageBookView implements IConsoleView, IPropertyChan
 		inputText.setLayoutData(gd);
 		inputText.setText("Hello");
 		inputText.addTraverseListener(this);
+		
+		new ContentAssistAdapter(inputText);
 		
 		Composite bottom = new Composite(middle, SWT.NONE);
 		bottom.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));

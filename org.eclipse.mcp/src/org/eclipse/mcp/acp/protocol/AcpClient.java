@@ -134,7 +134,7 @@ public class AcpClient implements IAcpClient {
 				if (editor != null) {
 	 				IDocument doc = editor.getDocumentProvider().getDocument(editor.getEditorInput());
 					int offset = 0;
-					int length = doc.getLength() - 1;
+					int length = doc.getLength();
 					try {
 						if (request.line() != null) {
 							int line = request.line();
@@ -145,6 +145,7 @@ public class AcpClient implements IAcpClient {
 								length = doc.getLineOffset(endLine) + doc.getLineLength(endLine);
 							}
 						}
+						System.err.println("read: " + offset +": "  + length);
 						String text = doc.get(offset, length);
 						result.complete(new ReadTextFileResponse(null, text));
 					} catch (BadLocationException e) {
