@@ -1,19 +1,20 @@
 package org.eclipse.mcp.acp.view;
 
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.Separator;
-import org.eclipse.jface.fieldassist.AutoCompleteField;
-import org.eclipse.jface.fieldassist.ContentProposalAdapter;
 import org.eclipse.jface.fieldassist.IContentProposal;
-import org.eclipse.jface.fieldassist.IContentProposalProvider;
-import org.eclipse.jface.fieldassist.TextContentAdapter;
+import org.eclipse.jface.fieldassist.IContentProposalListener;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.mcp.acp.AcpService;
 import org.eclipse.mcp.acp.agent.IAgentService;
 import org.eclipse.mcp.acp.protocol.AcpSchema.ContentBlock;
 import org.eclipse.mcp.acp.protocol.AcpSchema.TextBlock;
+import org.eclipse.mcp.acp.view.ContentAssistProvider.ResourceProposal;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -39,15 +40,14 @@ import org.eclipse.ui.part.PageBookView;
 
 
 
-public class AcpView extends PageBookView implements IConsoleView, IPropertyChangeListener, ModifyListener, TraverseListener  {
+public class AcpView extends PageBookView implements IConsoleView, IPropertyChangeListener, ModifyListener, TraverseListener, IContentProposalListener  {
 
 	public static final String ID  = "org.eclipse.mcp.acp.view.AcpView"; //$NON-NLS-1$
-
-
 
 	Text inputText;
 	boolean disposed = false;
 	AcpConsole console;
+	AcpContexts contexts;
 	
 	boolean scrolllock, wordwrap, pinned;
 	IOConsoleOutputStream outputStream;
@@ -80,15 +80,17 @@ public class AcpView extends PageBookView implements IConsoleView, IPropertyChan
 
 		super.createPartControl(middle);
 		
+		contexts = new AcpContexts(middle, SWT.NONE);
+
 		inputText = new Text(middle, SWT.MULTI | SWT.BORDER);
 		GridData gd = new GridData(GridData.FILL_HORIZONTAL);
 		gd.minimumHeight = 60;
 		gd.heightHint = 60;
 		inputText.setLayoutData(gd);
-		inputText.setText("Hello");
 		inputText.addTraverseListener(this);
 		
-		new ContentAssistAdapter(inputText);
+		ContentAssistAdapter adapter = new ContentAssistAdapter(inputText);
+		adapter.addContentProposalListener(this);
 		
 		Composite bottom = new Composite(middle, SWT.NONE);
 		bottom.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
@@ -256,11 +258,21 @@ public class AcpView extends PageBookView implements IConsoleView, IPropertyChan
 			inputText.setText("");
 			inputText.clearSelection();
 			
-			TextBlock block = new TextBlock(null, null, prompt, "text");
+			List<ContentBlock> content = new ArrayList<ContentBlock>();
+			content.addAll(contexts.getContextBlocks());
+			content.add(new TextBlock(null, null, prompt, "text"));
 			
-			AcpService.instance().prompt(new ContentBlock[] { block });
+			AcpService.instance().prompt(content.toArray(ContentBlock[]::new));
+			
+			contexts.clearAcpContexts();
 		}
 	}
-	
-	
+
+	@Override
+	public void proposalAccepted(IContentProposal proposal) {
+		if (proposal instanceof ResourceProposal) {
+			ResourceProposal rp = (ResourceProposal)proposal;
+			contexts.addResourceContext(rp.name, rp.uri);
+		}
+	}
 }
