@@ -5,6 +5,9 @@ import org.eclipse.jface.action.MenuManager;
 import org.eclipse.mcp.acp.AcpService;
 import org.eclipse.mcp.acp.agent.IAgentService;
 import org.eclipse.mcp.acp.view.actions.SetAcpModelAction;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.CoolBar;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
@@ -28,7 +31,18 @@ public class ToolbarButtonContributor extends ContributionItem {
 		} else if (Command.MODEL.getCommandId().equals(manager.getId())) {
 			if (menu.getItemCount() == 0) {
 				for (IAgentService agent: AcpService.instance().getAgents()) {
-					manager.add(new SetAcpModelAction(agent));
+					MenuItem menuItem = new MenuItem(menu, SWT.PUSH, index++);
+		            menuItem.setText(agent.getName());
+		            menuItem.setData(new SetAcpModelAction(agent));
+		            menuItem.addSelectionListener(new SelectionListener() {
+		            	@Override
+						public void widgetDefaultSelected(SelectionEvent arg0) {}
+
+						@Override
+						public void widgetSelected(SelectionEvent e) {
+							AcpService.instance().setAcpService(agent);
+						}
+		            });
 				}
 			}
 		}
