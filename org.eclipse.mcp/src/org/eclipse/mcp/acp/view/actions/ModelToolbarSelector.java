@@ -37,7 +37,7 @@ public class ModelToolbarSelector extends WorkbenchWindowControlContribution imp
 		combo = new CCombo(parent, SWT.READ_ONLY);
 		combo.setBackground(parent.getBackground());
 		combo.setForeground(parent.getForeground());
-		combo.setText(NO_SELECTION);
+		combo.setText("Pick Me");
 		combo.addSelectionListener(this);
 
 		selectors.add(this);

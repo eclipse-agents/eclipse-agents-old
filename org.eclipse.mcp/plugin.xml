@@ -107,26 +107,18 @@
 	 <extension point="org.eclipse.ui.menus">
       <menuContribution locationURI="toolbar:org.eclipse.mcp.acp.view.AcpView">
          <toolbar id="com.ibm.systemz.db2.toolbar.connection" label="%capability.category.name">
-               <control id="org.eclipse.mcp.acp.view.actions.ModelToolbarSelector"
-                        class="org.eclipse.mcp.acp.view.actions.ModelToolbarSelector"/>
+             <dynamic 
+                  id="org.eclipse.mcp.acp.view.ToolbarButtonContributor"
+                  class="org.eclipse.mcp.acp.view.ToolbarButtonContributor"/>
          </toolbar>
          <command commandId="org.eclipse.mcp.acp.cmd.model" tooltip="Select Model" style="pulldown"/>
          <command commandId="org.eclipse.mcp.acp.cmd.mode" tooltip="Select Mode"  style="pulldown"/>
-         <!--dynamic
-                  class="org.eclipse.mcp.acp.view.ToolbarButtonContributor"
-                  id="org.eclipse.mcp.acp.view.ToolbarButtonContributor">
-            </dynamic-->
       </menuContribution>
       <menuContribution locationURI="menu:org.eclipse.mcp.acp.cmd.model">
          <dynamic 
                   id="org.eclipse.mcp.acp.view.ToolbarButtonContributor"
                   class="org.eclipse.mcp.acp.view.ToolbarButtonContributor"/>
       </menuContribution>
-      <!--menuContribution locationURI="menu:org.eclipse.mcp.acp.cmd.mode">
-         <dynamic 
-                  id="org.eclipse.mcp.acp.view.ToolbarButtonContributor"
-                  class="org.eclipse.mcp.acp.view.ToolbarButtonContributor"/>
-      </menuContribution-->
    </extension>
    
 

@@ -47,7 +47,7 @@ public class AcpService {
 	}
 
 	public void setAcpService(IAgentService service) {
-		if (this.service != service) {
+//		if (this.service != service) {
 			if (this.service != null) {
 				this.service.stop();
 			}
@@ -97,7 +97,7 @@ public class AcpService {
 			});
 			initializationJob.schedule();
 			
-		}
+//		}
 	}
 	
 	/**
