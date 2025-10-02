@@ -1,46 +1,69 @@
-# Model Context Protocol services for Eclipse IDE
 
-This feature runs a Model Context Protocol server within the Eclipse IDE VM enabling interactivity between Eclipse based experiences and LLM-powered Agentic experiences running within or outside of the Eclipse IDE.
+# Eclipse IDE integrations with Coding Agents over ACP and MCP
 
-Preference page "MCP Services" lets users enable this built-in MCP Server to run on the specified HTTP port.
+This feature adds an open-source Coding Agent chat experience to Eclipse, built atop two open protocols:
 
-A suite of built in templates, resources and tools are included with the feature.  These include:
+- [Model Context Protocol](https://modelcontextprotocol.io/docs/getting-started/intro)
+  - Standardizes communication between agents and external resources, tools and prompts.
+- [Agent Client Protocol](https://agentclientprotocol.com/overview/introduction)
+  - Standardizes communication between IDEs and coding agents.
 
-## Features
+## Model Context Protocol services for Eclipse IDE
 
-- Platform:
-  - Tools:
-    - currentSelection: Return the active Eclipse IDE text editor and its selected text
-    - listEditors: List open Eclipse IDE text editors
-    - listConsoles: List open Eclipse IDE consoles
-    - listProjects: List open Eclipse IDE projects
-    - listChildResources: List child resources of an Eclipse workspace, project or folder URI
-    - readResource: Returns the contents of an Eclipse workspace file, editor, or console URI
-    - openEditor: open an Eclipse IDE editor on a file URI and set an initial text selection
-    - closeEditor: close an Eclipse IDE editor
-    - saveEditor: save the contents of a dirty Eclipse IDE editor to file
-    - changeEditorText: Make one or more changes to an Eclipse text editor
-    - listProblems: list Eclipse IDE compilation and configuration problems
-    - listTasks: list codebase locations of tasks including TODO comments
-  - Resource Templates with Completion Assist:
-    - Eclipse IDE Text Editor: Content of an Eclipse Text Editor
-      - eclipse://editor/{name}
-    - Eclipse Workspace File: Content of an file in an Eclipse workspace
-      - file://workspace/{project}/{projectRelativePath}
-  - Resource Contributors:
-    - Editors: Each open Editor has an associated MCP resource
+This feature runs a Model Context Protocol server within the Eclipse IDE VM enabling interactivity between Eclipse based experiences and LLM-powered Agentic experiences running within or outside of the Eclipse IDE.  Features include:
 
-An extension point is available for other plugins to contribute their own MCP services to the server.
+- An MCP server using the [mcp java sdk](https://github.com/modelcontextprotocol/java-sdk) running inside the workbench that can serve over HTTP
+- A set of built-in platform services including:
+  - Access to workspace, editors, consoles, markers, annotations, …
+  - Resource templates with variables and content assist
+- An extension point for plugins to contribute MCP tools and resources to the Eclipse MCP server
+  - Contribute MCP resources using annotated functions via [MCP Annotations](https://github.com/spring-ai-community/mcp-annotations) and Jackson Annotations
+- Centralized preferences, tracing, capabilities
+
+### MCP Integrations
+
+- Eclipse MCP services can be consumed by any MCP client such as:
+  - Desktop Apps such as Claude Desktop
+  - Terminal CLIs such as Gemini and Claude Code
+- IDEs such as Eclipse and VS Code
+  - Within Eclipse using Copilot for Eclipse
+  - Run a CLI inside an Eclipse terminal
+  - The Agent Client Protocol powered chat described below
+
+## Agent Client Protocol (ACP) Services for Eclipse IDE
+
+- The [Agent Client Protocol](https://agentclientprotocol.com/overview/introduction) formalizes an IDE to Coding Agent protocol
+  - A "Coding Agent" is a local app, typically a CLI, that can access files, run approved terminal commands, serve as an MCP client, and use LLMs to perform complex tasks as prompted by the end user.
+- Existing implementations include:
+  - [Editor Implementations](https://github.com/zed-industries/agent-client-protocol#editors)
+    - Zed
+    - emacs
+    - neovim
+    - marimo notebook
+  - [Agent Implementations](https://github.com/zed-industries/agent-client-protocol#editors)
+    - Gemini
+    - Claude Code
+    - Goose
+- Features of the protocol include:
+  - Chat Session Lifecycle
+  - User Prompt Lifecycle
+  - Client can forward list of MCP Servers to Agent
+  - Tool Use Confirmation
+  - API for read/write file/editor buffers
+  - Embedded and referenced resources
+  - / # @ commands
+
+![MCP Contexts](org.eclipse.mcp.docs/images/protocol.png)
 
 ## Screenshots
 
 ### Enable the internal MCP Server to run on an HTTP port
 
-![MCP Services](org.eclipse.mcp.docs/images/MCPServices.png)
+![MCP Contexts](org.eclipse.mcp.docs/images/contexts.png)
 
-### Enable/Disable MCP service contributions from other plugins
+### Prompt the Coding Agent to write code and run tools
 
-![MCP Capabilities](org.eclipse.mcp.docs/images/MCPCapabilities.png)
+![acp prompt](org.eclipse.mcp.docs/images/acp.png)
 
 ## Demonstrations
 
