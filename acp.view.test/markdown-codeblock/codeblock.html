@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Markdown Code Blocks with Syntax Highlighting</title>
+
+        <!-- Prism CSS -->
+        <!--link
+            href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.css"
+            rel="stylesheet"
+        /-->
+		<link
+			href="prism.css"
+		    rel="stylesheet"
+		>
+        <!--link
+            href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-okaidia.min.css"
+            rel="stylesheet"
+        /-->
+
+        <style>
+         
+        </style>
+    </head>
+    <body>
+        <div id="markdown-content"></div>
+
+        <!-- Marked.js for Markdown parsing -->
+        <script src="marked.min.js"></script>
+
+		<script src="prism.js"></script>
+        <!-- Prism.js and language support -->
+        <!--script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-java.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script-->
+
+        <script>
+            // Configure marked to use Prism for syntax highlighting
+            marked.setOptions({
+                highlight: function (code, lang) {
+                    if (Prism.languages[lang]) {
+                        return Prism.highlight(
+                            code,
+                            Prism.languages[lang],
+                            lang,
+                        );
+                    } else {
+                        return code;
+                    }
+                },
+            });
+
+            // Sample markdown content
+            const markdown = `
+# Markdown Code Examples
+
+Here's a sample Java code block:
+
+\`\`\`java
+public class HelloWorld {
+    public static void main(String[] args) {
+        // This is a comment
+        System.out.println("Hello, World!");
+
+        String message = "Welcome to Java!";
+        for (int i = 0; i < 3; i++) {
+            System.out.println(message);
+        }
+    }
+}
+\`\`\`
+
+And here's a JSON example:
+
+\`\`\`json
+{
+    "name": "John Doe",
+    "age": 30,
+    "address": {
+        "street": "123 Main St",
+        "city": "Springfield",
+        "state": "IL",
+        "zipCode": "62701"
+    },
+    "hobbies": [
+        "reading",
+        "hiking",
+        "photography"
+    ],
+    "active": true
+}
+\`\`\`
+`;
+
+            // Convert markdown to HTML and insert into the page
+            document.getElementById("markdown-content").innerHTML =
+                marked.parse(markdown);
+
+            // Re-run Prism highlighting
+            Prism.highlightAll();
+        </script>
+    </body>
+</html>
