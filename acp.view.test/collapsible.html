@@ -1,0 +1,89 @@
+
+<!doctype html>
+<html>
+  <head>
+    <title>This is the title of the webpage!</title>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/default.min.css">
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js"></script>
+
+	<!-- and it's easy to individually load additional languages -->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/languages/go.min.js"></script>
+	<script type="text/javascript"
+	  src="https://unpkg.com/highlightjs-cobol/dist/cobol.min.js"></script>
+	<script type="text/javascript"
+	    src="https://unpkg.com/highlightjs-curl@1.3.0/dist/curl.min.js"></script>
+	<script>hljs.highlightAll();</script>	
+	
+		<style>
+		.collapsible {
+		  background-color: #777;
+		  color: white;
+		  cursor: pointer;
+		  padding: 18px;
+		  width: 100%;
+		  border: none;
+		  text-align: left;
+		  outline: none;
+		  font-size: 15px;
+		}
+
+		.active, .collapsible:hover {
+		  background-color: #555;
+		}
+
+		.content {
+		  padding: 0 18px;
+		  max-height: 0;
+		  overflow: hidden;
+		  transition: max-height 0.2s ease-out;
+		  background-color: #f1f1f1;
+		}
+		</style>
+  </head>
+  <body>
+	<button type="button" class="collapsible">db2ListTables-1759338430535</button>
+	<div class="content">
+        <code class="language-json">
+        {
+		    "glossary": {
+		        "title": "example glossary",
+				"GlossDiv": {
+		            "title": "S",
+					"GlossList": {
+		                "GlossEntry": {
+		                    "ID": "SGML",
+							"SortAs": "SGML",
+							"GlossTerm": "Standard Generalized Markup Language",
+							"Acronym": "SGML",
+							"Abbrev": "ISO 8879:1986",
+							"GlossDef": {
+		                        "para": "A meta-markup language, used to create markup languages such as DocBook.",
+								"GlossSeeAlso": ["GML", "XML"]
+		                    },
+							"GlossSee": "markup"
+		                }
+		            }
+		        }
+		    }
+		}
+		</code>
+		</pre>
+	</div>
+	<script>
+	var coll = document.getElementsByClassName("collapsible");
+	var i;
+
+	for (i = 0; i < coll.length; i++) {
+	  coll[i].addEventListener("click", function() {
+	    this.classList.toggle("active");
+	    var content = this.nextElementSibling;
+	    if (content.style.maxHeight){
+	      content.style.maxHeight = null;
+	    } else {
+	      content.style.maxHeight = content.scrollHeight + "px";
+	    } 
+	  });
+	}
+	</script>
+  </body>
+</html>
