@@ -26,9 +26,7 @@ public class ToolbarButtonContributor extends ContributionItem {
 		MenuManager manager = (MenuManager)menu.getData();
 		manager.getId();
 		
-		if (Command.MODE.getCommandId().equals((manager.getId()))) {
-//			AcpService.instance().
-		} else if (Command.MODEL.getCommandId().equals(manager.getId())) {
+		if ("org.eclipse.mcp.acp.cmd.model".equals(manager.getId())) {
 			if (menu.getItemCount() == 0) {
 				for (IAgentService agent: AcpService.instance().getAgents()) {
 					MenuItem menuItem = new MenuItem(menu, SWT.PUSH, index++);

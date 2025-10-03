@@ -32,7 +32,8 @@ public class AcpBrowser {
 		browser.setForeground(Activator.getDisplay().getSystemColor(SWT.COLOR_INFO_FOREGROUND));
 		browser.setBackground(Activator.getDisplay().getSystemColor(SWT.COLOR_INFO_BACKGROUND));
 		browser.setLayoutData(new GridData(GridData.FILL_BOTH));
-
+		browser.setVisible(false);
+		
 		browser.addProgressListener(new ProgressAdapter() {
 			@Override
 			public void completed(ProgressEvent event) {
@@ -61,6 +62,8 @@ public class AcpBrowser {
 				
 				String fxn = MessageFormat.format("setStyle(`{0}px`, `{1}`, `{2}`)", fontHeight, textFg, textBg);
 				Activator.getDisplay().syncExec(()->browser.evaluate(fxn));
+				
+				browser.setVisible(true);
 
 			}
 		});
@@ -92,6 +95,10 @@ public class AcpBrowser {
 		}
 	}
 	
+	public void addLinkedResources(String id, String clazz, String name, String url) {
+		
+	}
+	
 	public void updateMessage(String id, String content) {
 		if (!browser.isDisposed()) {
 			String sanitized = sanitize(content);
@@ -109,11 +116,4 @@ public class AcpBrowser {
 	public boolean isDisposed() {
 		return browser.isDisposed();
 	}
-	
-	public void print(Color rgb) {
-		System.err.println(
-				String.format("rgb(%d, %d, %d)", 
-						rgb.getRed(), rgb.getGreen(), rgb.getBlue()));
-	}
-
 }

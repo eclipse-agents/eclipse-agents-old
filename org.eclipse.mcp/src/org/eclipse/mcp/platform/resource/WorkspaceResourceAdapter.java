@@ -44,7 +44,7 @@ public class WorkspaceResourceAdapter implements IResourceHierarchy<IResource, F
 	final String relativeTemplate = "file://workspace/{relativePath}";
 	final String relativePrefix = relativeTemplate.substring(0, relativeTemplate.indexOf("{"));
 	final String absolutePrefix = "file:/";
-	
+
 	IResource resource;
 	
 	public WorkspaceResourceAdapter() {}

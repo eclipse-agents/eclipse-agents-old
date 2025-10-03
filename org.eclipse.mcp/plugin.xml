@@ -111,6 +111,18 @@
                   id="org.eclipse.mcp.acp.view.ToolbarButtonContributor"
                   class="org.eclipse.mcp.acp.view.ToolbarButtonContributor"/>
       </menuContribution>
+      <menuContribution locationURI="toolbar:org.eclipse.mcp.acp.view.AcpView">
+         <toolbar id="com.ibm.systemz.db2.toolbar.connection" label="%capability.category.name">
+             <dynamic 
+                  id="org.eclipse.mcp.acp.view.ToolbarButtonContributor"
+                  class="org.eclipse.mcp.acp.view.ToolbarButtonContributor"/>
+         </toolbar>
+         <command commandId="org.eclipse.mcp.acp.cmd.model" tooltip="Select Model" style="pulldown"/>
+         <command commandId="org.eclipse.mcp.acp.cmd.mode" tooltip="Select Mode"  style="pulldown"/>
+      </menuContribution>
+      <menuContribution locationURI="popup:org.eclipse.ui.navigator.ProjectExplorer#PopupMenu?after=additions">
+         <command commandId="org.eclipse.mcp.acp.cmd.addToChat" tooltip="Add to Chat"/>
+      </menuContribution>
    </extension>
    
 
@@ -118,6 +130,7 @@
       <category description="ACP" id="org.eclipse.mcp.acp.cmd.category" name="ACP" />
       <command name="Model" description="Select Model" categoryId="org.eclipse.mcp.acp.cmd.category" defaultHandler="org.eclipse.mcp.acp.view.CommandHandler" id="org.eclipse.mcp.acp.cmd.model" />
       <command name="Mode" description="Select Mode" categoryId="org.eclipse.mcp.acp.cmd.category" defaultHandler="org.eclipse.mcp.acp.view.CommandHandler" id="org.eclipse.mcp.acp.cmd.mode" />
+      <command name="Add to chat" description="Add to chat" categoryId="org.eclipse.mcp.acp.cmd.category" defaultHandler="org.eclipse.mcp.acp.view.CommandHandler" id="org.eclipse.mcp.acp.cmd.addToChat" />
    </extension>
 
    <!--extension point="org.eclipse.ui.commandImages">

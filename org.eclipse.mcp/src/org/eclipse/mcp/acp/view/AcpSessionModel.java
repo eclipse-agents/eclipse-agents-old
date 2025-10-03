@@ -7,6 +7,7 @@ import org.eclipse.mcp.acp.AcpService;
 import org.eclipse.mcp.acp.IAcpSessionListener;
 import org.eclipse.mcp.acp.agent.IAgentService;
 import org.eclipse.mcp.acp.protocol.AcpSchema.AudioBlock;
+import org.eclipse.mcp.acp.protocol.AcpSchema.BlobResourceContents;
 import org.eclipse.mcp.acp.protocol.AcpSchema.CancelNotification;
 import org.eclipse.mcp.acp.protocol.AcpSchema.ContentBlock;
 import org.eclipse.mcp.acp.protocol.AcpSchema.CreateTerminalRequest;
@@ -42,6 +43,7 @@ import org.eclipse.mcp.acp.protocol.AcpSchema.SetSessionModeResponse;
 import org.eclipse.mcp.acp.protocol.AcpSchema.TerminalOutputRequest;
 import org.eclipse.mcp.acp.protocol.AcpSchema.TerminalOutputResponse;
 import org.eclipse.mcp.acp.protocol.AcpSchema.TextBlock;
+import org.eclipse.mcp.acp.protocol.AcpSchema.TextResourceContents;
 import org.eclipse.mcp.acp.protocol.AcpSchema.WaitForTerminalExitRequest;
 import org.eclipse.mcp.acp.protocol.AcpSchema.WaitForTerminalExitResponse;
 import org.eclipse.mcp.acp.protocol.AcpSchema.WriteTextFileRequest;
@@ -57,7 +59,7 @@ public class AcpSessionModel implements IAcpSessionListener {
 	SessionModeState modes;
 	
 	// State
-	int index = 0;
+	int promptId = 0;
 	List<Object> session = new ArrayList<Object>();
 	
 	StringBuffer agentThoughtChunks = new StringBuffer();
@@ -65,7 +67,7 @@ public class AcpSessionModel implements IAcpSessionListener {
 	
 	AcpBrowser browser;
 	
-	enum MessageType { session_prompt, agent_thought_chunk, agent_message_chunk };
+	enum MessageType { session_prompt, agent_thought_chunk, agent_message_chunk, resource_link };
 
 	
 	public AcpSessionModel(IAgentService agent, String sessionId, String cwd, McpServer[] mcpServers, SessionModeState modes) {
@@ -110,20 +112,12 @@ public class AcpSessionModel implements IAcpSessionListener {
 		} else if (notification.update() instanceof SessionAgentThoughtChunk) {
 			SessionAgentThoughtChunk chunk = (SessionAgentThoughtChunk)notification.update();
 			String clazz = MessageType.agent_thought_chunk.name();
-			if (agentThoughtChunks.isEmpty()) {
-				index++;
-			}
-			String id = clazz + "-" + index;
+			String id = clazz + "-" + promptId;
 			addMessage(id, clazz, chunk.content(), agentThoughtChunks);
 		} else if (notification.update() instanceof SessionAgentMessageChunk) {
 			SessionAgentMessageChunk chunk = (SessionAgentMessageChunk)notification.update();
-			
-			if (agentMessageChunks.isEmpty()) {
-				index++;
-			}
-
 			String clazz = MessageType.agent_message_chunk.name();
-			String id = clazz + "-" + index;
+			String id = clazz + "-" + promptId;
 			addMessage(id, clazz, chunk.content(), agentMessageChunks);
 			 
 		}
@@ -303,10 +297,11 @@ public class AcpSessionModel implements IAcpSessionListener {
 
 	@Override
 	public void accept(PromptRequest request) {
+		promptId++;
 		ContentBlock[] cbs = request.prompt();
 		for (ContentBlock cb: cbs) {
 			String clazz = MessageType.session_prompt.name();
-			String id = clazz + "-" + ++index;
+			String id = clazz + "-" + promptId;
 			addMessage(id, clazz, cb, null);
 		}
 	}
@@ -378,9 +373,17 @@ public class AcpSessionModel implements IAcpSessionListener {
 		} else if (content instanceof AudioBlock) {
 				
 		} else if (content instanceof ResourceLinkBlock) {
-					
+			ResourceLinkBlock block = (ResourceLinkBlock) content;
+			browser.addLinkedResources(id, clazz, block.name(), block.uri());
 		} else if (content instanceof EmbeddedResourceBlock) {
-					
+			EmbeddedResourceBlock block = (EmbeddedResourceBlock)content;
+			if (block.resource() instanceof TextResourceContents) {
+				TextResourceContents trc = (TextResourceContents)block.resource();
+				trc.mimeType();
+				trc.uri();
+			} else if (block.resource() instanceof BlobResourceContents) {
+				BlobResourceContents brc = (BlobResourceContents)block.resource();
+			}
 		}
 	}
 }
