@@ -1,5 +1,8 @@
 package org.eclipse.mcp.acp;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
@@ -8,26 +11,54 @@ import org.eclipse.mcp.acp.agent.IAgentService;
 import org.eclipse.mcp.acp.protocol.AcpSchema.AgentNotification;
 import org.eclipse.mcp.acp.protocol.AcpSchema.AgentRequest;
 import org.eclipse.mcp.acp.protocol.AcpSchema.AgentResponse;
+import org.eclipse.mcp.acp.protocol.AcpSchema.AuthenticateRequest;
+import org.eclipse.mcp.acp.protocol.AcpSchema.AuthenticateResponse;
+import org.eclipse.mcp.acp.protocol.AcpSchema.CancelNotification;
 import org.eclipse.mcp.acp.protocol.AcpSchema.ClientNotification;
 import org.eclipse.mcp.acp.protocol.AcpSchema.ClientRequest;
 import org.eclipse.mcp.acp.protocol.AcpSchema.ClientResponse;
 import org.eclipse.mcp.acp.protocol.AcpSchema.ContentBlock;
-import org.eclipse.mcp.acp.protocol.AcpSchema.InitializeResponse;
+import org.eclipse.mcp.acp.protocol.AcpSchema.CreateTerminalRequest;
+import org.eclipse.mcp.acp.protocol.AcpSchema.CreateTerminalResponse;
+import org.eclipse.mcp.acp.protocol.AcpSchema.InitializeRequest;
+import org.eclipse.mcp.acp.protocol.AcpSchema.KillTerminalCommandRequest;
+import org.eclipse.mcp.acp.protocol.AcpSchema.KillTerminalCommandResponse;
+import org.eclipse.mcp.acp.protocol.AcpSchema.LoadSessionRequest;
+import org.eclipse.mcp.acp.protocol.AcpSchema.LoadSessionResponse;
+import org.eclipse.mcp.acp.protocol.AcpSchema.NewSessionRequest;
 import org.eclipse.mcp.acp.protocol.AcpSchema.NewSessionResponse;
 import org.eclipse.mcp.acp.protocol.AcpSchema.PromptRequest;
-import org.eclipse.mcp.acp.protocol.AcpSchema.SessionModeState;
+import org.eclipse.mcp.acp.protocol.AcpSchema.PromptResponse;
+import org.eclipse.mcp.acp.protocol.AcpSchema.ReadTextFileRequest;
+import org.eclipse.mcp.acp.protocol.AcpSchema.ReadTextFileResponse;
+import org.eclipse.mcp.acp.protocol.AcpSchema.ReleaseTerminalRequest;
+import org.eclipse.mcp.acp.protocol.AcpSchema.ReleaseTerminalResponse;
+import org.eclipse.mcp.acp.protocol.AcpSchema.RequestPermissionRequest;
+import org.eclipse.mcp.acp.protocol.AcpSchema.RequestPermissionResponse;
+import org.eclipse.mcp.acp.protocol.AcpSchema.SessionNotification;
+import org.eclipse.mcp.acp.protocol.AcpSchema.SetSessionModeRequest;
+import org.eclipse.mcp.acp.protocol.AcpSchema.SetSessionModeResponse;
+import org.eclipse.mcp.acp.protocol.AcpSchema.TerminalOutputRequest;
+import org.eclipse.mcp.acp.protocol.AcpSchema.TerminalOutputResponse;
+import org.eclipse.mcp.acp.protocol.AcpSchema.WaitForTerminalExitRequest;
+import org.eclipse.mcp.acp.protocol.AcpSchema.WaitForTerminalExitResponse;
+import org.eclipse.mcp.acp.protocol.AcpSchema.WriteTextFileResponse;
+import org.eclipse.mcp.acp.view.AcpSessionModel;
+import org.eclipse.mcp.acp.view.AcpView;
 
 public class AcpService {
 
 	private static AcpService instance;
 	
-	private IAgentService service = null;
-	private InitializeResponse initializeResponse;
-	private SessionModeState sessionModeState;
-	private String sessionId;
-	private InitializationJob initializationJob;
-	private ListenerList<IAcpListener> listenerList;
+	private IAgentService activeAgent = null;
+	private String activeSessionId = null;
 	
+	private static Map<String, AcpSessionModel> sessions = new HashMap<String, AcpSessionModel>();
+	
+	private ListenerList<IAcpSessionListener> listenerList;
+
+	private InitializationJob initializationJob;
+
 	static {
 		instance = new AcpService();
 	}
@@ -35,7 +66,7 @@ public class AcpService {
 	IAgentService[] agentServices;
 	private AcpService() {
 		agentServices = new IAgentService[] { new GeminiService() };
-		listenerList = new  ListenerList<IAcpListener>();
+		listenerList = new  ListenerList<IAcpSessionListener>();
 	}
 	
 	public static AcpService instance() {
@@ -46,136 +77,169 @@ public class AcpService {
 		return agentServices;
 	}
 
-	public void setAcpService(IAgentService service) {
-//		if (this.service != service) {
-			if (this.service != null) {
-				this.service.stop();
-			}
-//			if (console != null) {
-//				console.destroy();
-//			}
-//			console = null;
+	public void setAcpService(AcpView view, IAgentService agent) {
+		this.activeAgent = agent;
+		if (!agent.isRunning()) {
+			agent.stop();
 			
-			this.service = service;
-			initializeResponse = null;
-			sessionModeState = null;
-			sessionId = null;
-			
-			if (initializationJob != null) {
-				initializationJob.cancel();
-			}
-			
-			initializationJob = new InitializationJob(this.service, null);
+           if (initializationJob != null) {
+               initializationJob.cancel();
+           }
+                       
+			initializationJob = new InitializationJob(activeAgent, null);
 			initializationJob.addJobChangeListener(new JobChangeAdapter() {
 				@Override
 				public void done(IJobChangeEvent event) {
 					if (event.getJob().getResult().isOK()) {
-						InitializationJob job = (InitializationJob)event.getJob();
-						
-					
-						if (job.getInitializeResponse() != null) {
-							instance.initializeResponse = job.getInitializeResponse();;
+						InitializationJob job = (InitializationJob) event.getJob();
+
+						String sessionId = job.getSessionId();
+						if (sessionId != null && !sessions.containsKey(sessionId)) {
 							
-							if (job.getNewSessionResponse() != null) {
-								instance.sessionId = job.getNewSessionResponse().sessionId();
-								instance.sessionModeState = job.getNewSessionResponse().modes();
-								
-								clientRequests(job.getInitializeRequest());
-								agentResponds(job.getInitializeResponse());
-								clientRequests(job.getNewSessionRequest());
-								agentResponds(job.getNewSessionResponse());
-								
-								
-							} else {
-								System.err.println("initialization job missing InitializeResponse");
-							}
+							activeSessionId = sessionId;
+
+							AcpSessionModel model = new AcpSessionModel(
+								agent,
+								sessionId,
+								job.getCwd(),
+								job.getMcpServers(),
+								job.getModes());
+							
+							sessions.put(sessionId, model);
+							
+							model.setBrowser(view.getBrowser());
+							
+							clientRequests(agent.getInitializeRequest());
+							agentResponds(agent.getInitializeResponse());
+							
+							
 						} else {
-							System.err.println("initialization job missing NewSessionResponse");
+							//TODO
+							System.err.println("found a pre-existing matching session id");
 						}
+					} else {
+						System.err.println("initialization job has an error");
+						System.err.println(event.getJob().getResult());
 					}
 				}
 			});
 			initializationJob.schedule();
-			
-//		}
-	}
-	
-	/**
-	 * stores initialization response
-	 * @param initializeResponse
-	 * @return value of session id to restore, or null to start new session
-	 */
-	protected String setInitializeResponse(InitializeResponse initializeResponse) {
-		this.initializeResponse = initializeResponse;
-		return null;
-	}
-		
-	public void sessionCreated(NewSessionResponse newSessionResponse) {
-		sessionModeState = newSessionResponse.modes();
-		sessionId = newSessionResponse.sessionId();
-	}
-
-	public InitializeResponse getInitializeResponse() {
-		return initializeResponse;
-	}
-
-	public SessionModeState getSessionModeState() {
-		return sessionModeState;
-	}
-
-	public String getSessionId() {
-		return sessionId;
+		}
 	}
 	
 	public IAgentService getAgentService() {
-		return service;
+		return activeAgent;
 	}
 	
-	public void addAcpListener(IAcpListener listener) {
+	public String getActiveSessionId() {
+		return activeSessionId;
+	}
+	
+	public AcpSessionModel getActiveSession() {
+		return sessions.get(activeSessionId);
+	}
+	
+	public void addAcpListener(IAcpSessionListener listener) {
 		listenerList.add(listener);
 	}
 	
-	public void removeAcpListener(IAcpListener listener) {
+	public void removeAcpListener(IAcpSessionListener listener) {
 		listenerList.remove(listener);
 	}
 	
 	public void clientRequests(ClientRequest req) {
-		for (IAcpListener listener: listenerList) {
-			listener.clientRequests(req);
+		for (IAcpSessionListener listener: listenerList) {
+//			if (req instanceof InitializeRequest) {
+//				listener.accept((InitializeRequest)req);	
+//			} else if (req instanceof AuthenticateRequest) {
+//				listener.accept((AuthenticateRequest)req);
+//			} else if (req instanceof NewSessionRequest) {
+//				listener.accept((NewSessionRequest)req);
+//			} else if (req instanceof LoadSessionRequest) {
+//				listener.accept((LoadSessionRequest)req);
+			if (req instanceof SetSessionModeRequest) {
+				listener.accept((SetSessionModeRequest)req);
+			} else if (req instanceof PromptRequest) {
+				listener.accept((PromptRequest)req);
+			}
 		}
 	}
 	
 	public void clientResponds(ClientResponse resp) {
-		for (IAcpListener listener: listenerList) {
-			listener.clientResponds(resp);
+		for (IAcpSessionListener listener: listenerList) {
+			if (resp instanceof WriteTextFileResponse) {
+				listener.accept((WriteTextFileResponse)resp);
+			} else if (resp instanceof ReadTextFileResponse) {
+				listener.accept((ReadTextFileResponse)resp);
+			} else if (resp instanceof RequestPermissionResponse) {
+				listener.accept((RequestPermissionResponse)resp);
+			} else if (resp instanceof CreateTerminalResponse) {
+				listener.accept((CreateTerminalResponse)resp);
+			} else if (resp instanceof TerminalOutputResponse) {
+				listener.accept((TerminalOutputResponse)resp);
+			} else if (resp instanceof ReleaseTerminalResponse) {
+				listener.accept((ReleaseTerminalResponse)resp);
+			} else if (resp instanceof WaitForTerminalExitResponse) {
+				listener.accept((WaitForTerminalExitResponse)resp);
+			} else if (resp instanceof KillTerminalCommandResponse) {
+				listener.accept((KillTerminalCommandResponse)resp);
+			}							
 		}
 	}
 	
 	public void clientNotifies(ClientNotification notification) {
-		for (IAcpListener listener: listenerList) {
-			listener.clientNotifies(notification);
+		for (IAcpSessionListener listener: listenerList) {
+			if (notification instanceof CancelNotification) {
+				listener.accept((CancelNotification)notification);
+			}
 		}
 	}
 	
 	public void agentRequests(AgentRequest req) {
-		for (IAcpListener listener: listenerList) {
-			listener.agentRequests(req);
+		for (IAcpSessionListener listener : listenerList) {
+			if (req instanceof ReadTextFileRequest) {
+				listener.accept((ReadTextFileRequest)req);
+			} else if (req instanceof RequestPermissionRequest) {
+				listener.accept((RequestPermissionRequest)req);
+			} else if (req instanceof CreateTerminalRequest) {
+				listener.accept((CreateTerminalRequest)req);
+			} else if (req instanceof TerminalOutputRequest) {
+				listener.accept((TerminalOutputRequest)req);
+			} else if (req instanceof ReleaseTerminalRequest) {
+				listener.accept((ReleaseTerminalRequest)req);
+			} else if (req instanceof WaitForTerminalExitRequest) {
+				listener.accept((WaitForTerminalExitRequest)req);
+			} else if (req instanceof KillTerminalCommandRequest) {
+				listener.accept((KillTerminalCommandRequest)req);
+			}
 		}
 	}
 	
 	public void agentResponds(AgentResponse resp) {
-		for (IAcpListener listener: listenerList) {
-			listener.agentResponds(resp);
+		for (IAcpSessionListener listener: listenerList) {
+//			if (resp instanceof AuthenticateResponse) {
+//				listener.accept((AuthenticateResponse)resp);
+//			} else if (resp instanceof NewSessionResponse) {
+//				listener.accept((NewSessionResponse)resp);
+//			} else if (resp instanceof LoadSessionResponse) {
+//				listener.accept((LoadSessionResponse)resp);
+			if (resp instanceof SetSessionModeResponse) {
+				listener.accept((SetSessionModeResponse)resp);
+			} else if (resp instanceof PromptResponse) {
+				listener.accept((PromptResponse)resp);
+			}
 		}
 	}
 	
 	public void agentNotifies(AgentNotification notification) {
-		for (IAcpListener listener: listenerList) {
-			listener.agentNotifies(notification);
+		for (IAcpSessionListener listener: listenerList) {
+			if (notification instanceof SessionNotification) {
+				listener.accept((SessionNotification)notification);
+			}
 		}
 	}
 
-	public void prompt(ContentBlock[] contentBlocks) {
+	public void prompt(String sessionId, ContentBlock[] contentBlocks) {
 		PromptRequest request = new PromptRequest(null, contentBlocks, sessionId);
 		clientRequests(request);
 		getAgentService().getAgent().prompt(request).whenComplete((result, ex) -> {
@@ -186,5 +250,4 @@ public class AcpService {
 	        }
 	    });
 	}
-		
 }

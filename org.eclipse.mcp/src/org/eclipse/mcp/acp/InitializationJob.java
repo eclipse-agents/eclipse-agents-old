@@ -18,6 +18,7 @@ import org.eclipse.mcp.acp.protocol.AcpSchema.InitializeResponse;
 import org.eclipse.mcp.acp.protocol.AcpSchema.McpServer;
 import org.eclipse.mcp.acp.protocol.AcpSchema.NewSessionRequest;
 import org.eclipse.mcp.acp.protocol.AcpSchema.NewSessionResponse;
+import org.eclipse.mcp.acp.protocol.AcpSchema.SessionModeState;
 import org.eclipse.mcp.acp.protocol.AcpSchema.SseTransport;
 import org.eclipse.mcp.internal.preferences.IPreferenceConstants;
 
@@ -29,10 +30,11 @@ public class InitializationJob extends Job {
 	String oldSessionId;
 	
 	// Outputs
-	NewSessionRequest newSessionRequest = null;
-	InitializeRequest initializeRequest = null;
-	NewSessionResponse newSessionResponse = null;
-	InitializeResponse initializeResponse = null;
+	String cwd = null;
+    McpServer[] mcpServers = null;
+    String sessionId = null;
+    SessionModeState modes = null;
+
 
 	public InitializationJob(IAgentService service, String oldSessionId) {
 		super("Initializing " + service.getName());
@@ -42,6 +44,7 @@ public class InitializationJob extends Job {
 
 	@Override
 	protected IStatus run(IProgressMonitor monitor) {
+		
 		monitor.beginTask("Initializing", 2);
 		monitor.subTask("Starting CLI process");
 		
@@ -57,10 +60,12 @@ public class InitializationJob extends Job {
 		try {
 			FileSystemCapability fsc = new FileSystemCapability(null, true, true);
 			ClientCapabilities capabilities = new ClientCapabilities(null, fsc, true);
-			initializeRequest = new InitializeRequest(null, capabilities, 1);
+			InitializeRequest initializeRequest = new InitializeRequest(null, capabilities, 1);
 			
-			initializeResponse = this.service.getAgent().initialize(initializeRequest).get();
-			
+			InitializeResponse initializeResponse = this.service.getAgent().initialize(initializeRequest).get();
+			this.service.setInitializeRequest(initializeRequest);
+			this.service.setInitializeResponse(initializeResponse);
+
 			if (monitor.isCanceled()) {
 				return Status.CANCEL_STATUS;
 			} 
@@ -79,7 +84,7 @@ public class InitializationJob extends Job {
 
 			} else {
 
-				McpServer[] servers = new McpServer[0];
+				this.mcpServers = new McpServer[0];
 				
 				if (supportsSseMcp) {
 					System.err.println(service.getName() + " supports SSE MCP");
@@ -90,7 +95,7 @@ public class InitializationJob extends Job {
 						String httpPort = Activator.getDefault().getPreferenceStore().getString(IPreferenceConstants.P_SERVER_HTTP_PORT);
 						System.err.println("Eclipse MCP is running on port " + httpPort);
 						
-						servers = new McpServer[] { new SseTransport(
+						this.mcpServers = new McpServer[] { new SseTransport(
 								new HttpHeader[0],
 								"Eclipse MCP",
 								"sse",
@@ -102,18 +107,23 @@ public class InitializationJob extends Job {
 					System.err.println(service.getName() + " does not support SSE MCP");
 				}
 				
+				
 				IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-				newSessionRequest = new NewSessionRequest(
+				this.cwd = root.getRawLocation().toOSString();
+				
+				NewSessionRequest newSessionRequest = new NewSessionRequest(
 						null,
-						root.getRawLocation().toOSString(),
-						servers);
+						this.cwd,
+						this.mcpServers);
 				
 				
 				if (monitor.isCanceled()) {
 					return Status.CANCEL_STATUS;
 				} 
-				newSessionResponse = this.service.getAgent()._new(newSessionRequest).get();
 				
+				NewSessionResponse newSessionResponse = this.service.getAgent()._new(newSessionRequest).get();
+				this.modes = newSessionResponse.modes();
+				this.sessionId = newSessionResponse.sessionId();
 			}
 		} catch (InterruptedException e) {
 			new Status(IStatus.ERROR, Activator.PLUGIN_ID, e.getLocalizedMessage(), e);
@@ -124,20 +134,19 @@ public class InitializationJob extends Job {
 		return Status.OK_STATUS;
 	}
 
-	public NewSessionResponse getNewSessionResponse() {
-		return newSessionResponse;
+	public String getCwd() {
+		return cwd;
 	}
 
-	public InitializeResponse getInitializeResponse() {
-		return initializeResponse;
+	public McpServer[] getMcpServers() {
+		return mcpServers;
 	}
 
-	public NewSessionRequest getNewSessionRequest() {
-		return newSessionRequest;
+	public String getSessionId() {
+		return sessionId;
 	}
 
-	public InitializeRequest getInitializeRequest() {
-		return initializeRequest;
+	public SessionModeState getModes() {
+		return modes;
 	}
-	
 }

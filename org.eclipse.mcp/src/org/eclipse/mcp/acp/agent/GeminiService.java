@@ -10,9 +10,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.mcp.Activator;
+import org.eclipse.mcp.acp.InitializationJob;
 import org.eclipse.mcp.acp.protocol.AcpClient;
 import org.eclipse.mcp.acp.protocol.AcpClientLauncher;
 import org.eclipse.mcp.acp.protocol.AcpClientThread;
+import org.eclipse.mcp.acp.protocol.AcpSchema.AuthenticateResponse;
+import org.eclipse.mcp.acp.protocol.AcpSchema.InitializeRequest;
+import org.eclipse.mcp.acp.protocol.AcpSchema.InitializeResponse;
+import org.eclipse.mcp.acp.protocol.AcpSchema.SessionModeState;
+import org.eclipse.mcp.acp.view.AcpSessionModel;
 import org.eclipse.mcp.acp.protocol.IAcpAgent;
 import org.eclipse.mcp.internal.preferences.IPreferenceConstants;
 
@@ -24,6 +30,11 @@ public class GeminiService implements IAgentService {
 	InputStream inputStream;
 	OutputStream outputStream;
 	InputStream errorStream;
+	
+	InitializeRequest initializeRequest;
+	InitializeResponse initializeResponse;
+	AuthenticateResponse authenticateResponse;
+
 	
 	public GeminiService() {
 		
@@ -93,7 +104,8 @@ public class GeminiService implements IAgentService {
 
 					System.out.println("Gemini Exit:" + exitValue);
 				}
-			});;
+			});
+
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -106,6 +118,11 @@ public class GeminiService implements IAgentService {
 		if (agentProcess != null) {
 			agentProcess.destroy();
 		}
+	}
+	
+	@Override
+	public boolean isRunning() {
+		return agentProcess != null && agentProcess.isAlive();
 	}
 
 	@Override
@@ -132,6 +149,35 @@ public class GeminiService implements IAgentService {
 	public InputStream getErrorStream() {
 		return errorStream;
 	}
-	
-	
+
+	@Override
+	public InitializeRequest getInitializeRequest() {
+		return initializeRequest;
+	}
+
+	@Override
+	public void setInitializeRequest(InitializeRequest initializeRequest) {
+		this.initializeRequest = initializeRequest;
+	}
+
+	@Override
+	public InitializeResponse getInitializeResponse() {
+		return initializeResponse;
+	}
+
+	@Override
+	public void setInitializeResponse(InitializeResponse initializeResponse) {
+		this.initializeResponse = initializeResponse;
+	}
+
+	@Override
+	public AuthenticateResponse getAuthenticateResponse() {
+		return authenticateResponse;
+	}
+
+	@Override
+	public void setAuthenticateResponse(AuthenticateResponse authenticateResponse) {
+		this.authenticateResponse = authenticateResponse;
+	}
+
 }

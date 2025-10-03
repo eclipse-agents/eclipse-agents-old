@@ -32,6 +32,8 @@ public class RawDriver {
 		String gemini = "/usr/local/bin/gemini";
 		String node = "/usr/local/bin/node";
 	
+		String x = "`hello`\n```boy```".replaceAll("`", "\\\\`");
+		
 		
 		List<String> commandAndArgs = new ArrayList<String>();
 //		commandAndArgs.add("gemini");

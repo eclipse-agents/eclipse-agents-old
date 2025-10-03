@@ -15,7 +15,7 @@ public class SetAcpModelAction extends Action {
 
 	@Override
 	public void run() {
-		AcpService.instance().setAcpService(service);
+//		AcpService.instance().setAcpService(service);
 	}
 	
 	public IAgentService getAgentService() {

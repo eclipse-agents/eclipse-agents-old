@@ -8,9 +8,8 @@ import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.fieldassist.IContentProposal;
 import org.eclipse.jface.fieldassist.IContentProposalListener;
-import org.eclipse.jface.util.IPropertyChangeListener;
-import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.mcp.acp.AcpService;
+import org.eclipse.mcp.acp.IAcpSessionListener;
 import org.eclipse.mcp.acp.agent.IAgentService;
 import org.eclipse.mcp.acp.protocol.AcpSchema.ContentBlock;
 import org.eclipse.mcp.acp.protocol.AcpSchema.TextBlock;
@@ -27,35 +26,21 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IMemento;
 import org.eclipse.ui.IViewSite;
-import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PartInitException;
-import org.eclipse.ui.console.IConsole;
-import org.eclipse.ui.console.IConsoleConstants;
-import org.eclipse.ui.console.IConsoleView;
-import org.eclipse.ui.console.IOConsoleOutputStream;
-import org.eclipse.ui.part.IPage;
-import org.eclipse.ui.part.IPageBookViewPage;
-import org.eclipse.ui.part.PageBook;
-import org.eclipse.ui.part.PageBookView;
+import org.eclipse.ui.part.ViewPart;
 
 
 
-public class AcpView extends PageBookView implements IConsoleView, IPropertyChangeListener, ModifyListener, TraverseListener, IContentProposalListener  {
+public class AcpView extends ViewPart implements ModifyListener, TraverseListener, IContentProposalListener  {
 
 	public static final String ID  = "org.eclipse.mcp.acp.view.AcpView"; //$NON-NLS-1$
 
 	Text inputText;
 	boolean disposed = false;
-	AcpConsole console;
 	AcpContexts contexts;
-	
-	boolean scrolllock, wordwrap, pinned;
-	IOConsoleOutputStream outputStream;
-	IOConsoleOutputStream traceStream;
-	IOConsoleOutputStream errorStream;
-	
-	PageRec rec = null;
-	
+	AcpBrowser browser;
+	String activeSessionId;
+
 	Composite middle;
 	Composite topMiddle;
 	Combo model, mode;
@@ -64,21 +49,14 @@ public class AcpView extends PageBookView implements IConsoleView, IPropertyChan
 	@Override
 	public void createPartControl(Composite parent) {
 		
-		console = new AcpConsole();
-		
-//		createActions();
-		IToolBarManager tbm= getViewSite().getActionBars().getToolBarManager();
-		tbm.add(new Separator(IConsoleConstants.LAUNCH_GROUP));
-		tbm.add(new Separator(IConsoleConstants.OUTPUT_GROUP));
-		getViewSite().getActionBars().updateActionBars();
-		
 //		PlatformUI.getWorkbench().getHelpSystem().setHelp(parent, IConsoleHelpContextIds.CONSOLE_VIEW);
 
 		middle = new Composite(parent, SWT.NONE);
 		middle.setLayout(new GridLayout(1, true));
 		middle.setLayoutData(new GridData(GridData.FILL_BOTH));
 
-		super.createPartControl(middle);
+		browser = new AcpBrowser(middle, SWT.NONE);
+		browser.initialize();
 		
 		contexts = new AcpContexts(middle, SWT.NONE);
 
@@ -99,6 +77,14 @@ public class AcpView extends PageBookView implements IConsoleView, IPropertyChan
 		model = new Combo(bottom, SWT.READ_ONLY);
 		for (IAgentService service: AcpService.instance().getAgents()) {
 			model.add(service.getName());
+			if (service == AcpService.instance().getAgentService()) {
+				model.select(model.getItemCount() - 1);
+				
+				if (AcpService.instance().getActiveSessionId() != null) {
+					AcpSessionModel sessionModel = AcpService.instance().getActiveSession();
+					sessionModel.setBrowser(browser);
+				}
+			}
 		}
 		model.addModifyListener(this);
 		
@@ -110,6 +96,10 @@ public class AcpView extends PageBookView implements IConsoleView, IPropertyChan
 	@Override
 	public void setFocus() {
 
+	}
+	
+	public AcpBrowser getBrowser() {
+		return browser;
 	}
 
 	@Override
@@ -125,116 +115,6 @@ public class AcpView extends PageBookView implements IConsoleView, IPropertyChan
 //		AcpService.instance().removeAcpListener(this);
 	}
 
-	@Override
-	public boolean getAutoScrollLock() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public void setAutoScrollLock(boolean arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void display(IConsole arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public IConsole getConsole() {
-		return console;
-	}
-
-	@Override
-	public boolean getScrollLock() {
-		return scrolllock;
-	}
-
-	@Override
-	public boolean getWordWrap() {
-		return wordwrap;
-	}
-
-	@Override
-	public boolean isPinned() {
-		// TODO Auto-generated method stub
-		return pinned;
-	}
-
-	@Override
-	public void pin(IConsole arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void setPinned(boolean pinned) {
-		this.pinned = pinned;
-	}
-
-	@Override
-	public void setScrollLock(boolean scrolllock) {
-		this.scrolllock = scrolllock;
-	}
-
-	@Override
-	public void setWordWrap(boolean wordwrap) {
-		this.wordwrap = wordwrap;
-	}
-
-	@Override
-	public void warnOfContentChange(IConsole arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	protected IPage createDefaultPage(PageBook pageBook) {
-		PageRec rec = doCreatePage(this);
-		return rec.page;
-	}
-
-	@Override
-	protected PageRec doCreatePage(IWorkbenchPart part) {
-		if (rec == null) {
-			final IConsole console = getConsole();
-			final IPageBookViewPage page = console.createPage(this);
-			initPage(page);
-			page.createControl(middle);
-			page.getControl().setLayoutData(new GridData(GridData.FILL_BOTH));
-			console.addPropertyChangeListener(this);
-			rec = new PageRec(part, page);
-		}
-		return rec;
-		
-	}
-
-	@Override
-	protected void doDestroyPage(IWorkbenchPart part, PageRec rec) {
-		IPage page = rec.page;
-		page.dispose();
-		rec.dispose();
-		getConsole().removePropertyChangeListener(this);
-	}
-
-	@Override
-	protected IWorkbenchPart getBootstrapPart() {
-		return this;
-	}
-
-	@Override
-	protected boolean isImportant(IWorkbenchPart arg0) {
-		return true;
-	}
-
-	@Override
-	public void propertyChange(PropertyChangeEvent arg0) {
-		// TODO Auto-generated method stub
-		
-	}
 
 	@Override
 	public void modifyText(ModifyEvent e) {
@@ -243,7 +123,7 @@ public class AcpView extends PageBookView implements IConsoleView, IPropertyChan
 		}
 		
 		if (e.getSource() == model) {
-			AcpService.instance().setAcpService(AcpService.instance().getAgents()[model.getSelectionIndex()]);
+			AcpService.instance().setAcpService(this, AcpService.instance().getAgents()[model.getSelectionIndex()]);
 		} else if (e.getSource() == mode) {
 			
 		}
@@ -253,18 +133,20 @@ public class AcpView extends PageBookView implements IConsoleView, IPropertyChan
 	public void keyTraversed(TraverseEvent event) {
 		if (event.detail == SWT.TRAVERSE_RETURN && (event.stateMask & SWT.SHIFT) != 0) {
 			
-			String sessionId = AcpService.instance().getSessionId();
-			String prompt = inputText.getText();
-			inputText.setText("");
-			inputText.clearSelection();
-			
-			List<ContentBlock> content = new ArrayList<ContentBlock>();
-			content.addAll(contexts.getContextBlocks());
-			content.add(new TextBlock(null, null, prompt, "text"));
-			
-			AcpService.instance().prompt(content.toArray(ContentBlock[]::new));
-			
-			contexts.clearAcpContexts();
+			String sessionId = AcpService.instance().getActiveSessionId();
+			if (sessionId != null) {
+				String prompt = inputText.getText();
+				inputText.setText("");
+				inputText.clearSelection();
+				
+				List<ContentBlock> content = new ArrayList<ContentBlock>();
+				content.addAll(contexts.getContextBlocks());
+				content.add(new TextBlock(null, null, prompt, "text"));
+				
+				AcpService.instance().prompt(sessionId, content.toArray(ContentBlock[]::new));
+				
+				contexts.clearAcpContexts();
+			}
 		}
 	}
 
