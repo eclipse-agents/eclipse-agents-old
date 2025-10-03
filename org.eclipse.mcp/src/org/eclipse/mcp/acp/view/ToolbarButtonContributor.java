@@ -40,7 +40,7 @@ public class ToolbarButtonContributor extends ContributionItem {
 
 						@Override
 						public void widgetSelected(SelectionEvent e) {
-							AcpService.instance().setAcpService(agent);
+//							AcpService.instance().setAcpService(agent);
 						}
 		            });
 				}

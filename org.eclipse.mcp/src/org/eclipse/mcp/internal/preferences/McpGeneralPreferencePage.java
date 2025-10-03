@@ -236,7 +236,7 @@ public class McpGeneralPreferencePage extends PreferencePage
 		updateValidation();
 		
 		if (event.getSource() == launchGemini) {
-			AcpService.instance().setAcpService(AcpService.instance().getAgents()[0]);
+//			AcpService.instance().setAcpService(AcpService.instance().getAgents()[0]);
 		}
 	}
 
