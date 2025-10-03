@@ -78,7 +78,9 @@ public class AcpView extends PageBookView implements IConsoleView, IPropertyChan
 		middle.setLayout(new GridLayout(1, true));
 		middle.setLayoutData(new GridData(GridData.FILL_BOTH));
 
-		super.createPartControl(middle);
+		AcpBrowser browser = new AcpBrowser(middle, SWT.NONE);
+		browser.initialize();
+//		super.createPartControl(middle);
 		
 		contexts = new AcpContexts(middle, SWT.NONE);
 
