@@ -61,6 +61,8 @@ public class AcpSessionModel implements IAcpSessionListener {
 	// State
 //	int promptId = 0;
 	List<Object> session = new ArrayList<Object>();
+	StringBuffer agentThoughtChunks = new StringBuffer();
+	StringBuffer agentMessageChunks = new StringBuffer();
 	
 	AcpBrowser browser;
 	
@@ -286,6 +288,8 @@ public class AcpSessionModel implements IAcpSessionListener {
 
 	@Override
 	public void accept(PromptRequest request) {
+		clearChunks();
+		
 		browser.addPromptTurn();
 		ContentBlock[] cbs = request.prompt();
 		for (ContentBlock cb: cbs) {
@@ -346,16 +350,35 @@ public class AcpSessionModel implements IAcpSessionListener {
 	
 	private void setMessage(MessageType type, ContentBlock content, boolean isMarkdown, boolean isChunk) {
 		if (content instanceof TextBlock) {
-			browser.addMessage(type.name(), ((TextBlock)content).text(), true, true);
+			if (isChunk) {
+				if (type == MessageType.agent_thought_chunk) {
+					agentThoughtChunks.append(((TextBlock)content).text());
+					browser.addMessage(type.name(), agentThoughtChunks.toString(), true, true);
+					
+				} else if (type == MessageType.agent_message_chunk) {
+					agentMessageChunks.append(((TextBlock)content).text());
+					browser.addMessage(type.name(), agentMessageChunks.toString(), true, true);
+				}
+			} else {
+				browser.addMessage(type.name(), ((TextBlock)content).text(), false, false);
+			}
 		} else if (content instanceof ImageBlock) {
-			
+			clearChunks();
 		} else if (content instanceof AudioBlock) {
-				
+			clearChunks();
 		} else if (content instanceof ResourceLinkBlock) {
+			clearChunks();
 			ResourceLinkBlock block = (ResourceLinkBlock) content;
-			browser.addResourceLink(block.name(),  block.uri(), type.name());
+			
+			String icon = block.meta() != null && block.meta().get("icon") != null ? 
+					block.meta().get("icon").toString() : null;
+
+			
+			browser.addResourceLink(block.name(),  block.uri(), type.name(), icon);
 		} else if (content instanceof EmbeddedResourceBlock) {
+			clearChunks();
 			EmbeddedResourceBlock block = (EmbeddedResourceBlock)content;
+
 			if (block.resource() instanceof TextResourceContents) {
 				TextResourceContents trc = (TextResourceContents)block.resource();
 				trc.mimeType();
@@ -364,5 +387,10 @@ public class AcpSessionModel implements IAcpSessionListener {
 				BlobResourceContents brc = (BlobResourceContents)block.resource();
 			}
 		}
+	}
+	
+	private void clearChunks() {
+		agentThoughtChunks = new StringBuffer();
+		agentMessageChunks = new StringBuffer();
 	}
 }

@@ -8,6 +8,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.mcp.Activator;
 import org.eclipse.mcp.acp.protocol.AcpSchema.Annotations;
 import org.eclipse.mcp.acp.protocol.AcpSchema.ContentBlock;
@@ -87,12 +90,21 @@ public class AcpContexts extends Composite {
 				roles.add(Role.user);
 			}
 			
+			Map<String, Object> meta = new HashMap<String, Object>();
+			if (resourceAdapter.getModel() instanceof IFile) {
+				meta.put("icon", "fa-file");
+			} else if (resourceAdapter.getModel() instanceof IProject) {
+				meta.put("icon", "fa-folder-open");
+			} else if (resourceAdapter.getModel() instanceof IFolder) {
+				meta.put("icon", "fa-folder");
+			}
+			
 			long timestampMillis = resourceAdapter.getModel().getModificationStamp();
 			Instant instant = Instant.ofEpochMilli(timestampMillis);
 			String lastModified = DateTimeFormatter.ISO_INSTANT.format(instant);
 			
 			ResourceLinkBlock block = new ResourceLinkBlock(
-					null,
+					meta,
 					new Annotations(null, roles.toArray(Role[]::new), lastModified, priority),
 					link.description(),
 					link.mimeType(),
