@@ -4,16 +4,16 @@ package org.eclipse.mcp.acp.view;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.jface.action.IToolBarManager;
-import org.eclipse.jface.action.Separator;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.jface.fieldassist.IContentProposal;
 import org.eclipse.jface.fieldassist.IContentProposalListener;
 import org.eclipse.mcp.acp.AcpService;
-import org.eclipse.mcp.acp.IAcpSessionListener;
 import org.eclipse.mcp.acp.agent.IAgentService;
 import org.eclipse.mcp.acp.protocol.AcpSchema.ContentBlock;
 import org.eclipse.mcp.acp.protocol.AcpSchema.TextBlock;
 import org.eclipse.mcp.acp.view.ContentAssistProvider.ResourceProposal;
+import org.eclipse.mcp.platform.resource.ResourceSchema.Editor;
+import org.eclipse.mcp.platform.resource.WorkspaceResourceAdapter;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -154,7 +154,15 @@ public class AcpView extends ViewPart implements ModifyListener, TraverseListene
 	public void proposalAccepted(IContentProposal proposal) {
 		if (proposal instanceof ResourceProposal) {
 			ResourceProposal rp = (ResourceProposal)proposal;
-			contexts.addResourceContext(rp.name, rp.uri);
+			contexts.addLinkedResourceContext(rp.name, rp.uri);
+		}
+	}
+	
+	public void addContext(Object context) {
+		if (context instanceof IResource) {
+			WorkspaceResourceAdapter wra = new WorkspaceResourceAdapter((IResource)context);
+			String uri = wra.toUri();
+			contexts.addLinkedResourceContext(((IResource)context).getName(), uri);
 		}
 	}
 }
