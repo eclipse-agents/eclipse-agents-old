@@ -138,13 +138,28 @@ public class AcpBrowser {
 			});
 		}
 	}
+
+	public void addUserMessageChunk(String content) {
+		addMessage("addUserMessageChunk", content, true);
+	}
+
+	public void addAgentThoughtChunk(String content) {
+		addMessage("addAgentThoughtChunk", content, true);
+	}
+	public void addSessionPrompt(String content) {
+		addMessage("addSessionPrompt", content, false);
+	}
+
+	public void addAgentMessageChunk(String content) {
+		addMessage("addAgentMessageChunk", content, true);
+	}
 	
-	public void addMessage(String _class, String content, boolean isMarkdown, boolean isChunk) {
+	private void addMessage(String method, String content, boolean isMarkdown) {
 		if (!browser.isDisposed()) {
 			if (isMarkdown) {
 				content = sanitize(content);
 			}
-			String fxn = String.format("addMessage(`%s`, `%s`, %b, %b)", _class, content, isMarkdown, isChunk);
+			String fxn = String.format("%s(`%s`)", method, content);
 			System.err.println(fxn);
 			Activator.getDisplay().syncExec(()-> {
 				System.err.println(browser.evaluate(fxn));
