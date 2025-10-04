@@ -350,17 +350,15 @@ public class AcpSessionModel implements IAcpSessionListener {
 	
 	private void setMessage(MessageType type, ContentBlock content, boolean isMarkdown, boolean isChunk) {
 		if (content instanceof TextBlock) {
-			if (isChunk) {
-				if (type == MessageType.agent_thought_chunk) {
-					agentThoughtChunks.append(((TextBlock)content).text());
-					browser.addMessage(type.name(), agentThoughtChunks.toString(), true, true);
-					
-				} else if (type == MessageType.agent_message_chunk) {
-					agentMessageChunks.append(((TextBlock)content).text());
-					browser.addMessage(type.name(), agentMessageChunks.toString(), true, true);
-				}
-			} else {
-				browser.addMessage(type.name(), ((TextBlock)content).text(), false, false);
+			
+			if (type == MessageType.agent_thought_chunk) {
+				agentThoughtChunks.append(((TextBlock)content).text());
+				browser.addAgentThoughtChunk(agentThoughtChunks.toString());
+			} else if (type == MessageType.agent_message_chunk) {
+				agentMessageChunks.append(((TextBlock)content).text());
+				browser.addAgentMessageChunk(agentMessageChunks.toString());
+			} else if (type == MessageType.session_prompt) {
+				browser.addSessionPrompt(((TextBlock)content).text());
 			}
 		} else if (content instanceof ImageBlock) {
 			clearChunks();
