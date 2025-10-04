@@ -133,7 +133,9 @@ public class AcpBrowser {
 		if (!browser.isDisposed()) {
 			String fxn = "addPromptTurn()";
 			System.err.println(fxn);
-			Activator.getDisplay().syncExec(()->browser.evaluate(fxn));
+			Activator.getDisplay().syncExec(()-> {
+				System.err.println(browser.evaluate(fxn));
+			});
 		}
 	}
 	
@@ -142,17 +144,23 @@ public class AcpBrowser {
 			if (isMarkdown) {
 				content = sanitize(content);
 			}
-			String fxn = String.format("addMessage(`%s`, `%s`, `%s`, `%s`)", _class, content, isMarkdown, isChunk);
+			String fxn = String.format("addMessage(`%s`, `%s`, %b, %b)", _class, content, isMarkdown, isChunk);
 			System.err.println(fxn);
-			Activator.getDisplay().syncExec(()->browser.evaluate(fxn));
+			Activator.getDisplay().syncExec(()-> {
+				System.err.println(browser.evaluate(fxn));
+			});
 		}
 	}
 
-	public void addResourceLink(String text, String url, String _class) {
+	public void addResourceLink(String text, String url, String _class, String icon) {
 		if (!browser.isDisposed()) {
-			String fxn = String.format("addResourceLink(`%s`, `%s`, `%s`)", text, url, _class);
+			String fxn = icon == null ?
+					String.format("addResourceLink(`%s`, `%s`, `%s`, null)", text, url, _class) :
+					String.format("addResourceLink(`%s`, `%s`, `%s`, `%s`)", text, url, _class, icon);
 			System.err.println(fxn);
-			Activator.getDisplay().syncExec(()->browser.evaluate(fxn));
+			Activator.getDisplay().syncExec(()-> {
+				System.err.println(browser.evaluate(fxn));
+			});
 		}
 	}
 	

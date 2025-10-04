@@ -23,7 +23,10 @@ function addPromptTurn() {
 }
 
 function addMessage(_class, content, isMarkdown, isChunk) {
-	if (!isChunk || !document.lastElementChild.lastElementChild.classList.contains(_class)) {
+	if (!isChunk || 
+			document.body.lastElementChild.lastElementChild == null || 
+			!document.body.lastElementChild.lastElementChild.classList.contains(_class)) {
+
 		document.body.lastElementChild.append(document.createElement("div"));
 		document.body.lastElementChild.lastElementChild.classList.add(_class);
 	}
@@ -36,15 +39,26 @@ function addMessage(_class, content, isMarkdown, isChunk) {
 	}
 }
 
-function addResourceLink(text, url, _class) {
+function addResourceLink(text, url, _class, icon) {
 	console.log("addResourceLink", text, url);
-	document.body.lastElementChild.append(document.createElement("div"));
-	document.body.lastElementChild.lastElementChild.classList.add(_class);
 	
-	document.body.lastElementChild.lastElementChild.append(document.createElement("a"));
-	document.body.lastElementChild.lastElementChild.lastElementChild.classList.add(_class);
-	document.body.lastElementChild.lastElementChild.lastElementChild.href = url;
-	document.body.lastElementChild.lastElementChild.lastElementChild.textContent = text;
+	const div = addChild(document.body.lastElementChild, "div");
+	div.classList.add(_class);
+	
+	const span = addChild(div, "span");
+	span.classList.add(_class);
+	
+	if (icon != null) {
+		const i = addChild(span, "i");
+		i.classList.add("fa");
+		i.classList.add("fa-thin");
+		i.classList.add(icon);	
+	}
+	
+	const a = addChild(span, "a");
+	a.classList.add(_class);
+	a.href = url;
+	a.textContent = text;
 }
 
 function setStyle(fontSize, foreground, background) {
@@ -52,4 +66,62 @@ function setStyle(fontSize, foreground, background) {
 	document.body.style.backgroundColor = background;
 	document.body.style.fontSize = fontSize;
 }
+
+function addChild(parent, kind) {
+	const child = document.createElement(kind)
+	parent.append(child);
+	return child;
+}
+
+function demo() {
+	addPromptTurn();
+	addMessage("session_prompt", "My question is asdf asdf asdf", false, false);
+	addResourceLink("File1.txt", "", "resource_link", "fa-file");
+	addResourceLink("folderName", "", "resource_link", "fa-folder");
+	addMessage("agent_thought_chunk", `**Im Thinking About**
+- one thing
+- another thing
+
+**Im Also Thinking About**
+- one thing
+- another thing`, true, true);
+	
+	addMessage("agent_message_chunk", `Here is what i came up with:
+\`\`\`json
+{ "a": {
+	"B": "C"`, true, true);
+	addMessage("agent_message_chunk", 	`Here is what i came up with:
+\`\`\`json
+{ "a": {
+	"B": "C"
+}}
+\`\`\`
+Anything else?`, true, true);
+
+	addPromptTurn();
+	addMessage("session_prompt", "My second question is asdf asdf asdf", false, false);
+	addResourceLink("File1.txt", "", "resource_link", "fa-file");
+	addResourceLink("folderName", "", "resource_link", "fa-folder");
+	addMessage("agent_thought_chunk", `**Im Thinking Now About**
+- one thing
+- another thing
+
+**Im Also Thinking About one last thing**
+- one thing
+- another thing`, true, true);
+	
+	addMessage("agent_message_chunk", `Here is what i came up with:
+\`\`\`json
+{ "a": {
+	"B": "C"`, true, true);
+	addMessage("agent_message_chunk", 	`Here is what i came up with:
+\`\`\`json
+{ "a": {
+	"B": "C"
+}}
+\`\`\`
+Anything else?`, true, true);
+
+}
+
 
