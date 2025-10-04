@@ -15,49 +15,41 @@ marked.setOptions({
 
 // SessionUpdate: "user_message_chunk")"agent_message_chunk")"agent_thought_chunk")"tool_call")"tool_call_update")"plan") "available_commands_update")"current_mode_update")
 // ContentBlock "text")"image") "audio") "resource_link")"resource")
-function addPrompt(id) {
-	console.log("addPrompt", id);
-	
-	const interaction = addDiv(document.body, id, "interaction");
-	
-	addDiv(interaction, id, "session_prompt");
-	addDiv(interaction, id, "prompt");
-	addDiv(interaction, id, "user_message_chunk");
-	addDiv(interaction, id, "agent_thought_chunk");
-	addDiv(interaction, id, "agent_message_chunk");
+function addPromptTurn() {
+	console.log("addPrompt");
+
+	document.body.append(document.createElement("div"));
+	document.body.lastElementChild.classList.add("prompt_turn");
 }
-function setMessage(id, kind, content) {
-	console.log("addMessage", id);
-	const interaction = document.getElementById(id);
-	const lastKind = getLastKindOf(interaction, kind);
-	if (lastKind != null) {
-		lastKind.innerHTML = marked.parse(content);
+
+function addMessage(_class, content, isMarkdown, isChunk) {
+	if (!isChunk || !document.lastElementChild.lastElementChild.classList.contains(_class)) {
+		document.body.lastElementChild.append(document.createElement("div"));
+		document.body.lastElementChild.lastElementChild.classList.add(_class);
+	}
+	
+	if (isMarkdown) {
+		document.body.lastElementChild.lastElementChild.innerHTML = marked.parse(content);
 		Prism.highlightAll();
+	} else {
+		document.body.lastElementChild.lastElementChild.textContent = content;
 	}
 }
 
-function addSpan(id, kind, name, url) {
+function addResourceLink(text, url, _class) {
+	console.log("addResourceLink", text, url);
+	document.body.lastElementChild.append(document.createElement("div"));
+	document.body.lastElementChild.lastElementChild.classList.add(_class);
 	
+	document.body.lastElementChild.lastElementChild.append(document.createElement("a"));
+	document.body.lastElementChild.lastElementChild.lastElementChild.classList.add(_class);
+	document.body.lastElementChild.lastElementChild.lastElementChild.href = url;
+	document.body.lastElementChild.lastElementChild.lastElementChild.textContent = text;
 }
 
-function setStyle(fontSize, foreground, background) {	
+function setStyle(fontSize, foreground, background) {
 	document.body.style.color = foreground;
 	document.body.style.backgroundColor = background;
 	document.body.style.fontSize = fontSize;
 }
 
-function addDiv(parent, id, kind) {
-	const div = new document.createElement("div");
-	div.classList.add(kind);
-	div.id = kind + "-" + id;
-	parent.appendChild(div);
-	return div;
-}
-
-function getLastKindOf(parent, kind) {
-	const kinds = parent.getElementsByClassName(kind);
-	if (kinds != null) {
-		return kinds[kinds.length-1];
-	}
-	return null;
-}

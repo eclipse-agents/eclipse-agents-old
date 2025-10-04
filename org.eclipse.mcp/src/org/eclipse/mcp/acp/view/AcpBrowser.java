@@ -4,13 +4,20 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.List;
 
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.jface.resource.JFaceResources;
+import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.mcp.Activator;
+import org.eclipse.mcp.platform.resource.WorkspaceResourceAdapter;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser;
+import org.eclipse.swt.browser.LocationListener;
 import org.eclipse.swt.browser.ProgressAdapter;
 import org.eclipse.swt.browser.ProgressEvent;
 import org.eclipse.swt.graphics.Color;
@@ -19,6 +26,12 @@ import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Menu;
+import org.eclipse.ui.IViewPart;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.ide.IDE;
+import org.eclipse.ui.navigator.CommonNavigator;
 
 public class AcpBrowser {
 
@@ -36,7 +49,7 @@ public class AcpBrowser {
 		
 		browser.addProgressListener(new ProgressAdapter() {
 			@Override
-			public void completed(ProgressEvent event) {
+			public void completed(ProgressEvent pe) {
 
 				int fontHeight = 13;
 				
@@ -64,11 +77,41 @@ public class AcpBrowser {
 				Activator.getDisplay().syncExec(()->browser.evaluate(fxn));
 				
 				browser.setVisible(true);
+				
+				browser.addLocationListener(LocationListener.changingAdapter(event -> {
+					event.doit = false;
+					
+					WorkspaceResourceAdapter wra = new WorkspaceResourceAdapter(event.location);
+					IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+					
+					IResource resource = wra.getModel();
+					if (resource instanceof IFile) {
+						try {
+						    IDE.openEditor(page, (IFile)resource); 
+						} catch (PartInitException e) {
+						    e.printStackTrace();
+						}
+					} else if (resource instanceof IFolder || resource instanceof IProject) {
+						try {
+							IViewPart view = page.showView("org.eclipse.ui.navigator.ProjectExplorer");
+							if (view instanceof CommonNavigator) {
+				                CommonNavigator projectExplorer = (CommonNavigator) view;
+				                if (resource.exists() && resource.getProject().exists() && resource.getProject().isOpen()) {
+					                projectExplorer.selectReveal(new StructuredSelection(resource));
+				                }
+				            }
+						} catch (PartInitException e) {
+							e.printStackTrace();
+						}
+					}
+				}));
 
 			}
 		});
 		// Cancel opening of new windows
-		browser.addOpenWindowListener(event -> event.required= true);
+		browser.addOpenWindowListener(event -> {
+			event.required= true;
+		});
 
 		// Replace browser's built-in context menu with none
 		browser.setMenu(new Menu(browser.getShell(), SWT.NONE));
@@ -86,23 +129,28 @@ public class AcpBrowser {
 		}
 	}
 	
-	public void addMessage(String id, String clazz, String content) {
+	public void addPromptTurn() {
 		if (!browser.isDisposed()) {
-			String sanitized = sanitize(content);
-			String fxn = MessageFormat.format("addMessage(`{0}`, `{1}`, `{2}`)", id, clazz, sanitized);
+			String fxn = "addPromptTurn()";
 			System.err.println(fxn);
 			Activator.getDisplay().syncExec(()->browser.evaluate(fxn));
 		}
 	}
 	
-	public void addLinkedResources(String id, String clazz, String name, String url) {
-		
-	}
-	
-	public void updateMessage(String id, String content) {
+	public void addMessage(String _class, String content, boolean isMarkdown, boolean isChunk) {
 		if (!browser.isDisposed()) {
-			String sanitized = sanitize(content);
-			String fxn = MessageFormat.format("updateMessage(`{0}`, `{1}`)", id, sanitized);
+			if (isMarkdown) {
+				content = sanitize(content);
+			}
+			String fxn = String.format("addMessage(`%s`, `%s`, `%s`, `%s`)", _class, content, isMarkdown, isChunk);
+			System.err.println(fxn);
+			Activator.getDisplay().syncExec(()->browser.evaluate(fxn));
+		}
+	}
+
+	public void addResourceLink(String text, String url, String _class) {
+		if (!browser.isDisposed()) {
+			String fxn = String.format("addResourceLink(`%s`, `%s`, `%s`)", text, url, _class);
 			System.err.println(fxn);
 			Activator.getDisplay().syncExec(()->browser.evaluate(fxn));
 		}

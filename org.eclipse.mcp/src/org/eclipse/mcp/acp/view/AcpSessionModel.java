@@ -59,11 +59,8 @@ public class AcpSessionModel implements IAcpSessionListener {
 	SessionModeState modes;
 	
 	// State
-	int promptId = 0;
+//	int promptId = 0;
 	List<Object> session = new ArrayList<Object>();
-	
-	StringBuffer agentThoughtChunks = new StringBuffer();
-	StringBuffer agentMessageChunks = new StringBuffer();
 	
 	AcpBrowser browser;
 	
@@ -111,15 +108,10 @@ public class AcpSessionModel implements IAcpSessionListener {
 			
 		} else if (notification.update() instanceof SessionAgentThoughtChunk) {
 			SessionAgentThoughtChunk chunk = (SessionAgentThoughtChunk)notification.update();
-			String clazz = MessageType.agent_thought_chunk.name();
-			String id = clazz + "-" + promptId;
-			addMessage(id, clazz, chunk.content(), agentThoughtChunks);
+			setMessage(MessageType.agent_thought_chunk, chunk.content(), true, true);
 		} else if (notification.update() instanceof SessionAgentMessageChunk) {
 			SessionAgentMessageChunk chunk = (SessionAgentMessageChunk)notification.update();
-			String clazz = MessageType.agent_message_chunk.name();
-			String id = clazz + "-" + promptId;
-			addMessage(id, clazz, chunk.content(), agentMessageChunks);
-			 
+			setMessage(MessageType.agent_message_chunk, chunk.content(), true, true);
 		}
 		else if (notification.update() instanceof SessionToolCall) {
 			System.err.println(SessionToolCall.class.getCanonicalName());
@@ -229,9 +221,6 @@ public class AcpSessionModel implements IAcpSessionListener {
 
 	@Override
 	public void accept(PromptResponse response) {
-		agentMessageChunks = new StringBuffer();
-		agentThoughtChunks = new StringBuffer();
-		
 		switch (((PromptResponse)response).stopReason()) {
 		case cancelled:
 //			write("Cancelled\n");
@@ -297,12 +286,10 @@ public class AcpSessionModel implements IAcpSessionListener {
 
 	@Override
 	public void accept(PromptRequest request) {
-		promptId++;
+		browser.addPromptTurn();
 		ContentBlock[] cbs = request.prompt();
 		for (ContentBlock cb: cbs) {
-			String clazz = MessageType.session_prompt.name();
-			String id = clazz + "-" + promptId;
-			addMessage(id, clazz, cb, null);
+			setMessage(MessageType.session_prompt, cb, false, false);
 		}
 	}
 
@@ -357,24 +344,16 @@ public class AcpSessionModel implements IAcpSessionListener {
 		
 	}
 	
-	private void addMessage(String id, String clazz, ContentBlock content, StringBuffer chunkBuffer) {
+	private void setMessage(MessageType type, ContentBlock content, boolean isMarkdown, boolean isChunk) {
 		if (content instanceof TextBlock) {
-			if (chunkBuffer == null) {
-				browser.addMessage(id, clazz, ((TextBlock)content).text());
-			} else if (chunkBuffer.isEmpty()) {
-				chunkBuffer.append(((TextBlock)content).text());
-				browser.addMessage(id, clazz, chunkBuffer.toString());
-			} else {
-				chunkBuffer.append(((TextBlock)content).text());
-				browser.updateMessage(id, chunkBuffer.toString());
-			}
+			browser.addMessage(type.name(), ((TextBlock)content).text(), true, true);
 		} else if (content instanceof ImageBlock) {
 			
 		} else if (content instanceof AudioBlock) {
 				
 		} else if (content instanceof ResourceLinkBlock) {
 			ResourceLinkBlock block = (ResourceLinkBlock) content;
-			browser.addLinkedResources(id, clazz, block.name(), block.uri());
+			browser.addResourceLink(block.name(),  block.uri(), type.name());
 		} else if (content instanceof EmbeddedResourceBlock) {
 			EmbeddedResourceBlock block = (EmbeddedResourceBlock)content;
 			if (block.resource() instanceof TextResourceContents) {
