@@ -42,7 +42,7 @@ function addUserMessageChunk() {
 }
 
 function addAgentThoughtChunk(content) {
-	if (getTurnMessage() == null || !getTurnMessage().tagName !== agent_thoughts) {
+	if (getTurnMessage() == null || !getTurnMessage().tagName != agent_thoughts) {
 		addChild(getTurn(), agent_thoughts);
 	}
 
@@ -51,8 +51,8 @@ function addAgentThoughtChunk(content) {
 }
 
 function addAgentMessageChunk(content) {
-	if (getTurnMessage() == null || !getTurnMessage().tagName !== agent_thoughts) {
-		addChild(getTurn(), agent_thoughts);
+	if (getTurnMessage() == null || getTurnMessage().tagName.toLowerCase() !== agent_messages) {
+		addChild(getTurn(), agent_messages);
 	}
 	getTurnMessage().addChunk(content);	
 	
@@ -128,38 +128,32 @@ function demo() {
 { "a": {
 	"B": "C"`
 );
-	addAgentMessageChunk(`Here is what i came up with:
-\`\`\`json
-{ "a": {
-	"B": "C"
+	addAgentMessageChunk(`
 }}
 \`\`\`
 Anything else?`);
 
 	addPromptTurn();
-	addSessionPrompt("My second question is asdf asdf asdf",);
+		addSessionPrompt("My question is asdf asdf asdf");
 	//addResourceLink("File1.txt", "", "resource_link", "fa-file");
 	//addResourceLink("folderName", "", "resource_link", "fa-folder");
-	addAgentThoughtChunk(`**Im Thinking About**
-	- one thing
-	- another thing
+	addAgentThoughtChunk(`**Im Also Thinking About**
+- one thing
+- another thing
 
-	**Im Also Thinking About**
-	- one thing
-	- another thing`);
+**Im Also Thinking About**
+- one thing
+- another thing`);
 
-		addAgentMessageChunk(`Here is what i came up with:
-	\`\`\`json
-	{ "a": {
-		"B": "C"`
-	);
-		addAgentMessageChunk(`Here is what i came up with:
-	\`\`\`json
-	{ "a": {
-		"B": "C"
-	}}
-	\`\`\`
-	Anything else?`);
+	addAgentMessageChunk(`Here is what i also came up with:
+\`\`\`json
+{ "a": {
+	"B": "C"`
+);
+	addAgentMessageChunk(`
+}}
+\`\`\`
+Anything else?`);
 }
 
 function updateSession(sessionUpdateJson) {

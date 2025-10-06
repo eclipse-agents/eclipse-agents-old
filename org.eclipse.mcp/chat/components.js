@@ -3,7 +3,7 @@ class Markdown extends HTMLElement {
 
   setMarkdown(markdown) {
 	this.innerHTML = marked.parse(markdown);
-	Prism.highlightAll();
+	Prism.highlightAllUnder(this);
   }
 }
 customElements.define("markdown-div", Markdown, { extends: "div" });
@@ -18,7 +18,6 @@ class ChunkedMarkdown extends Markdown {
   addChunk(chunk) {
 	this.chunks.push(chunk);
 	super.setMarkdown(this.chunks.join(""));
-	Prism.highlightAll();
   }
 }
 customElements.define("chunked-markdown", ChunkedMarkdown);
@@ -36,6 +35,16 @@ class DivTemplate extends HTMLElement {
 
 class PromptTurn extends HTMLElement {}
 customElements.define("prompt-turn", PromptTurn, { extends: "div" });
+
+class SessionPrompt extends DivTemplate {
+	
+	markdown;
+
+	constructor() {
+		super("session-prompt");
+	}
+}
+customElements.define("session-prompt", SessionPrompt);
 
 class AgentThoughts extends DivTemplate {
 	
@@ -72,11 +81,15 @@ class AgentMessages extends DivTemplate {
 
 	constructor() {
 		super("agent-message-chunk");
-		markdown = querySelector('chunked-markdown');
+	}
+
+	connectedCallback() {
+        // Create and append children to the shadow root
+		this.markdown = this.root.querySelector('chunked-markdown');
 	}
 	
 	addChunk(chunk) {
-		markdown.addChunk(chunk);
+		this.markdown.addChunk(chunk);
 	}
 }
 customElements.define("agent-messages", AgentMessages);

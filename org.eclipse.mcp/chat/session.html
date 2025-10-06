@@ -19,10 +19,25 @@
 		<script src="components.js"></script>
     
 	
-		<template id="prompt-turn"></template>
+		<template id="prompt-turn">
+		</template>
 		
 		<template id="session-prompt">
-			<slot></slot>
+			<style>
+				div {
+					border-color: orange;
+					border-width: thin;
+					border-style: solid;
+					border-radius: 4px;
+					margin-bottom: 10px;
+					padding-left: 6px;
+					padding-right: 6px;	
+				}
+			</style>
+			<div>
+				<slot></slot>
+			</div>
+			
 		</template>
 		
 		<template id = "user-message-chunk">
@@ -30,6 +45,40 @@
 		</template>
 			
 		<template id = "agent-thought-chunk">
+			<link href="prism.css" rel="stylesheet"/>
+			<style>
+				span button button {
+					background-color: #eee;
+					color: #444;
+					cursor: pointer;
+					padding: 18px;
+					width: 100%;
+					border: none;
+					text-align: left;
+					outline: none;
+					font-size: 15px;
+				}
+
+
+				.active, span button:hover {
+  					background-color: #ccc;
+				}
+
+				span chunked-markdown {
+					padding: 0 18px;
+					background-color: white;
+					max-height: 0;
+					overflow: hidden;
+					transition: max-height 0.2s ease-out;
+					color: #444;
+					cursor: pointer;
+					width: 100%;
+					border: none;
+					text-align: left;
+					outline: none;
+					font-size: 15px;
+				}
+			</style>
 			<span>
 				<i></i>
 				<button>Thought Process</button>
@@ -38,6 +87,19 @@
 		</template>
 
 		<template id = "agent-message-chunk">
+			<link href="prism.css" rel="stylesheet"/>
+			<style>
+				chunked-markdown {
+					div.agent_message_chunk {
+					border-color: green;
+					border-width: thin;
+					border-style: solid;
+					border-radius: 4px;
+					margin-bottom: 10px;
+					padding-left: 6px;
+					padding-right: 6px;	
+				}
+			</style>
 			<chunked-markdown/>
 		</template>
 	</body>
