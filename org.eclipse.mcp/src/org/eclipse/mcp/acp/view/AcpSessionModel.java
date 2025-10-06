@@ -61,8 +61,6 @@ public class AcpSessionModel implements IAcpSessionListener {
 	// State
 //	int promptId = 0;
 	List<Object> session = new ArrayList<Object>();
-	StringBuffer agentThoughtChunks = new StringBuffer();
-	StringBuffer agentMessageChunks = new StringBuffer();
 	
 	AcpBrowser browser;
 	
@@ -106,6 +104,8 @@ public class AcpSessionModel implements IAcpSessionListener {
 
 		session.add(notification);
 		
+		browser.updateSession(notification.update());
+		
 		if (notification.update() instanceof SessionUserMessageChunk) {
 			
 		} else if (notification.update() instanceof SessionAgentThoughtChunk) {
@@ -116,6 +116,7 @@ public class AcpSessionModel implements IAcpSessionListener {
 			setMessage(MessageType.agent_message_chunk, chunk.content(), true, true);
 		}
 		else if (notification.update() instanceof SessionToolCall) {
+			
 			System.err.println(SessionToolCall.class.getCanonicalName());
 		}
 		else if (notification.update() instanceof SessionToolCallUpdate) {
@@ -288,8 +289,6 @@ public class AcpSessionModel implements IAcpSessionListener {
 
 	@Override
 	public void accept(PromptRequest request) {
-		clearChunks();
-		
 		browser.addPromptTurn();
 		ContentBlock[] cbs = request.prompt();
 		for (ContentBlock cb: cbs) {
@@ -352,29 +351,27 @@ public class AcpSessionModel implements IAcpSessionListener {
 		if (content instanceof TextBlock) {
 			
 			if (type == MessageType.agent_thought_chunk) {
-				agentThoughtChunks.append(((TextBlock)content).text());
-				browser.addAgentThoughtChunk(agentThoughtChunks.toString());
+				browser.addAgentThoughtChunk(((TextBlock)content).text());
 			} else if (type == MessageType.agent_message_chunk) {
-				agentMessageChunks.append(((TextBlock)content).text());
-				browser.addAgentMessageChunk(agentMessageChunks.toString());
+				browser.addAgentMessageChunk(((TextBlock)content).text());
 			} else if (type == MessageType.session_prompt) {
 				browser.addSessionPrompt(((TextBlock)content).text());
 			}
 		} else if (content instanceof ImageBlock) {
-			clearChunks();
+			
 		} else if (content instanceof AudioBlock) {
-			clearChunks();
+			
 		} else if (content instanceof ResourceLinkBlock) {
-			clearChunks();
+		
 			ResourceLinkBlock block = (ResourceLinkBlock) content;
 			
 			String icon = block.meta() != null && block.meta().get("icon") != null ? 
 					block.meta().get("icon").toString() : null;
 
 			
-			browser.addResourceLink(block.name(),  block.uri(), type.name(), icon);
+			browser.addResourceLink(block.name(), block.uri(), icon);
 		} else if (content instanceof EmbeddedResourceBlock) {
-			clearChunks();
+		
 			EmbeddedResourceBlock block = (EmbeddedResourceBlock)content;
 
 			if (block.resource() instanceof TextResourceContents) {
@@ -385,10 +382,5 @@ public class AcpSessionModel implements IAcpSessionListener {
 				BlobResourceContents brc = (BlobResourceContents)block.resource();
 			}
 		}
-	}
-	
-	private void clearChunks() {
-		agentThoughtChunks = new StringBuffer();
-		agentMessageChunks = new StringBuffer();
 	}
 }

@@ -5,7 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Agent Client Prototocol Prototype</title>
 
-		<link href="prism.css" rel="stylesheet">
+		<link href="prism-okaida.css" rel="stylesheet">
 		<link href="session.css" rel="stylesheet">
 		<link rel="stylesheet" href="fontawesome-free-7.1.0-web/css/all.min.css">
     </head>
@@ -15,7 +15,121 @@
         <!-- Marked.js for Markdown parsing -->
         <script src="marked.min.js"></script>
 		<script src="prism.js"></script>
-		<script src="jquery-3.7.1.min.js"></script>
         <script src="session.js"></script>
-    </body>
+		<script src="components.js"></script>
+    
+	
+		<template id="prompt-turn">
+		</template>
+		
+		<template id="session-prompt">
+			<style>
+				div {
+					border-color: orange;
+					border-width: thin;
+					border-style: solid;
+					border-radius: 4px;
+					margin-bottom: 10px;
+					padding-left: 6px;
+					padding-right: 6px;	
+				}
+			</style>
+			<div>
+				<slot></slot>
+			</div>
+			
+		</template>
+		
+		<template id = "user-message-chunk">
+			<slot></slot>
+		</template>
+			
+		<template id = "agent-thought-chunk">
+			<link href="prism-okaida.css" rel="stylesheet">
+			<style>
+				div {
+					margin-top: 10px;
+				}
+				span button  {
+					background-color: #eee;
+					color: #444;
+					cursor: pointer;
+					width: 100%;
+					border: none;
+					padding: 12px;
+					text-align: left;
+					outline: none;
+					font-size: 15px;
+				}
+
+
+				.active, span button:hover {
+  					background-color: #ccc;
+				}
+
+				span chunked-markdown {
+					display: block;
+					padding: 0 18px;
+					background-color: var(--info_bg);
+					color:var(--info_fg);
+					max-height: 0;
+					overflow: hidden;
+					transition: max-height 0.2s ease-out;
+					cursor: pointer;
+					width: 100%;
+					border: none;
+					text-align: left;
+					outline: none;
+				}
+			</style>
+			<div>
+				<span>
+					<i class="fa fa-thin"></i>
+					<button>Thought Process</button>
+					<chunked-markdown></chunked-markdown>
+				</span>
+			</div>
+		</template>
+
+		<template id = "agent-message-chunk">
+			<link href="prism-okaida.css" rel="stylesheet"/>
+			<chunked-markdown/>
+		</template>
+
+		<template id = "resource-link">
+			<link rel="stylesheet" href="fontawesome-free-7.1.0-web/css/all.min.css">
+			<style>
+				span {
+					column-gap: 2px;
+					border-color: var(--link-color);
+					border-width: thin;
+					border-style: solid;
+					border-radius: 4px;
+					padding-left: 6px;
+					padding-right: 12px;	
+					max-width: 100%;
+					overflow-wrap: anywhere;
+					overflow-x: hidden;
+					overflow-y: hidden;
+				}
+
+				a {
+					color: var(--link_fg);
+				}
+				
+				a:hover {
+					color: var(--link_active_fg);
+				}
+				
+				i {
+					font-size: smaller;
+				}
+			</style>
+			<span>
+				<i class="fa fa-thin"></i>
+				<a>temp</a>
+			</span>
+		</template>
+	</body>
+
 </html>
