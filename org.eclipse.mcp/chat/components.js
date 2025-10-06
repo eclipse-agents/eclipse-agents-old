@@ -49,15 +49,18 @@ customElements.define("session-prompt", SessionPrompt);
 class AgentThoughts extends DivTemplate {
 	
 	markdown;
+	thougts;
 
 	constructor() {
 		super("agent-thought-chunk");
+		this.thoughts = 0;
 	}
 
 	connectedCallback() {
         // Create and append children to the shadow root
 		this.markdown = this.root.querySelector('span chunked-markdown');
-		this.root.querySelector('span button').addEventListener("click", function() {
+		this.button = this.root.querySelector('span button');
+		this.button.addEventListener("click", function() {
 			this.classList.toggle("active");
 			let content = this.nextElementSibling;
 			if (content.style.maxHeight) {
@@ -71,6 +74,7 @@ class AgentThoughts extends DivTemplate {
 	
 	addChunk(chunk) {
 		this.markdown.addChunk(chunk);
+		this.button.textContent = "Thoughts Processed (" + ++this.thoughts + ")";
 	}
 }
 customElements.define("agent-thoughts", AgentThoughts);
@@ -105,8 +109,7 @@ class ResourceLink extends DivTemplate {
 		this.link = this.root.querySelector('span a');
 	}
 	
-	setLink(name, url, isFolder) {
-		const icon = (isFolder) ? "fa-folder" : "fa-file";
+	setLink(name, url, icon) {
 		this.icon.classList.add(icon);
 		this.link.setAttribute("href", url);
 		this.link.textContent = name;

@@ -42,7 +42,7 @@ function addUserMessageChunk() {
 }
 
 function addAgentThoughtChunk(content) {
-	if (getTurnMessage() == null || !getTurnMessage().tagName != agent_thoughts) {
+	if (getTurnMessage() == null || getTurnMessage().tagName.toLowerCase() !== agent_thoughts) {
 		addChild(getTurn(), agent_thoughts);
 	}
 
@@ -54,26 +54,33 @@ function addAgentMessageChunk(content) {
 	if (getTurnMessage() == null || getTurnMessage().tagName.toLowerCase() !== agent_messages) {
 		addChild(getTurn(), agent_messages);
 	}
+
 	getTurnMessage().addChunk(content);	
-	
 	scrollToBottom();
 }
 
 
 
-function addResourceLink(text, url, isFolder) {
-	console.log("addResourceLink", text, url);
+function addResourceLink(text, url, icon) {
+	console.log("addResourceLink", text, url, icon);
 
 	const link = addChild(document.body.lastElementChild, "resource-link");
-	link.setLink(text, url, isFolder);
-	
+	link.setLink(text, url, icon);
+					  
 	scrollToBottom();
 }
 
-function setStyle(fontSize, foreground, background) {
+function setStyle(fontSize, foreground, background, link, linkActive, infoFg, infoBg) {
 	document.body.style.color = foreground;
 	document.body.style.backgroundColor = background;
 	document.body.style.fontSize = fontSize;
+	
+	const root = document.documentElement; // For global CSS variables
+	root.style.setProperty('--link_fg', link);
+	root.style.setProperty('--link_active_fg', linkActive);
+	root.style.setProperty('--info_fg', infoFg);
+	root.style.setProperty('--info_bg', infoBg);
+	
 }
 
 function getTurn() {
@@ -95,16 +102,17 @@ function scrollToBottom() {
 }
 
 function demo() {
+	setStyle(`13px`, `rgb(238, 238, 238)`, `rgb(52, 57, 61)`, `rgb(111, 197, 238)`, `rgb(138, 201, 242)`, `rgb(238, 238, 238)`, `rgb(81, 86, 88)`);
 	addPromptTurn();
 	
 	addSessionPrompt("My question is asdf asdf asdf");
-	//addResourceLink("File1.txt", "", "resource_link", "fa-file");
-	//addResourceLink("folderName", "", "resource_link", "fa-folder");
+	addResourceLink("File1.txt", "", "fa-file");
+	addResourceLink("folderName", "", "fa-folder");
 	addAgentThoughtChunk(`**Im Thinking About**
 - one thing
-- another thing
+- another thing`);
 
-**Im Also Thinking About**
+	addAgentThoughtChunk(`**Im Also Thinking About**
 - one thing
 - another thing`);
 
@@ -124,9 +132,9 @@ Anything else?`);
 	//addResourceLink("folderName", "", "resource_link", "fa-folder");
 	addAgentThoughtChunk(`**Im Also Thinking About**
 - one thing
-- another thing
+- another thing`);
 
-**Im Also Thinking About**
+	addAgentThoughtChunk(`**Im Also Thinking About**
 - one thing
 - another thing`);
 

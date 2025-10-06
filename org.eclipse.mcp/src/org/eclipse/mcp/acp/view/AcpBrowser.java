@@ -3,12 +3,12 @@ package org.eclipse.mcp.acp.view;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.text.MessageFormat;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.jface.preference.JFacePreferences;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.mcp.Activator;
@@ -66,18 +66,26 @@ public class AcpBrowser {
 				
 //				Color bg = Activator.getDisplay().getSystemColor(SWT.COLOR_LIST_BACKGROUND);
 //			 	Color fg = Activator.getDisplay().getSystemColor(SWT.COLOR_LIST_FOREGROUND);
-				Color link = Activator.getDisplay().getSystemColor(SWT.COLOR_LINK_FOREGROUND);
-				Color fg = JFaceResources.getColorRegistry().get("org.eclipse.ui.workbench.INFORMATION_FOREGROUND");
-				Color bg = JFaceResources.getColorRegistry().get("org.eclipse.ui.workbench.INFORMATION_BACKGROUND");
-//				bg = JFaceResources.getColorRegistry().get("org.eclipse.ui.editors.backgroundColor");
-//				fg = JFaceResources.getColorRegistry().get("org.eclipse.ui.editors.foregroundColor");
+//				Color link = Activator.getDisplay().getSystemColor(SWT.COLOR_LINK_FOREGROUND);
+				
+				Color link = JFaceResources.getColorRegistry().get(JFacePreferences.HYPERLINK_COLOR);
+				Color linkActive = JFaceResources.getColorRegistry().get(JFacePreferences.ACTIVE_HYPERLINK_COLOR); 
+				Color info_fg = JFaceResources.getColorRegistry().get(JFacePreferences.INFORMATION_FOREGROUND_COLOR);
+				Color info_bg = JFaceResources.getColorRegistry().get(JFacePreferences.INFORMATION_BACKGROUND_COLOR);
+				Color bg = JFaceResources.getColorRegistry().get(JFacePreferences.CONTENT_ASSIST_BACKGROUND_COLOR);
+				Color fg = JFaceResources.getColorRegistry().get(JFacePreferences.CONTENT_ASSIST_FOREGROUND_COLOR);
 //				link = JFaceResources.getColorRegistry().get("org.eclipse.ui.editors.hyperlinkColor");
 				
 				String textFg = String.format("rgb(%d, %d, %d)", fg.getRed(), fg.getGreen(), fg.getBlue());
 				String textBg = String.format("rgb(%d, %d, %d)", bg.getRed(), bg.getGreen(), bg.getBlue());
 				String linkFg = String.format("rgb(%d, %d, %d)", link.getRed(), link.getGreen(), link.getBlue());
+				String infoFg = String.format("rgb(%d, %d, %d)", info_fg.getRed(), info_fg.getGreen(), info_fg.getBlue());
+				String infoBg = String.format("rgb(%d, %d, %d)", info_bg.getRed(), info_bg.getGreen(), info_bg.getBlue());
 				
-				String fxn = MessageFormat.format("setStyle(`{0}px`, `{1}`, `{2}`)", fontHeight, textFg, textBg);
+				
+				String fxn = String.format("setStyle(`%spx`, `%s`, `%s`, `%s`, `%s`, `%s`, `%s`)", 
+						fontHeight, textFg, textBg, linkFg, linkActive, infoFg, infoBg);
+				System.err.println(fxn);
 				Activator.getDisplay().syncExec(()->browser.evaluate(fxn));
 				
 				browser.setVisible(true);
@@ -171,11 +179,11 @@ public class AcpBrowser {
 		}
 	}
 
-	public void addResourceLink(String text, String url, String _class, String icon) {
+	public void addResourceLink(String text, String url, String icon) {
 		if (!browser.isDisposed()) {
 			String fxn = icon == null ?
-					String.format("addResourceLink(`%s`, `%s`, `%s`, null)", text, url, _class) :
-					String.format("addResourceLink(`%s`, `%s`, `%s`, `%s`)", text, url, _class, icon);
+					String.format("addResourceLink(`%s`, `%s`, null)", text, url) :
+					String.format("addResourceLink(`%s`, `%s`, `%s`)", text, url, icon);
 			System.err.println(fxn);
 			Activator.getDisplay().syncExec(()-> {
 				System.err.println(browser.evaluate(fxn));
@@ -194,15 +202,15 @@ public class AcpBrowser {
 
 	public void updateSession(SessionUpdate update) {
 		if (!browser.isDisposed()) {
-			try {
-				String json = mapper.writeValueAsString(update);
-				String fxn = String.format("updateSession(`%s`)", sanitize(json));
-				Activator.getDisplay().syncExec(()-> {
-					System.err.println(browser.evaluate(fxn));
-				});
-			} catch (JsonProcessingException e) {
-				e.printStackTrace();
-			}
+//			try {
+//				String json = mapper.writeValueAsString(update);
+//				String fxn = String.format("updateSession(`%s`)", sanitize(json));
+//				Activator.getDisplay().syncExec(()-> {
+//					System.err.println(browser.evaluate(fxn));
+//				});
+//			} catch (JsonProcessingException e) {
+//				e.printStackTrace();
+//			}
 		}
 	}
 }
