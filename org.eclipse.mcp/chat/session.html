@@ -15,7 +15,31 @@
         <!-- Marked.js for Markdown parsing -->
         <script src="marked.min.js"></script>
 		<script src="prism.js"></script>
-		<script src="jquery-3.7.1.min.js"></script>
         <script src="session.js"></script>
-    </body>
+		<script src="components.js"></script>
+    
+	
+		<template id="prompt-turn"></template>
+		
+		<template id="session-prompt">
+			<slot></slot>
+		</template>
+		
+		<template id = "user-message-chunk">
+			<slot></slot>
+		</template>
+			
+		<template id = "agent-thought-chunk">
+			<span>
+				<i></i>
+				<button>Thought Process</button>
+				<chunked-markdown></chunked-markdown>
+			</span>
+		</template>
+
+		<template id = "agent-message-chunk">
+			<chunked-markdown/>
+		</template>
+	</body>
+
 </html>

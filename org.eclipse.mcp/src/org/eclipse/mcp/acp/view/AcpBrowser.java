@@ -9,11 +9,10 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.jface.resource.JFaceResources;
-import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.mcp.Activator;
+import org.eclipse.mcp.acp.protocol.AcpSchema.SessionUpdate;
 import org.eclipse.mcp.platform.resource.WorkspaceResourceAdapter;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser;
@@ -33,13 +32,18 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.navigator.CommonNavigator;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 public class AcpBrowser {
 
+	private ObjectMapper mapper;
 	private Browser browser;
 	
 	public AcpBrowser(Composite parent, int style) {
-		browser = new Browser(parent, style);
+		mapper = new ObjectMapper();
 		
+		browser = new Browser(parent, style);
 		browser.setJavascriptEnabled(true);
 
 		browser.setForeground(Activator.getDisplay().getSystemColor(SWT.COLOR_INFO_FOREGROUND));
@@ -186,5 +190,19 @@ public class AcpBrowser {
 	
 	public boolean isDisposed() {
 		return browser.isDisposed();
+	}
+
+	public void updateSession(SessionUpdate update) {
+		if (!browser.isDisposed()) {
+			try {
+				String json = mapper.writeValueAsString(update);
+				String fxn = String.format("updateSession(`%s`)", sanitize(json));
+				Activator.getDisplay().syncExec(()-> {
+					System.err.println(browser.evaluate(fxn));
+				});
+			} catch (JsonProcessingException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 }

@@ -106,6 +106,8 @@ public class AcpSessionModel implements IAcpSessionListener {
 
 		session.add(notification);
 		
+		browser.updateSession(notification.update());
+		
 		if (notification.update() instanceof SessionUserMessageChunk) {
 			
 		} else if (notification.update() instanceof SessionAgentThoughtChunk) {
@@ -116,6 +118,7 @@ public class AcpSessionModel implements IAcpSessionListener {
 			setMessage(MessageType.agent_message_chunk, chunk.content(), true, true);
 		}
 		else if (notification.update() instanceof SessionToolCall) {
+			
 			System.err.println(SessionToolCall.class.getCanonicalName());
 		}
 		else if (notification.update() instanceof SessionToolCallUpdate) {

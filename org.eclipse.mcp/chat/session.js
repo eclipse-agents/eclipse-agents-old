@@ -13,21 +13,25 @@ marked.setOptions({
 	},
 });
 
-const prompt_turn = "prompt_turn";
-const session_prompt = "session_prompt";
-const user_message_chunk = "user_message_chunk";
-const agent_thought_chunk = "agent_thought_chunk";
-const agent_message_chunk = "agent_message_chunk";
+const _prompt_turn = "prompt_turn";
+const _session_prompt = "session_prompt";
+const _user_message_chunk = "user_message_chunk";
+const _agent_thought_chunk = "agent_thought_chunk";
+const _agent_message_chunk = "agent_message_chunk";
+
+const session_prompt = "session-prompt";
+const agent_thoughts = "agent-thoughts";
+const agent_messages= "agent-messages";
 
 // SessionUpdate: "user_message_chunk")"agent_message_chunk")"agent_thought_chunk")"tool_call")"tool_call_update")"plan") "available_commands_update")"current_mode_update")
 // ContentBlock "text")"image") "audio") "resource_link")"resource")
 function addPromptTurn() {
-	console.log("addPrompt");
-	addChild(document.body, "div").classList.add(prompt_turn);
+	console.log("addPromptTurn");
+	addChild(document.body, "prompt-turn");
 }
 
 function addSessionPrompt(content) {
-	addChild(getTurn(), "div").classList.add(session_prompt);
+	addChild(getTurn(), session_prompt);
 	getTurnMessage().textContent = content;
 	
 	scrollToBottom();
@@ -38,45 +42,19 @@ function addUserMessageChunk() {
 }
 
 function addAgentThoughtChunk(content) {
-
-	if (getTurnMessage() == null || !getTurnMessage().classList.contains(agent_thought_chunk)) {
-		addChild(getTurn(), "button").classList.add(agent_thought_chunk);
-		getTurnMessage().addEventListener("click", function() {
-			this.classList.toggle("active");
-			var content = this.nextElementSibling;
-			if (content.style.maxHeight) {
-				content.style.maxHeight = null;
-			} else {
-				content.style.maxHeight = content.scrollHeight + "px";
-				content.style.display = "block";
-			}
-		});
-		getTurnMessage().textContent = "Thought Process...";
-
-		addChild(getTurn(), "div").classList.add(agent_thought_chunk);
+	if (getTurnMessage() == null || !getTurnMessage().tagName !== agent_thoughts) {
+		addChild(getTurn(), agent_thoughts);
 	}
 
-//	const split = content.split("\n");
-//	for (i = split.length - 1; i >=0; i--) {
-//		if (split[i].trim().length > 0) {
-//			getTurnMessage().previousElementSibling.textContent = split[i];
-//			break;
-//		}
-//	}
-
-	getTurnMessage().innerHTML = marked.parse(content);
-	Prism.highlightAll();
-	
+	getTurnMessage().addChunk(content);	
 	scrollToBottom();
 }
 
 function addAgentMessageChunk(content) {
-	if (getTurnMessage() == null || !getTurnMessage().classList.contains(agent_message_chunk)) {
-		addChild(getTurn(), "div").classList.add(agent_message_chunk);
+	if (getTurnMessage() == null || !getTurnMessage().tagName !== agent_thoughts) {
+		addChild(getTurn(), agent_thoughts);
 	}
-
-	getTurnMessage().innerHTML = marked.parse(content);
-	Prism.highlightAll();
+	getTurnMessage().addChunk(content);	
 	
 	scrollToBottom();
 }
@@ -135,8 +113,8 @@ function demo() {
 	addPromptTurn();
 	
 	addSessionPrompt("My question is asdf asdf asdf");
-	addResourceLink("File1.txt", "", "resource_link", "fa-file");
-	addResourceLink("folderName", "", "resource_link", "fa-folder");
+	//addResourceLink("File1.txt", "", "resource_link", "fa-file");
+	//addResourceLink("folderName", "", "resource_link", "fa-folder");
 	addAgentThoughtChunk(`**Im Thinking About**
 - one thing
 - another thing
@@ -160,8 +138,8 @@ Anything else?`);
 
 	addPromptTurn();
 	addSessionPrompt("My second question is asdf asdf asdf",);
-	addResourceLink("File1.txt", "", "resource_link", "fa-file");
-	addResourceLink("folderName", "", "resource_link", "fa-folder");
+	//addResourceLink("File1.txt", "", "resource_link", "fa-file");
+	//addResourceLink("folderName", "", "resource_link", "fa-folder");
 	addAgentThoughtChunk(`**Im Thinking About**
 	- one thing
 	- another thing
@@ -182,7 +160,83 @@ Anything else?`);
 	}}
 	\`\`\`
 	Anything else?`);
-
 }
 
+function updateSession(sessionUpdateJson) {
+	const sessionUpdate = JSON.parse(sessionUpdateJson);
+	switch(sessionUpdate.sessionUpdate) {
+		case "user_message_chunk":
+			processSessionChunk(sessionUpdate.sessionUpdate, sessionUpdate.content);
+			break;
+		case "agent_message_chunk":
+			processSessionChunk(sessionUpdate.sessionUpdate, sessionUpdate.content);
+			break; 
+		case "agent_thought_chunk":
+			processSessionChunk(sessionUpdate.sessionUpdate, sessionUpdate.content);
+			break;
+		case "tool_call":
+			break;
+		case "tool_call_update":
+			break;
+		case "plan":
+			break;
+		case "available_commands_update":
+			break;
+		case "current_mode_update":
+			break;
+	}
+	scrollToBottom();
+}
 
+function processSessionChunk(sessionUpdate, content) {
+	
+	switch (content.type) {
+		case "text":
+			processText(sessionUpdate, content);
+			break;
+		case "image":
+			processImages(sessionUpdate, content);
+			break;
+		case "audio":
+			processAudio(sessionUpdate, content);
+			break;
+		case "resource_link":
+			processResourceLink(sessionUpdate, content);
+			break;
+		case "resource":
+			processResource(sessionUpdate, content);
+			break;
+	}
+}
+
+function processText(sessionUpdate, content) {
+	switch(sessionUpdate.sessionUpdate) {
+	case "user_message_chunk":
+		processSessionChunk(sessionUpdate.sessionUpdate, sessionUpdate.content);
+		break;
+	case "agent_message_chunk":
+		processSessionChunk(sessionUpdate.sessionUpdate, sessionUpdate.content);
+		break; 
+	case "agent_thought_chunk":
+		processSessionChunk(sessionUpdate.sessionUpdate, sessionUpdate.content);
+		break;
+	default:
+		break;
+	}
+}
+		
+function processImages(sessionUpdate, content) {
+	
+}
+			
+function processAudio(sessionUpdate, content) {
+	
+}
+	
+function processResourceLink(sessionUpdate, content) {
+	
+}
+			
+function processResource(sessionUpdate, content) {
+	
+}
