@@ -61,26 +61,11 @@ function addAgentMessageChunk(content) {
 
 
 
-function addResourceLink(text, url, _class, icon) {
+function addResourceLink(text, url, isFolder) {
 	console.log("addResourceLink", text, url);
 
-	const div = addChild(document.body.lastElementChild, "div");
-	div.classList.add(_class);
-
-	const span = addChild(div, "span");
-	span.classList.add(_class);
-
-	if (icon != null) {
-		const i = addChild(span, "i");
-		i.classList.add("fa");
-		i.classList.add("fa-thin");
-		i.classList.add(icon);
-	}
-
-	const a = addChild(span, "a");
-	a.classList.add(_class);
-	a.href = url;
-	a.textContent = text;
+	const link = addChild(document.body.lastElementChild, "resource-link");
+	link.setLink(text, url, isFolder);
 	
 	scrollToBottom();
 }

@@ -93,3 +93,23 @@ class AgentMessages extends DivTemplate {
 	}
 }
 customElements.define("agent-messages", AgentMessages);
+
+class ResourceLink extends DivTemplate {
+	
+	constructor() {
+		super("resource-link");
+	}
+
+	connectedCallback() {
+        this.icon = this.root.querySelector('span i');
+		this.link = this.root.querySelector('span a');
+	}
+	
+	setLink(name, url, isFolder) {
+		const icon = (isFolder) ? "fa-folder" : "fa-file";
+		this.icon.classList.add(icon);
+		this.link.setAttribute("href", url);
+		this.link.textContent = name;
+	}
+}
+customElements.define("resource-link", ResourceLink);
