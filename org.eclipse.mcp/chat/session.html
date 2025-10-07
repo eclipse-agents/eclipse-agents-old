@@ -13,123 +13,113 @@
 		<div id="session-id">Session ID: c7a5ffe8-47e0-4de0-b265-bc58f82ed854</div>
 		
         <!-- Marked.js for Markdown parsing -->
-        <script src="marked.min.js"></script>
-		<script src="prism.js"></script>
+		<script src="marked.min.js"></script>
+		<script src="prism2.js"></script>
         <script src="session.js"></script>
-		<script src="components.js"></script>
-    
+		<script src="demo.js"></script>
+
+		<script src="components/components.js"></script>
+		<script src="components/agent-messages.js"></script>
+		<script src="components/agent-thoughts.js"></script>
+		<script src="components/resource-link.js"></script>
 	
 		<template id="prompt-turn">
 		</template>
 		
 		<template id="session-prompt">
-			<style>
-				div {
-					border-color: orange;
-					border-width: thin;
-					border-style: solid;
-					border-radius: 4px;
-					margin-bottom: 10px;
-					padding-left: 6px;
-					padding-right: 6px;	
-				}
-			</style>
+			<link href="components/session-prompt.css" rel="stylesheet">
 			<div>
 				<slot></slot>
 			</div>
 			
 		</template>
 		
+		<!-- SessionUpdate::SessionUserMessageChunk -->
+		
 		<template id = "user-message-chunk">
 			<slot></slot>
 		</template>
 			
+		
+		<!-- SessionUpdate::SessionAgentThoughtChunk -->
+
 		<template id = "agent-thought-chunk">
 			<link href="prism-okaida.css" rel="stylesheet">
-			<style>
-				div {
-					margin-top: 10px;
-				}
-				span button  {
-					background-color: #eee;
-					color: #444;
-					cursor: pointer;
-					width: 100%;
-					border: none;
-					padding: 12px;
-					text-align: left;
-					outline: none;
-					font-size: 15px;
-				}
-
-
-				.active, span button:hover {
-  					background-color: #ccc;
-				}
-
-				span chunked-markdown {
-					display: block;
-					padding: 0 18px;
-					background-color: var(--info_bg);
-					color:var(--info_fg);
-					max-height: 0;
-					overflow: hidden;
-					transition: max-height 0.2s ease-out;
-					cursor: pointer;
-					width: 100%;
-					border: none;
-					text-align: left;
-					outline: none;
-				}
-			</style>
+			<link href="components/agent-thought-chunk.css" rel="stylesheet">
 			<div>
 				<span>
-					<i class="fa fa-thin"></i>
+					<i class="fa fa-thin fa-gear"></i>
 					<button>Thought Process</button>
 					<chunked-markdown></chunked-markdown>
 				</span>
 			</div>
 		</template>
 
+		<!-- SessionUpdate::SessionAgentMessageChunk -->
+
 		<template id = "agent-message-chunk">
 			<link href="prism-okaida.css" rel="stylesheet"/>
 			<chunked-markdown/>
 		</template>
 
+		<!-- SessionUpdate::SessionToolCall -->
+
+		<template id = "tool_call">
+			<div>
+				<i class="fa-solid fa-code-compare"></i>
+				<a>sample.txt</a>
+				<span id="description"></span>
+				<span id="additions">+2</span>
+				<span id="removals">-4</span>
+			</div>
+		</template>
+
+		<!-- SessionUpdate::SessionToolCallUpdate -->
+
+		<template id = "tool_call_update">
+			<i id="status"></i>
+			<i id="kind"></i>
+			<div id="locations"></div>
+			<div id="content-blocks"></div>
+			<markdown-div id="input"/>
+			<markdown-div id="output"/>
+		</template>
+		
+		<template id = "location">
+			<a id="uri"></a>
+			<span id="line"></span>
+		</template>
+
+		<template id = "content-block">
+			<markdown-div></markdown-div>
+			<chunked-markdown></chunked-markdown>
+			<i id="image-block"></i>
+			<span id="audio-block"></span>
+			<resource-link></resource-link>
+			<embedded-resource></embedded-resource>
+		</template>
+
 		<template id = "resource-link">
 			<link rel="stylesheet" href="fontawesome-free-7.1.0-web/css/all.min.css">
-			<style>
-				span {
-					column-gap: 2px;
-					border-color: var(--link-color);
-					border-width: thin;
-					border-style: solid;
-					border-radius: 4px;
-					padding-left: 6px;
-					padding-right: 12px;	
-					max-width: 100%;
-					overflow-wrap: anywhere;
-					overflow-x: hidden;
-					overflow-y: hidden;
-				}
-
-				a {
-					color: var(--link_fg);
-				}
-				
-				a:hover {
-					color: var(--link_active_fg);
-				}
-				
-				i {
-					font-size: smaller;
-				}
-			</style>
+			<link href="components/resource-link.css" rel="stylesheet">
 			<span>
 				<i class="fa fa-thin"></i>
 				<a>temp</a>
 			</span>
 		</template>
+		
+		<template id = "embedded-resource">
+			<link rel="stylesheet" href="fontawesome-free-7.1.0-web/css/all.min.css">
+			<link href="components/embedded-resource.css" rel="stylesheet">
+			<div>
+				<i class="fa fa-thin"></i>
+				<markdown-div></markdown-div>
+				<a></a>
+			</div>
+		</template>
+
+		<!-- END SessionUpdate -->
+
 	</body>
 
 </html>
