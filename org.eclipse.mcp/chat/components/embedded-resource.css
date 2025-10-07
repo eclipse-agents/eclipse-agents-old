@@ -1,0 +1,25 @@
+span {
+	column-gap: 2px;
+	border-color: var(--link-color);
+	border-width: thin;
+	border-style: solid;
+	border-radius: 4px;
+	padding-left: 6px;
+	padding-right: 12px;	
+	max-width: 100%;
+	overflow-wrap: anywhere;
+	overflow-x: hidden;
+	overflow-y: hidden;
+}
+
+a {
+	color: var(--link_fg);
+}
+
+a:hover {
+	color: var(--link_active_fg);
+}
+
+i {
+	font-size: smaller;
+}

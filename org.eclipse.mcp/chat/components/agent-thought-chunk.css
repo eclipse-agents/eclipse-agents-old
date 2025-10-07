@@ -1,0 +1,33 @@
+div {
+	margin-top: 10px;
+}
+span button  {
+	background-color: #eee;
+	color: #444;
+	cursor: pointer;
+	width: 100%;
+	border: none;
+	padding: 12px;
+	text-align: left;
+	outline: none;
+}
+
+
+.active, span button:hover {
+	background-color: #ccc;
+}
+
+span chunked-markdown {
+	display: block;
+	padding: 0 18px;
+	background-color: var(--info_bg);
+	color:var(--info_fg);
+	max-height: 0;
+	overflow: hidden;
+	transition: max-height 0.2s ease-out;
+	cursor: pointer;
+	width: 100%;
+	border: none;
+	text-align: left;
+	outline: none;
+}

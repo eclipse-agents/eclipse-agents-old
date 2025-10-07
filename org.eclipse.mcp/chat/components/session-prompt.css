@@ -1,13 +1,4 @@
-
-
-:root {
-	--info_fg: white;
-	--info_bg: black;
-	--link_fg: blue;
-	--link_active_fg: lightblue;
-}	
-
-div.session-prompt {
+div {
 	border-color: orange;
 	border-width: thin;
 	border-style: solid;
@@ -16,4 +7,3 @@ div.session-prompt {
 	padding-left: 6px;
 	padding-right: 6px;	
 }
-
