@@ -3,6 +3,7 @@ package org.eclipse.mcp.acp.view;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.mcp.Activator;
 import org.eclipse.mcp.acp.AcpService;
 import org.eclipse.mcp.acp.IAcpSessionListener;
 import org.eclipse.mcp.acp.agent.IAgentService;
@@ -106,13 +107,19 @@ public class AcpSessionModel implements IAcpSessionListener {
 		} else if (notification.update() instanceof SessionAgentMessageChunk) {
 			browser.acceptSessionAgentMessageChunk(
 					((SessionAgentMessageChunk)notification.update()).content());
-		}
-		else if (notification.update() instanceof SessionToolCall) {
-			
-			System.err.println(SessionToolCall.class.getCanonicalName());
-		}
-		else if (notification.update() instanceof SessionToolCallUpdate) {
-			System.err.println(SessionToolCallUpdate.class.getCanonicalName());
+		} else if (notification.update() instanceof SessionToolCall) {
+			SessionToolCall toolCall = (SessionToolCall)notification.update();
+			browser.acceptSessionToolCall(
+					toolCall.toolCallId(), 
+					toolCall.title(), 
+					toolCall.kind().toString(), 
+					toolCall.status().toString());
+
+		} else if (notification.update() instanceof SessionToolCallUpdate) {
+			SessionToolCallUpdate toolCall = (SessionToolCallUpdate)notification.update();
+			browser.acceptSessionToolCallUpdate(
+					toolCall.toolCallId(), 
+					toolCall.status().toString());
 		}
 		else if (notification.update() instanceof SessionPlan) {
 			PlanEntry[] entries = ((SessionPlan)notification.update()).entries();

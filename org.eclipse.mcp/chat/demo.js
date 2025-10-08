@@ -6,6 +6,10 @@ function demo() {
 	
 	acceptSessionAgentThoughtChunk(JSON.stringify({"content":{"text":"**Im Thinking About**\n- one thing\n- another thing","type":"text"},"sessionUpdate":"session1"}.content));
 
+	acceptSessionToolCall("tool1", "readConsole", "read", "pending");
+	
+	acceptSessionToolCallUpdate("tool1", "completed");
+
 	acceptSessionAgentThoughtChunk(JSON.stringify({"content":{"text":"**Im Also Thinking About**\n- one thing\n- another thing","type":"text"},"sessionUpdate":"session1"}.content));
 
 	acceptSessionAgentMessageChunk(JSON.stringify({"content":{"text":"Here i's what i came up with:\n```json\n \"a\": {\n\"B\": \"C\"","type":"text"},"sessionUpdate":"session1"}.content));
