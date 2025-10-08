@@ -23,9 +23,9 @@ class AgentThoughts extends DivTemplate {
 			}
 		});
 	}
-	
-	addChunk(chunk) {
-		this.markdown.addChunk(chunk);
+
+	addContentBlock(block) {
+		this.markdown.addContentBlock(block);
 		this.button.textContent = "Thoughts Processed (" + ++this.thoughts + ")";
 	}
 }

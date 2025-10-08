@@ -14,7 +14,8 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.ui.editors,
  org.eclipse.jdt.core,
  com.fasterxml.jackson.core.jackson-databind,
- junit-jupiter-api
+ junit-jupiter-api,
+ com.fasterxml.jackson.core.jackson-core;bundle-version="2.17.2"
 Bundle-RequiredExecutionEnvironment: JavaSE-21
 Automatic-Module-Name: org.eclipse.mcp.builtins.test
 Bundle-ActivationPolicy: lazy

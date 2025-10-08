@@ -12,6 +12,9 @@ import org.eclipse.jface.preference.JFacePreferences;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.mcp.Activator;
+import org.eclipse.mcp.acp.protocol.AcpSchema.ContentBlock;
+import org.eclipse.mcp.acp.protocol.AcpSchema.PromptRequest;
+import org.eclipse.mcp.acp.protocol.AcpSchema.SessionNotification;
 import org.eclipse.mcp.acp.protocol.AcpSchema.SessionUpdate;
 import org.eclipse.mcp.platform.resource.WorkspaceResourceAdapter;
 import org.eclipse.swt.SWT;
@@ -19,6 +22,8 @@ import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.browser.LocationListener;
 import org.eclipse.swt.browser.ProgressAdapter;
 import org.eclipse.swt.browser.ProgressEvent;
+import org.eclipse.swt.events.TraverseEvent;
+import org.eclipse.swt.events.TraverseListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
@@ -34,6 +39,7 @@ import org.eclipse.ui.navigator.CommonNavigator;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 public class AcpBrowser {
 
@@ -117,8 +123,27 @@ public class AcpBrowser {
 						}
 					}
 				}));
-
 			}
+		});
+		
+		browser.addTraverseListener(new TraverseListener() {
+			@Override
+			public void keyTraversed(TraverseEvent e) {
+				ObjectNode o = mapper.createObjectNode();
+				o.put("character", e.character);
+				o.put("detail", e.detail);
+				o.put("doit", e.doit);
+				o.put("keycode", e.keyCode);
+				o.put("keyLocation", e.keyLocation);
+				o.put("stateMask", e.stateMask);
+				o.put("time", e.time);
+				
+				Activator.getDisplay().syncExec(()-> {
+					Object doit = browser.evaluate(String.format("keyTraversed(`%s`)", sanitize(o.toString())));
+					e.doit = Boolean.valueOf(doit.toString());
+				});
+			}
+			
 		});
 		// Cancel opening of new windows
 		browser.addOpenWindowListener(event -> {
@@ -141,59 +166,11 @@ public class AcpBrowser {
 		}
 	}
 	
-	public void addPromptTurn() {
-		if (!browser.isDisposed()) {
-			String fxn = "addPromptTurn()";
-			System.err.println(fxn);
-			Activator.getDisplay().syncExec(()-> {
-				System.err.println(browser.evaluate(fxn));
-			});
-		}
-	}
-
-	public void addUserMessageChunk(String content) {
-		addMessage("addUserMessageChunk", content, true);
-	}
-
-	public void addAgentThoughtChunk(String content) {
-		addMessage("addAgentThoughtChunk", content, true);
-	}
-	public void addSessionPrompt(String content) {
-		addMessage("addSessionPrompt", content, false);
-	}
-
-	public void addAgentMessageChunk(String content) {
-		addMessage("addAgentMessageChunk", content, true);
-	}
-	
-	private void addMessage(String method, String content, boolean isMarkdown) {
-		if (!browser.isDisposed()) {
-			if (isMarkdown) {
-				content = sanitize(content);
-			}
-			String fxn = String.format("%s(`%s`)", method, content);
-			System.err.println(fxn);
-			Activator.getDisplay().syncExec(()-> {
-				System.err.println(browser.evaluate(fxn));
-			});
-		}
-	}
-
-	public void addResourceLink(String text, String url, String icon) {
-		if (!browser.isDisposed()) {
-			String fxn = icon == null ?
-					String.format("addResourceLink(`%s`, `%s`, null)", text, url) :
-					String.format("addResourceLink(`%s`, `%s`, `%s`)", text, url, icon);
-			System.err.println(fxn);
-			Activator.getDisplay().syncExec(()-> {
-				System.err.println(browser.evaluate(fxn));
-			});
-		}
-	}
-	
 	public String sanitize(String s) {
 		//TODO security
-		return s.replaceAll("`", "\\\\`");
+		return s.replace("\\", "\\\\") // Escape backslashes first
+				.replace("'", "\\'")
+				.replace("`", "\\`");
 	}
 	
 	public boolean isDisposed() {
@@ -202,15 +179,94 @@ public class AcpBrowser {
 
 	public void updateSession(SessionUpdate update) {
 		if (!browser.isDisposed()) {
-//			try {
-//				String json = mapper.writeValueAsString(update);
-//				String fxn = String.format("updateSession(`%s`)", sanitize(json));
-//				Activator.getDisplay().syncExec(()-> {
-//					System.err.println(browser.evaluate(fxn));
-//				});
-//			} catch (JsonProcessingException e) {
-//				e.printStackTrace();
-//			}
+			try {
+				String json = mapper.writeValueAsString(update);
+				String fxn = String.format("updateSession(%s)", sanitize(json));
+				System.err.println(fxn);
+				Activator.getDisplay().syncExec(()-> {
+					System.err.println(browser.evaluate(fxn));
+				});
+			} catch (JsonProcessingException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+	public void acceptPromptRequest(PromptRequest request) {
+		if (!browser.isDisposed()) {
+			try {
+				String json = mapper.writeValueAsString(request);
+				String fxn = "acceptPromptRequest('" + sanitize(json) + "');";
+				System.err.println(fxn);
+				Activator.getDisplay().syncExec(()-> {
+					System.err.println(browser.evaluate(fxn));
+				});
+			} catch (JsonProcessingException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+	public void acceptSessionNotification(SessionNotification notification) {
+		if (!browser.isDisposed()) {
+			try {
+				String json = mapper.writeValueAsString(notification.update());
+				String fxn = "acceptSessionNotification('" + sanitize(json) + "');";
+				System.err.println(fxn);
+				Activator.getDisplay().syncExec(()-> {
+					System.err.println(browser.evaluate(fxn));
+				});
+			} catch (JsonProcessingException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+	public void acceptSessionUserMessageChunk(ContentBlock block) {
+		if (!browser.isDisposed()) {
+			try {
+				String json = mapper.writeValueAsString(block);
+				String fxn = "acceptSessionUserMessageChunk('" + sanitize(json) + "');";
+				System.err.println(fxn);
+				Activator.getDisplay().syncExec(()-> {
+					System.err.println(browser.evaluate(fxn));
+				});
+			} catch (JsonProcessingException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+	public void acceptSessionAgentThoughtChunk(ContentBlock block) {
+		if (!browser.isDisposed()) {
+			try {
+				String json = mapper.writeValueAsString(block);
+				String fxn = "acceptSessionAgentThoughtChunk('" + sanitize(json) + "');";
+				System.err.println(fxn);
+//				new JsonParser().parse(json);
+//				new JsonParser().parse(sanitize(json));
+				
+				Activator.getDisplay().syncExec(()-> {
+					System.err.println(browser.evaluate(fxn));
+				});
+			} catch (JsonProcessingException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+	public void acceptSessionAgentMessageChunk(ContentBlock block) {
+		if (!browser.isDisposed()) {
+			try {
+				String json = mapper.writeValueAsString(block);
+				String fxn = "acceptSessionAgentMessageChunk('" + sanitize(json) + "');";
+				System.err.println(fxn);
+				Activator.getDisplay().syncExec(()-> {
+					System.err.println(browser.evaluate(fxn));
+				});
+			} catch (JsonProcessingException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 }

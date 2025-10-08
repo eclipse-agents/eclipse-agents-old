@@ -1,47 +1,97 @@
-
 class Markdown extends HTMLElement {
-
   setMarkdown(markdown) {
-	this.innerHTML = marked.parse(markdown);
-	Prism.highlightAllUnder(this);
+    this.innerHTML = marked.parse(markdown);
+    Prism.highlightAllUnder(this);
   }
 }
 customElements.define("markdown-div", Markdown, { extends: "div" });
 
 class ChunkedMarkdown extends Markdown {
-
   constructor() {
-	super();
-	this.chunks = [];
+    super();
+    this.chunks = [];
+
+    this.TEXT = "text";
+    this.IMAGE = "image";
+    this.AUDIO = "audio";
+    this.RESOURCE_LINK = "resource_link";
+    this.RESOURCE = "resource";
+    this.NONE = "NONE";
+
+    this.lastBlockType = this.NONE;
   }
-  
-  addChunk(chunk) {
-	this.chunks.push(chunk);
-	super.setMarkdown(this.chunks.join(""));
+
+  addContentBlock(block) {
+    if (this.lastBlockType === this.RESOURCE && block.type !== this.RESOURCE) {
+      this.chunks.push("\n```\n");
+    } else if (this.lastBlockType !== this.RESOURCE && block.type === this.RESOURCE) {
+      this.chunks.push("\n```text\n");
+    }
+
+    if (block.type === "text") {
+      this.addText(block);
+    } else if (block.type === "image") {
+      this.addImage(block);
+    } else if (block.type === "audio") {
+      this.addAudio(block);
+    } else if (block.type === "resource_link") {
+      this.addResourceLink(block);
+    } else if (block.type === "resource") {
+      this.addResource(block);
+    }
+
+    if (block.type  === this.RESOURCE) {
+      console.log(this.chunks.join("") + "\n```");
+      super.setMarkdown(this.chunks.join("") + "\n```");
+    } else {
+      console.log(this.chunks.join(""));
+      super.setMarkdown(this.chunks.join(""));
+    }
+
+    this.lastBlockType = block.type;
+  }
+
+  addText(block) {
+    this.chunks.push(block.text);
+  }
+
+  addImage(block) {
+    return;
+  }
+
+  addAudio(block) {
+    return;
+  }
+
+  addResourceLink(block) {
+    const icon = block._meta == null ? null : block._meta.icon;
+    if (icon != null) {
+      this.chunks.push(`<i class="fa-thin ` + icon + `"></i>"`);
+    }
+    this.chunks.push(`<a href="` + block.uri + `">` + block.name + `</a>`);
+  }
+
+  addResource(block) {
+    //TODO do something with block.resource.uri;
+
+    if (block.resource.text != undefined) {
+      this.chunks.push(block.resource.text);
+    } else if (block.resource.blob != undefined) {
+      this.chunks.push(block.resource.blob);
+    }
   }
 }
 customElements.define("chunked-markdown", ChunkedMarkdown);
 
 class DivTemplate extends HTMLElement {
-	
-	constructor(templateId) {
-		super();
-			
-		let template = document.getElementById(templateId);
-		this.root  = this.attachShadow({ mode: "open" });
-		this.root.appendChild(template.content.cloneNode(true));
-	}
+  constructor(templateId) {
+    super();
+
+    let template = document.getElementById(templateId);
+    this.root = this.attachShadow({ mode: "open" });
+    this.root.appendChild(template.content.cloneNode(true));
+  }
 }
 
 class PromptTurn extends HTMLElement {}
 customElements.define("prompt-turn", PromptTurn, { extends: "div" });
-
-class SessionPrompt extends DivTemplate {
-	
-	markdown;
-
-	constructor() {
-		super("session-prompt");
-	}
-}
-customElements.define("session-prompt", SessionPrompt);
