@@ -207,20 +207,20 @@ public class AcpBrowser {
 		}
 	}
 
-	public void acceptSessionNotification(SessionNotification notification) {
-		if (!browser.isDisposed()) {
-			try {
-				String json = mapper.writeValueAsString(notification.update());
-				String fxn = "acceptSessionNotification('" + sanitize(json) + "');";
-				System.err.println(fxn);
-				Activator.getDisplay().syncExec(()-> {
-					System.err.println(browser.evaluate(fxn));
-				});
-			} catch (JsonProcessingException e) {
-				e.printStackTrace();
-			}
-		}
-	}
+//	public void acceptSessionNotification(SessionNotification notification) {
+//		if (!browser.isDisposed()) {
+//			try {
+//				String json = mapper.writeValueAsString(notification.update());
+//				String fxn = "acceptSessionNotification('" + sanitize(json) + "');";
+//				System.err.println(fxn);
+//				Activator.getDisplay().syncExec(()-> {
+//					System.err.println(browser.evaluate(fxn));
+//				});
+//			} catch (JsonProcessingException e) {
+//				e.printStackTrace();
+//			}
+//		}
+//	}
 
 	public void acceptSessionUserMessageChunk(ContentBlock block) {
 		if (!browser.isDisposed()) {
@@ -267,6 +267,29 @@ public class AcpBrowser {
 			} catch (JsonProcessingException e) {
 				e.printStackTrace();
 			}
+		}
+	}
+	
+	public void acceptSessionToolCall(String toolCallId, String title, String kind, String status) {
+		if (!browser.isDisposed()) {
+			String fxn = String.format("acceptSessionToolCall(`%s`, `%s`, `%s`, `%s`);", 
+					toolCallId, title, kind, status);
+			System.err.println(fxn);
+			Activator.getDisplay().syncExec(()-> {
+				System.err.println(browser.evaluate(fxn));
+			});
+		}
+	}
+
+
+	public void  acceptSessionToolCallUpdate(String toolCallId, String status) {
+		if (!browser.isDisposed()) {
+			String fxn = String.format("acceptSessionToolCallUpdate(`%s`, `%s`);", 
+					toolCallId, status);
+			System.err.println(fxn);
+			Activator.getDisplay().syncExec(()-> {
+				System.err.println(browser.evaluate(fxn));
+			});
 		}
 	}
 }

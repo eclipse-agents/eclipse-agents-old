@@ -23,6 +23,7 @@
 		<script src="components/agent-messages.js"></script>
 		<script src="components/agent-thoughts.js"></script>
 		<script src="components/resource-link.js"></script>
+		<script src="components/tool-call.js"></script>
 	
 		<template id="prompt-turn">
 		</template>
@@ -63,48 +64,12 @@
 
 		<!-- SessionUpdate::SessionToolCall -->
 
-		<template id = "tool_call">
-			<div>
-				<i class="fa-solid fa-code-compare"></i>
-				<a>sample.txt</a>
-				<span id="description"></span>
-				<span id="additions">+2</span>
-				<span id="removals">-4</span>
-			</div>
-		</template>
-
-		<!-- SessionUpdate::SessionToolCallUpdate -->
-
-		<template id = "tool_call_update">
-			<i id="status"></i>
-			<i id="kind"></i>
-			<div id="locations"></div>
-			<div id="content-blocks"></div>
-			<markdown-div id="input"/>
-			<markdown-div id="output"/>
-		</template>
-		
-		<template id = "location">
-			<a id="uri"></a>
-			<span id="line"></span>
-		</template>
-
-		<template id = "resource-link">
+		<template id = "tool-call">
 			<link rel="stylesheet" href="fontawesome-free-7.1.0-web/css/all.min.css">
-			<link href="components/resource-link.css" rel="stylesheet">
-			<span>
-				<i class="fa fa-thin"></i>
-				<a>temp</a>
-			</span>
-		</template>
-		
-		<template id = "embedded-resource">
-			<link rel="stylesheet" href="fontawesome-free-7.1.0-web/css/all.min.css">
-			<link href="components/embedded-resource.css" rel="stylesheet">
-			<div>
-				<i class="fa fa-thin"></i>
-				<markdown-div></markdown-div>
-				<a></a>
+			<div id="toolCallId">
+				<i id="kind"></i>
+				<span id="title"></span>
+				<i id="status"></i>
 			</div>
 		</template>
 

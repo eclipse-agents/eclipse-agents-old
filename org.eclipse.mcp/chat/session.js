@@ -23,12 +23,9 @@ const session_prompt = "session-prompt";
 const user_thoughts = "user-thoughts";
 const agent_thoughts = "agent-thoughts";
 const agent_messages= "agent-messages";
+const tool_call= "tool-call";
 
-const schemaToTag = {
-	_session_prompt: session_prompt,
-	_agent_thought_chunk: agent_thoughts,
-	_agent_message_chunk: agent_messages
-}
+
 
 function acceptPromptRequest(promptRequest) {
 	addChild(document.body, "prompt-turn");
@@ -62,6 +59,16 @@ function acceptSessionAgentMessageChunk(blockChunk) {
 	}
 	getTurnMessage().addContentBlock(JSON.parse(blockChunk));
 	scrollToBottom();	
+}
+
+function acceptSessionToolCall(toolCallId, title, kind, status) {
+	addChild(getTurn(), tool_call).id = toolCallId;
+	getTurnMessage().create(toolCallId, title, kind, status);
+}
+
+
+function acceptSessionToolCallUpdate(toolCallId, status) {
+    getTurn().querySelector('tool-call#' + toolCallId).updateStatus(status);
 }
 
 
