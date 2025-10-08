@@ -9,7 +9,20 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class AcpSchema {
 
-	//https://github.com/zed-industries/agent-client-protocol/blob/1cf7e2c5b42ae6c238bab266f11a6456d85e8a58/schema/schema.json
+// TODO: automate json schema -> java api
+
+// Last Manual Sync
+//	commit b277ed22081ca7cd1b210027732dc0cb6efb06ab (HEAD -> main, origin/main, origin/governance, origin/HEAD)
+//	Merge: a75bd5b d56ffe5
+//	Author: morgankrey <morgan@zed.dev>
+//	Date:   Mon Oct 6 13:24:59 2025 -0500
+//
+//	    Merge pull request #136 from zed-industries/statpak-typo
+//	    
+//	    Fix Typo
+
+
+	
 	
 	@JsonInclude(JsonInclude.Include.NON_ABSENT)
 	@JsonIgnoreProperties(ignoreUnknown = true)
@@ -43,6 +56,7 @@ public class AcpSchema {
 		LoadSessionResponse,
 		SetSessionModeResponse,
 		PromptResponse,
+		SetSessionModelResponse,
 		ExtMethodResponse {}
 	
 
@@ -153,6 +167,7 @@ public class AcpSchema {
 		LoadSessionRequest,
 		SetSessionModeRequest,
 		PromptRequest,
+		SetSessionModelRequest,
 		ExtMethodRequest {}
       
 
@@ -402,7 +417,7 @@ public class AcpSchema {
 	public record  LoadSessionResponse(
 			@JsonProperty("_meta")
 			Map<String, Object> meta,
-			SessionModeState modes) implements AgentResponse {}
+			SessionModelState modes) implements AgentResponse {}
 
 	
 	@JsonInclude(JsonInclude.Include.NON_ABSENT)
@@ -457,6 +472,17 @@ public class AcpSchema {
 			@JsonProperty(required = true)
 			String name)  implements McpServer {}
 
+	public record ModelInfo(
+			@JsonProperty("_meta")
+			Map<String, Object> meta,
+			@JsonProperty
+			String description,
+			@JsonProperty(required = true)
+			String modelId,
+			@JsonProperty(required = true)
+			String name
+			) {}
+
 	
 	@JsonInclude(JsonInclude.Include.NON_ABSENT)
 	@JsonIgnoreProperties(ignoreUnknown = true)
@@ -473,6 +499,8 @@ public class AcpSchema {
 	public record NewSessionResponse(
 			@JsonProperty("_meta")
 			Map<String, Object> meta,
+			@JsonProperty
+			SessionModelState models,
 			@JsonProperty
 			SessionModeState modes,
 			@JsonProperty(required = true)
@@ -671,6 +699,15 @@ public class AcpSchema {
 			@JsonProperty(required = true)
 			String currentModeId) {}
 	
+	@JsonInclude(JsonInclude.Include.NON_ABSENT)
+	@JsonIgnoreProperties(ignoreUnknown = true)
+	public record SessionModelState(
+			@JsonProperty("_meta")
+			Map<String, Object> meta,
+			@JsonProperty(required = true)
+			ModelInfo[] availableModels,
+			@JsonProperty(required = true)
+			String currentModelId) {}
 
 	@JsonInclude(JsonInclude.Include.NON_ABSENT)
 	@JsonIgnoreProperties(ignoreUnknown = true)
@@ -793,6 +830,23 @@ public class AcpSchema {
 			@JsonProperty("_meta")
 			Map<String, Object> meta) implements AgentResponse {}
 
+	@JsonInclude(JsonInclude.Include.NON_ABSENT)
+	@JsonIgnoreProperties(ignoreUnknown = true)
+	public record SetSessionModelRequest (
+			@JsonProperty("_meta")
+			Map<String, Object> meta,
+			@JsonProperty(required = true)
+			SessionMode modelId,
+			@JsonProperty(required = true)
+			String sessionId) implements ClientRequest {}
+
+	
+	@JsonInclude(JsonInclude.Include.NON_ABSENT)
+	@JsonIgnoreProperties(ignoreUnknown = true)	
+	public record SetSessionModelResponse(
+			@JsonProperty("_meta")
+			Map<String, Object> meta) implements AgentResponse {}
+	 
 	@JsonInclude(JsonInclude.Include.NON_ABSENT)
 	@JsonIgnoreProperties(ignoreUnknown = true)
 	public enum StopReason { end_turn, max_tokens, max_turn_requests, refusal, cancelled }

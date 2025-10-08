@@ -14,11 +14,12 @@
 		
         <!-- Marked.js for Markdown parsing -->
 		<script src="marked.min.js"></script>
-		<script src="prism2.js"></script>
+		<script src="prism.js"></script>
         <script src="session.js"></script>
 		<script src="demo.js"></script>
 
 		<script src="components/components.js"></script>
+		<script src="components/session-prompt.js"></script>
 		<script src="components/agent-messages.js"></script>
 		<script src="components/agent-thoughts.js"></script>
 		<script src="components/resource-link.js"></script>
@@ -28,16 +29,13 @@
 		
 		<template id="session-prompt">
 			<link href="components/session-prompt.css" rel="stylesheet">
-			<div>
-				<slot></slot>
-			</div>
-			
+			<chunked-markdown></chunked-markdown>
 		</template>
 		
 		<!-- SessionUpdate::SessionUserMessageChunk -->
 		
 		<template id = "user-message-chunk">
-			<slot></slot>
+			<chunked-markdown></chunked-markdown>
 		</template>
 			
 		
@@ -88,15 +86,6 @@
 		<template id = "location">
 			<a id="uri"></a>
 			<span id="line"></span>
-		</template>
-
-		<template id = "content-block">
-			<markdown-div></markdown-div>
-			<chunked-markdown></chunked-markdown>
-			<i id="image-block"></i>
-			<span id="audio-block"></span>
-			<resource-link></resource-link>
-			<embedded-resource></embedded-resource>
 		</template>
 
 		<template id = "resource-link">

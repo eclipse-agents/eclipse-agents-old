@@ -41,6 +41,7 @@ Import-Package: jakarta.servlet;version="6.1.0",
  jakarta.servlet.annotation;version="[6.1.0,7.0.0)",
  jakarta.servlet.http;version="[6.1.0,7.0.0)"
 Export-Package: org.eclipse.mcp;uses:="org.eclipse.core.runtime,org.eclipse.ui.dialogs,org.eclipse.jface.dialogs",
+ org.eclipse.mcp.acp.protocol,
  org.eclipse.mcp.internal;x-friends:="org.eclipse.mcp.builtins,org.eclipse.mcp.test,org.eclipse.mcp.test",
  org.eclipse.mcp.internal.preferences;x-friends:="org.eclipse.mcp.test",
  org.eclipse.mcp.platform,

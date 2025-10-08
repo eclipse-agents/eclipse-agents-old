@@ -6,14 +6,9 @@ import java.util.List;
 import org.eclipse.mcp.acp.AcpService;
 import org.eclipse.mcp.acp.IAcpSessionListener;
 import org.eclipse.mcp.acp.agent.IAgentService;
-import org.eclipse.mcp.acp.protocol.AcpSchema.AudioBlock;
-import org.eclipse.mcp.acp.protocol.AcpSchema.BlobResourceContents;
 import org.eclipse.mcp.acp.protocol.AcpSchema.CancelNotification;
-import org.eclipse.mcp.acp.protocol.AcpSchema.ContentBlock;
 import org.eclipse.mcp.acp.protocol.AcpSchema.CreateTerminalRequest;
 import org.eclipse.mcp.acp.protocol.AcpSchema.CreateTerminalResponse;
-import org.eclipse.mcp.acp.protocol.AcpSchema.EmbeddedResourceBlock;
-import org.eclipse.mcp.acp.protocol.AcpSchema.ImageBlock;
 import org.eclipse.mcp.acp.protocol.AcpSchema.KillTerminalCommandRequest;
 import org.eclipse.mcp.acp.protocol.AcpSchema.KillTerminalCommandResponse;
 import org.eclipse.mcp.acp.protocol.AcpSchema.McpServer;
@@ -27,7 +22,6 @@ import org.eclipse.mcp.acp.protocol.AcpSchema.ReleaseTerminalRequest;
 import org.eclipse.mcp.acp.protocol.AcpSchema.ReleaseTerminalResponse;
 import org.eclipse.mcp.acp.protocol.AcpSchema.RequestPermissionRequest;
 import org.eclipse.mcp.acp.protocol.AcpSchema.RequestPermissionResponse;
-import org.eclipse.mcp.acp.protocol.AcpSchema.ResourceLinkBlock;
 import org.eclipse.mcp.acp.protocol.AcpSchema.SessionAgentMessageChunk;
 import org.eclipse.mcp.acp.protocol.AcpSchema.SessionAgentThoughtChunk;
 import org.eclipse.mcp.acp.protocol.AcpSchema.SessionAvailableCommandsUpdate;
@@ -42,8 +36,6 @@ import org.eclipse.mcp.acp.protocol.AcpSchema.SetSessionModeRequest;
 import org.eclipse.mcp.acp.protocol.AcpSchema.SetSessionModeResponse;
 import org.eclipse.mcp.acp.protocol.AcpSchema.TerminalOutputRequest;
 import org.eclipse.mcp.acp.protocol.AcpSchema.TerminalOutputResponse;
-import org.eclipse.mcp.acp.protocol.AcpSchema.TextBlock;
-import org.eclipse.mcp.acp.protocol.AcpSchema.TextResourceContents;
 import org.eclipse.mcp.acp.protocol.AcpSchema.WaitForTerminalExitRequest;
 import org.eclipse.mcp.acp.protocol.AcpSchema.WaitForTerminalExitResponse;
 import org.eclipse.mcp.acp.protocol.AcpSchema.WriteTextFileRequest;
@@ -64,7 +56,7 @@ public class AcpSessionModel implements IAcpSessionListener {
 	
 	AcpBrowser browser;
 	
-	enum MessageType { session_prompt, agent_thought_chunk, agent_message_chunk, resource_link };
+	enum MessageType { session_prompt, user_message_chunk, agent_thought_chunk, agent_message_chunk, resource_link };
 
 	
 	public AcpSessionModel(IAgentService agent, String sessionId, String cwd, McpServer[] mcpServers, SessionModeState modes) {
@@ -104,16 +96,16 @@ public class AcpSessionModel implements IAcpSessionListener {
 
 		session.add(notification);
 		
-		browser.updateSession(notification.update());
 		
 		if (notification.update() instanceof SessionUserMessageChunk) {
-			
+			browser.acceptSessionUserMessageChunk(
+					((SessionUserMessageChunk)notification.update()).content());
 		} else if (notification.update() instanceof SessionAgentThoughtChunk) {
-			SessionAgentThoughtChunk chunk = (SessionAgentThoughtChunk)notification.update();
-			setMessage(MessageType.agent_thought_chunk, chunk.content(), true, true);
+			browser.acceptSessionAgentThoughtChunk(
+					((SessionAgentThoughtChunk)notification.update()).content());
 		} else if (notification.update() instanceof SessionAgentMessageChunk) {
-			SessionAgentMessageChunk chunk = (SessionAgentMessageChunk)notification.update();
-			setMessage(MessageType.agent_message_chunk, chunk.content(), true, true);
+			browser.acceptSessionAgentMessageChunk(
+					((SessionAgentMessageChunk)notification.update()).content());
 		}
 		else if (notification.update() instanceof SessionToolCall) {
 			
@@ -289,11 +281,7 @@ public class AcpSessionModel implements IAcpSessionListener {
 
 	@Override
 	public void accept(PromptRequest request) {
-		browser.addPromptTurn();
-		ContentBlock[] cbs = request.prompt();
-		for (ContentBlock cb: cbs) {
-			setMessage(MessageType.session_prompt, cb, false, false);
-		}
+		browser.acceptPromptRequest(request);
 	}
 
 	//------------------------
@@ -345,42 +333,5 @@ public class AcpSessionModel implements IAcpSessionListener {
 	public void accept(KillTerminalCommandResponse response) {
 		// TODO Auto-generated method stub
 		
-	}
-	
-	private void setMessage(MessageType type, ContentBlock content, boolean isMarkdown, boolean isChunk) {
-		if (content instanceof TextBlock) {
-			
-			if (type == MessageType.agent_thought_chunk) {
-				browser.addAgentThoughtChunk(((TextBlock)content).text());
-			} else if (type == MessageType.agent_message_chunk) {
-				browser.addAgentMessageChunk(((TextBlock)content).text());
-			} else if (type == MessageType.session_prompt) {
-				browser.addSessionPrompt(((TextBlock)content).text());
-			}
-		} else if (content instanceof ImageBlock) {
-			
-		} else if (content instanceof AudioBlock) {
-			
-		} else if (content instanceof ResourceLinkBlock) {
-		
-			ResourceLinkBlock block = (ResourceLinkBlock) content;
-			
-			String icon = block.meta() != null && block.meta().get("icon") != null ? 
-					block.meta().get("icon").toString() : null;
-
-			
-			browser.addResourceLink(block.name(), block.uri(), icon);
-		} else if (content instanceof EmbeddedResourceBlock) {
-		
-			EmbeddedResourceBlock block = (EmbeddedResourceBlock)content;
-
-			if (block.resource() instanceof TextResourceContents) {
-				TextResourceContents trc = (TextResourceContents)block.resource();
-				trc.mimeType();
-				trc.uri();
-			} else if (block.resource() instanceof BlobResourceContents) {
-				BlobResourceContents brc = (BlobResourceContents)block.resource();
-			}
-		}
 	}
 }
