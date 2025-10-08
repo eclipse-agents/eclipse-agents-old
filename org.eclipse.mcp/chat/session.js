@@ -98,7 +98,7 @@ function scrollToBottom() {
 
 function mimeToMarkdownCodeBlock(mimeType) {
     
-    let language = mimeType;
+    let language = "text";
     
     if (mimeType != null) {
         if (mimeType.startsWith("application/x-")) {
@@ -111,6 +111,11 @@ function mimeToMarkdownCodeBlock(mimeType) {
             language = mimeType.substring("application/".length);
         }
     }
+
+	if (Prism.languages[language] == null) {
+		language = "text";
+	}
+
     return language;
 }
 

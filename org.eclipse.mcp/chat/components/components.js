@@ -24,6 +24,8 @@ class ChunkedMarkdown extends Markdown {
   addContentBlock(block) {
     if (this.lastBlockType === this.RESOURCE && block.type !== this.RESOURCE) {
       this.chunks.push("\n```\n");
+    } else if (this.lastBlockType !== this.RESOURCE && block.type === this.RESOURCE) {
+      this.chunks.push("\n```text\n");
     }
 
     if (block.type === "text") {
@@ -38,13 +40,15 @@ class ChunkedMarkdown extends Markdown {
       this.addResource(block);
     }
 
-    if (this.lastBlockType === this.RESOURCE) {
+    if (block.type  === this.RESOURCE) {
       console.log(this.chunks.join("") + "\n```");
       super.setMarkdown(this.chunks.join("") + "\n```");
     } else {
       console.log(this.chunks.join(""));
       super.setMarkdown(this.chunks.join(""));
     }
+
+    this.lastBlockType = block.type;
   }
 
   addText(block) {
@@ -70,9 +74,9 @@ class ChunkedMarkdown extends Markdown {
   addResource(block) {
     //TODO do something with block.resource.uri;
 
-    if (block.resource.text !== null) {
+    if (block.resource.text != undefined) {
       this.chunks.push(block.resource.text);
-    } else if (block.resource.blob !== null) {
+    } else if (block.resource.blob != undefined) {
       this.chunks.push(block.resource.blob);
     }
   }
@@ -91,4 +95,3 @@ class DivTemplate extends HTMLElement {
 
 class PromptTurn extends HTMLElement {}
 customElements.define("prompt-turn", PromptTurn, { extends: "div" });
-

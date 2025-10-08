@@ -168,7 +168,9 @@ public class AcpBrowser {
 	
 	public String sanitize(String s) {
 		//TODO security
-		return s.replaceAll("`", "\\\\`");
+		return s.replace("\\", "\\\\") // Escape backslashes first
+				.replace("'", "\\'")
+				.replace("`", "\\`");
 	}
 	
 	public boolean isDisposed() {
@@ -179,7 +181,7 @@ public class AcpBrowser {
 		if (!browser.isDisposed()) {
 			try {
 				String json = mapper.writeValueAsString(update);
-				String fxn = String.format("updateSession(`%s`)", sanitize(json));
+				String fxn = String.format("updateSession(%s)", sanitize(json));
 				System.err.println(fxn);
 				Activator.getDisplay().syncExec(()-> {
 					System.err.println(browser.evaluate(fxn));
@@ -194,7 +196,7 @@ public class AcpBrowser {
 		if (!browser.isDisposed()) {
 			try {
 				String json = mapper.writeValueAsString(request);
-				String fxn = String.format("acceptPromptRequest(`%s`)", sanitize(json));
+				String fxn = "acceptPromptRequest('" + sanitize(json) + "');";
 				System.err.println(fxn);
 				Activator.getDisplay().syncExec(()-> {
 					System.err.println(browser.evaluate(fxn));
@@ -209,7 +211,7 @@ public class AcpBrowser {
 		if (!browser.isDisposed()) {
 			try {
 				String json = mapper.writeValueAsString(notification.update());
-				String fxn = String.format("acceptSessionNotification(`%s`)", sanitize(json));
+				String fxn = "acceptSessionNotification('" + sanitize(json) + "');";
 				System.err.println(fxn);
 				Activator.getDisplay().syncExec(()-> {
 					System.err.println(browser.evaluate(fxn));
@@ -224,7 +226,7 @@ public class AcpBrowser {
 		if (!browser.isDisposed()) {
 			try {
 				String json = mapper.writeValueAsString(block);
-				String fxn = String.format("acceptSessionUserMessageChunk(`%s`)", sanitize(json));
+				String fxn = "acceptSessionUserMessageChunk('" + sanitize(json) + "');";
 				System.err.println(fxn);
 				Activator.getDisplay().syncExec(()-> {
 					System.err.println(browser.evaluate(fxn));
@@ -239,7 +241,7 @@ public class AcpBrowser {
 		if (!browser.isDisposed()) {
 			try {
 				String json = mapper.writeValueAsString(block);
-				String fxn = String.format("acceptSessionAgentThoughtChunk(`%s`)", sanitize(json));
+				String fxn = "acceptSessionAgentThoughtChunk('" + sanitize(json) + "');";
 				System.err.println(fxn);
 //				new JsonParser().parse(json);
 //				new JsonParser().parse(sanitize(json));
@@ -257,7 +259,7 @@ public class AcpBrowser {
 		if (!browser.isDisposed()) {
 			try {
 				String json = mapper.writeValueAsString(block);
-				String fxn = String.format("acceptSessionAgentMessageChunk(`%s`)", sanitize(json));
+				String fxn = "acceptSessionAgentMessageChunk('" + sanitize(json) + "');";
 				System.err.println(fxn);
 				Activator.getDisplay().syncExec(()-> {
 					System.err.println(browser.evaluate(fxn));
