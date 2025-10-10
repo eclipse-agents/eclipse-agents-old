@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.fieldassist.IContentProposal;
 import org.eclipse.jface.fieldassist.IContentProposalListener;
@@ -167,6 +168,10 @@ public class AcpView extends ViewPart implements ModifyListener, TraverseListene
 	}
 	
 	public void addContext(Object context) {
+		if (!(context instanceof IResource) && context instanceof IAdaptable) {
+			context = ((IAdaptable)context).getAdapter(IResource.class);
+		}
+
 		if (context instanceof IResource) {
 			WorkspaceResourceAdapter wra = new WorkspaceResourceAdapter((IResource)context);
 			String uri = wra.toUri();

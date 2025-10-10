@@ -1,24 +1,27 @@
 package org.eclipse.mcp.acp.view;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.Base64;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.jface.preference.JFacePreferences;
+import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.mcp.Activator;
 import org.eclipse.mcp.acp.protocol.AcpSchema.ContentBlock;
 import org.eclipse.mcp.acp.protocol.AcpSchema.PromptRequest;
-import org.eclipse.mcp.acp.protocol.AcpSchema.SessionNotification;
 import org.eclipse.mcp.acp.protocol.AcpSchema.SessionUpdate;
 import org.eclipse.mcp.platform.resource.WorkspaceResourceAdapter;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser;
+import org.eclipse.swt.browser.BrowserFunction;
 import org.eclipse.swt.browser.LocationListener;
 import org.eclipse.swt.browser.ProgressAdapter;
 import org.eclipse.swt.browser.ProgressEvent;
@@ -27,9 +30,14 @@ import org.eclipse.swt.events.TraverseListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.ImageData;
+import org.eclipse.swt.graphics.ImageLoader;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Menu;
+import org.eclipse.ui.IEditorDescriptor;
+import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
@@ -56,6 +64,51 @@ public class AcpBrowser {
 		browser.setBackground(Activator.getDisplay().getSystemColor(SWT.COLOR_INFO_BACKGROUND));
 		browser.setLayoutData(new GridData(GridData.FILL_BOTH));
 		browser.setVisible(false);
+		
+		new BrowserFunction(browser, "getProgramIcon") {
+			@Override
+	        public Object function(Object[] args) {
+				WorkspaceResourceAdapter adapter = new WorkspaceResourceAdapter(args[0].toString());
+	            IResource resource = adapter.getModel();
+	            final ImageDescriptor imageDescriptor;
+	            if (resource instanceof IFile) {
+	            	IEditorDescriptor editorDescriptor = IDE.getDefaultEditor((IFile)resource);
+	            	if (editorDescriptor != null) {
+	            		imageDescriptor = editorDescriptor.getImageDescriptor();
+	            	} else {
+	            		imageDescriptor = null;
+	            	}
+	            } else if (resource instanceof IFolder) {
+	            	imageDescriptor = PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_OBJ_FOLDER);
+	            } else if (resource instanceof IProject) {
+	            	imageDescriptor = PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_OBJ_PROJECT);
+	            } else {
+	            	imageDescriptor = null;
+	            }
+	            
+	            if (imageDescriptor != null) {
+	            	StringBuffer result = new StringBuffer();
+					
+					Activator.getDisplay().syncExec(()-> {
+						ByteArrayOutputStream bos = new ByteArrayOutputStream();
+				        Image image = imageDescriptor.createImage(Activator.getDisplay());
+				        ImageLoader loader = new ImageLoader();
+				        loader.data = new ImageData[] { image.getImageData() }; // Get current ImageData from Image
+				        loader.save(bos, SWT.IMAGE_PNG); // Save as PNG, you can choose JPEG as well
+				        image.dispose();
+				        
+				        byte[] imageBytes = bos.toByteArray();
+	
+						//TODO program.getImageData().type, png, jpg, etc
+				        result.append("data:image/jpg;base64,");
+				        result.append(Base64.getEncoder().encodeToString(imageBytes));
+					});
+					System.out.println(result);
+					return result.toString();
+	            }
+	            return null;
+			}
+		};
 		
 		browser.addProgressListener(new ProgressAdapter() {
 			@Override

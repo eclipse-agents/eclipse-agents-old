@@ -7,12 +7,11 @@ import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.mcp.acp.agent.GeminiService;
+import org.eclipse.mcp.acp.agent.GooseService;
 import org.eclipse.mcp.acp.agent.IAgentService;
 import org.eclipse.mcp.acp.protocol.AcpSchema.AgentNotification;
 import org.eclipse.mcp.acp.protocol.AcpSchema.AgentRequest;
 import org.eclipse.mcp.acp.protocol.AcpSchema.AgentResponse;
-import org.eclipse.mcp.acp.protocol.AcpSchema.AuthenticateRequest;
-import org.eclipse.mcp.acp.protocol.AcpSchema.AuthenticateResponse;
 import org.eclipse.mcp.acp.protocol.AcpSchema.CancelNotification;
 import org.eclipse.mcp.acp.protocol.AcpSchema.ClientNotification;
 import org.eclipse.mcp.acp.protocol.AcpSchema.ClientRequest;
@@ -20,13 +19,8 @@ import org.eclipse.mcp.acp.protocol.AcpSchema.ClientResponse;
 import org.eclipse.mcp.acp.protocol.AcpSchema.ContentBlock;
 import org.eclipse.mcp.acp.protocol.AcpSchema.CreateTerminalRequest;
 import org.eclipse.mcp.acp.protocol.AcpSchema.CreateTerminalResponse;
-import org.eclipse.mcp.acp.protocol.AcpSchema.InitializeRequest;
 import org.eclipse.mcp.acp.protocol.AcpSchema.KillTerminalCommandRequest;
 import org.eclipse.mcp.acp.protocol.AcpSchema.KillTerminalCommandResponse;
-import org.eclipse.mcp.acp.protocol.AcpSchema.LoadSessionRequest;
-import org.eclipse.mcp.acp.protocol.AcpSchema.LoadSessionResponse;
-import org.eclipse.mcp.acp.protocol.AcpSchema.NewSessionRequest;
-import org.eclipse.mcp.acp.protocol.AcpSchema.NewSessionResponse;
 import org.eclipse.mcp.acp.protocol.AcpSchema.PromptRequest;
 import org.eclipse.mcp.acp.protocol.AcpSchema.PromptResponse;
 import org.eclipse.mcp.acp.protocol.AcpSchema.ReadTextFileRequest;
@@ -65,7 +59,10 @@ public class AcpService {
 	
 	IAgentService[] agentServices;
 	private AcpService() {
-		agentServices = new IAgentService[] { new GeminiService() };
+		agentServices = new IAgentService[] { 
+			new GeminiService(),
+			new GooseService()
+		};
 		listenerList = new  ListenerList<IAcpSessionListener>();
 	}
 	
