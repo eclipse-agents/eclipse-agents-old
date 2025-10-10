@@ -91,13 +91,13 @@ public class AcpContexts extends Composite {
 			}
 			
 			Map<String, Object> meta = new HashMap<String, Object>();
-			if (resourceAdapter.getModel() instanceof IFile) {
-				meta.put("icon", "fa-file");
-			} else if (resourceAdapter.getModel() instanceof IProject) {
-				meta.put("icon", "fa-folder-open");
-			} else if (resourceAdapter.getModel() instanceof IFolder) {
-				meta.put("icon", "fa-folder");
-			}
+//			if (resourceAdapter.getModel() instanceof IFile) {
+//				meta.put("icon", "fa-file");
+//			} else if (resourceAdapter.getModel() instanceof IProject) {
+//				meta.put("icon", "fa-folder-open");
+//			} else if (resourceAdapter.getModel() instanceof IFolder) {
+//				meta.put("icon", "fa-folder");
+//			}
 			
 			long timestampMillis = resourceAdapter.getModel().getModificationStamp();
 			Instant instant = Instant.ofEpochMilli(timestampMillis);
