@@ -1,18 +1,10 @@
 package org.eclipse.mcp.acp;
 
-import org.eclipse.mcp.acp.protocol.AcpSchema.AuthenticateRequest;
-import org.eclipse.mcp.acp.protocol.AcpSchema.AuthenticateResponse;
 import org.eclipse.mcp.acp.protocol.AcpSchema.CancelNotification;
 import org.eclipse.mcp.acp.protocol.AcpSchema.CreateTerminalRequest;
 import org.eclipse.mcp.acp.protocol.AcpSchema.CreateTerminalResponse;
-import org.eclipse.mcp.acp.protocol.AcpSchema.InitializeRequest;
-import org.eclipse.mcp.acp.protocol.AcpSchema.InitializeResponse;
 import org.eclipse.mcp.acp.protocol.AcpSchema.KillTerminalCommandRequest;
 import org.eclipse.mcp.acp.protocol.AcpSchema.KillTerminalCommandResponse;
-import org.eclipse.mcp.acp.protocol.AcpSchema.LoadSessionRequest;
-import org.eclipse.mcp.acp.protocol.AcpSchema.LoadSessionResponse;
-import org.eclipse.mcp.acp.protocol.AcpSchema.NewSessionRequest;
-import org.eclipse.mcp.acp.protocol.AcpSchema.NewSessionResponse;
 import org.eclipse.mcp.acp.protocol.AcpSchema.PromptRequest;
 import org.eclipse.mcp.acp.protocol.AcpSchema.PromptResponse;
 import org.eclipse.mcp.acp.protocol.AcpSchema.ReadTextFileRequest;

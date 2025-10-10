@@ -64,9 +64,17 @@ class ChunkedMarkdown extends Markdown {
   }
 
   addResourceLink(block) {
+    if (getProgramIcon != null) {
+      let base64Icon = getProgramIcon(block.uri);
+      if (base64Icon != null) {
+        this.chunks.push(
+          `<img src="` + base64Icon + `"> `
+        );
+      }
+    }
     const icon = block._meta == null ? null : block._meta.icon;
     if (icon != null) {
-      this.chunks.push(`<i class="fa-thin ` + icon + `"></i>"`);
+      this.chunks.push(`<i class="fa-thin ` + icon + `"></i>`);
     }
     this.chunks.push(`<a href="` + block.uri + `">` + block.name + `</a>`);
   }

@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.fieldassist.IContentProposal;
 import org.eclipse.jface.fieldassist.IContentProposalListener;
 import org.eclipse.mcp.acp.AcpService;
@@ -12,7 +14,10 @@ import org.eclipse.mcp.acp.agent.IAgentService;
 import org.eclipse.mcp.acp.protocol.AcpSchema.ContentBlock;
 import org.eclipse.mcp.acp.protocol.AcpSchema.TextBlock;
 import org.eclipse.mcp.acp.view.ContentAssistProvider.ResourceProposal;
-import org.eclipse.mcp.platform.resource.ResourceSchema.Editor;
+import org.eclipse.mcp.acp.view.toolbar.ToolbarAgentSelector;
+import org.eclipse.mcp.acp.view.toolbar.ToolbarModeSelector;
+import org.eclipse.mcp.acp.view.toolbar.ToolbarModelSelector;
+import org.eclipse.mcp.acp.view.toolbar.ToolbarSessionSelector;
 import org.eclipse.mcp.platform.resource.WorkspaceResourceAdapter;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
@@ -24,9 +29,6 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.ui.IMemento;
-import org.eclipse.ui.IViewSite;
-import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.ViewPart;
 
 
@@ -91,6 +93,19 @@ public class AcpView extends ViewPart implements ModifyListener, TraverseListene
 		mode = new Combo(bottom, SWT.READ_ONLY);
 		mode.addModifyListener(this);
 		
+		getViewSite().getActionBars().getToolBarManager();
+		
+		IToolBarManager toolbarManager = getViewSite().getActionBars().getToolBarManager();
+
+        // Add your action to the toolbar.
+        toolbarManager.add(new ToolbarAgentSelector(this));
+        toolbarManager.add(new ToolbarModelSelector(this));
+        toolbarManager.add(new ToolbarModeSelector(this));
+        toolbarManager.add(new ToolbarSessionSelector(this));
+
+        // The toolbar will be updated automatically, but you can force an update if needed.
+        getViewSite().getActionBars().updateActionBars();
+		
 	}
 
 	@Override
@@ -100,12 +115,6 @@ public class AcpView extends ViewPart implements ModifyListener, TraverseListene
 	
 	public AcpBrowser getBrowser() {
 		return browser;
-	}
-
-	@Override
-	public void init(IViewSite site, IMemento memento) throws PartInitException {
-		super.init(site, memento);
-//		site.getActionBars().getToolBarManager().add(new );
 	}
 
 	@Override
@@ -159,6 +168,10 @@ public class AcpView extends ViewPart implements ModifyListener, TraverseListene
 	}
 	
 	public void addContext(Object context) {
+		if (!(context instanceof IResource) && context instanceof IAdaptable) {
+			context = ((IAdaptable)context).getAdapter(IResource.class);
+		}
+
 		if (context instanceof IResource) {
 			WorkspaceResourceAdapter wra = new WorkspaceResourceAdapter((IResource)context);
 			String uri = wra.toUri();
