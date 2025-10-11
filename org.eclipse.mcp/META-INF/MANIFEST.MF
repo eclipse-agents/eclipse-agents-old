@@ -4,6 +4,7 @@ Bundle-Name: ModelContextProtocol
 Bundle-SymbolicName: org.eclipse.mcp;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: org.eclipse.mcp.Activator
+Eclipse-BundleShape: dir
 Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.ui,
  org.eclipse.jface,

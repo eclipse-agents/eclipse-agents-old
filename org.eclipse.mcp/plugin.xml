@@ -20,7 +20,7 @@
 	<extension point="org.eclipse.ui.activities">
 		<category id="org.eclipse.mcp.activity"
 			description="Connect Agentic clients to Model Context Protocol servers running within the workbench"
-			name="MCP Services" />
+			name="Agent Context Services" />
 	</extension>
 	
 	<extension
@@ -41,7 +41,7 @@
    
        <activity id="org.eclipse.mcp.platform" 
            description="Services for Editors, Files, Consoles, Problems and Tasks"
-           name="Eclipse Platform Services" />
+           name="Eclipse Platform Contexts" />
    
        <categoryActivityBinding activityId="org.eclipse.mcp.platform"
            categoryId="org.eclipse.mcp.activity" />
@@ -52,7 +52,7 @@
 	<extension point="org.eclipse.ui.preferencePages">
 		<page
 			id="org.eclipse.mcp.preferences.general"
-			name="MCP Services"
+			name="Agent Contexts"
 			class="org.eclipse.mcp.internal.preferences.McpGeneralPreferencePage">
 			<keywordReference id="org.eclipse.mcp.keyword.mcp" />
 			<keywordReference id="org.eclipse.mcp.keyword.model" />
@@ -85,7 +85,7 @@
 	<extension point="org.eclipse.ui.trace.traceComponents">
 		<component
 			id="org.eclipse.mcp.traceComponent"
-			label="Model Context Protocol Servers">
+			label="Coding Agent Services">
 			<bundle
 				name="org.eclipse.mcp">
 			</bundle>
@@ -93,7 +93,7 @@
 	</extension>
 	
 	<extension point="org.eclipse.ui.views">
-      <view id="org.eclipse.mcp.acp.view.AcpView" name="ACP Chat" class="org.eclipse.mcp.acp.view.AcpView" icon="icons/templates.png" />
+      <view id="org.eclipse.mcp.acp.view.AcpView" name="Coding Agent" class="org.eclipse.mcp.acp.view.AcpView" icon="icons/templates.png" />
    </extension>
 	
 	 <extension point="org.eclipse.ui.menus">
@@ -104,9 +104,7 @@
    
 
    <extension point="org.eclipse.ui.commands">
-      <category description="ACP" id="org.eclipse.mcp.acp.cmd.category" name="ACP" />
-      <command name="Model" description="Select Model" categoryId="org.eclipse.mcp.acp.cmd.category" defaultHandler="org.eclipse.mcp.acp.view.CommandHandler" id="org.eclipse.mcp.acp.cmd.model" />
-      <command name="Mode" description="Select Mode" categoryId="org.eclipse.mcp.acp.cmd.category" defaultHandler="org.eclipse.mcp.acp.view.CommandHandler" id="org.eclipse.mcp.acp.cmd.mode" />
+      <category description="Chat with coding agents" id="org.eclipse.mcp.acp.cmd.category" name="Coding Agents" />
       <command name="Add to chat" description="Add to chat" categoryId="org.eclipse.mcp.acp.cmd.category" defaultHandler="org.eclipse.mcp.acp.view.CommandHandler" id="org.eclipse.mcp.acp.cmd.addToChat" />
    </extension>
 
@@ -116,7 +114,6 @@
    </extension-->
 
    <extension point="org.eclipse.ui.bindings">
-      <key sequence="M1+M3+M 1" commandId="org.eclipse.mcp.acp.cmd.model" schemeId="org.eclipse.ui.defaultAcceleratorConfiguration" contextId="org.eclipse.mcp.acp.AcpView"/>
-      <key sequence="M1+M3+M 2" commandId="org.eclipse.mcp.acp.cmd.mode" schemeId="org.eclipse.ui.defaultAcceleratorConfiguration" contextId="org.eclipse.mcp.acp.AcpView"/>
+      <key sequence="M1+M3+M 1" commandId="org.eclipse.mcp.acp.cmd.addToChat" schemeId="org.eclipse.ui.defaultAcceleratorConfiguration" contextId="org.eclipse.mcp.acp.AcpView"/>
    </extension>
 </plugin>
