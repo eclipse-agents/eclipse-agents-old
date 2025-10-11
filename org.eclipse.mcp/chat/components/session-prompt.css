@@ -10,14 +10,23 @@ chunked-markdown {
 	padding-right: 6px;	
 }
 
-a {
+span.resource-link {
+	width: max-content;
+	padding-left: 2px;
+	padding-right: 2px;
+	margin-left: 2px;
+	margin-right: 2px;
 	column-gap: 2px;
 	border-color: var(--link-color);
 	border-width: thin;
 	border-style: solid;
 	border-radius: 4px;
-	padding-left: 6px;
-	padding-right: 12px;	
+	color: var(--link_fg);
+	
+}
+
+span.resource-link a {
+	column-gap: 2px;	
 	max-width: 100%;
 	overflow-wrap: anywhere;
 	overflow-x: hidden;
@@ -25,13 +34,12 @@ a {
 	color: var(--link_fg);
 }
 
-i {
+span.resource-link img {
+	vertical-align: text-bottom;
 	column-gap: 2px;
-	padding-left: 6px;
-	padding-right: 12px;	
 	max-width: 100%;
 }
 
-a:hover {
+span.resource-link a:hover {
 	color: var(--link_active_fg);
 }
