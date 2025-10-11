@@ -32,8 +32,4 @@
          id="io.modelcontextprotocol"
          version="0.0.0"/>
 
-   <plugin
-         id="jakarta.servlet"
-         version="0.0.0"/>
-
 </feature>

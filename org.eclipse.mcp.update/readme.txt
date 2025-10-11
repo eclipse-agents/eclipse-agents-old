@@ -9,7 +9,7 @@ How to install the Eclipse MCP feature:
 
 2. Open the Eclipse instance you'd like to patch.  
 2.a Use Eclipse for 4.31 or newer
-2.b The feature requires the jakarta.servlet plugin, which is part of Eclipse for Java and Web Developers
+2.b Tested with 2025-09 Eclipse for Java and Web Developers
    
 3. Navigate to Help > Install New Software...
 
