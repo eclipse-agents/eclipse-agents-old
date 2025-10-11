@@ -94,16 +94,28 @@ public class AcpBrowser {
 				        Image image = imageDescriptor.createImage(Activator.getDisplay());
 				        ImageLoader loader = new ImageLoader();
 				        loader.data = new ImageData[] { image.getImageData() }; // Get current ImageData from Image
-				        loader.save(bos, SWT.IMAGE_PNG); // Save as PNG, you can choose JPEG as well
+				        
+				        switch (image.getImageData().type) {
+				        	case SWT.IMAGE_PNG:
+				        		loader.save(bos, SWT.IMAGE_PNG);
+				        		result.append("data:image/jpg;base64,");
+				        		break;
+				        	case SWT.IMAGE_GIF:
+				        		loader.save(bos, SWT.IMAGE_PNG);
+				        		break;
+				        	case SWT.IMAGE_JPEG:
+				        		loader.save(bos, SWT.IMAGE_PNG);
+				        		break;
+				        	case SWT.IMAGE_SVG:
+				        		
+				        		break;
+				        }
 				        image.dispose();
 				        
 				        byte[] imageBytes = bos.toByteArray();
-	
-						//TODO program.getImageData().type, png, jpg, etc
-				        result.append("data:image/jpg;base64,");
 				        result.append(Base64.getEncoder().encodeToString(imageBytes));
 					});
-					System.out.println(result);
+
 					return result.toString();
 	            }
 	            return null;
