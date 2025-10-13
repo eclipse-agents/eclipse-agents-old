@@ -1,10 +1,15 @@
 /*******************************************************************************
- * IBM Confidential - OCO Source Materials
- * 
- * 5724-T07 IBM Rational Developer for System z Copyright IBM Corporation 2022, 2025
- * 
- * The source code for this program is not published or otherwise divested of its trade secrets, irrespective of what
- * has been deposited with the U.S. Copyright Office.
+ * Copyright (c) 2025 IBM Corporation and others.
+ *
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
+ * which accompanies this distribution, and is available at
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ * Contributors:
+ *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 package org.eclipse.mcp.acp.protocol;
 
@@ -28,28 +33,8 @@ import org.eclipse.lsp4j.jsonrpc.json.MessageJsonHandler;
 import org.eclipse.lsp4j.jsonrpc.json.StreamMessageConsumer;
 import org.eclipse.lsp4j.jsonrpc.messages.Message;
 import org.eclipse.lsp4j.jsonrpc.services.ServiceEndpoints;
-import org.eclipse.mcp.acp.protocol.AcpSchema.AudioBlock;
-import org.eclipse.mcp.acp.protocol.AcpSchema.ContentBlock;
-import org.eclipse.mcp.acp.protocol.AcpSchema.EmbeddedResourceBlock;
-import org.eclipse.mcp.acp.protocol.AcpSchema.ImageBlock;
-import org.eclipse.mcp.acp.protocol.AcpSchema.ResourceLinkBlock;
-import org.eclipse.mcp.acp.protocol.AcpSchema.SessionAgentMessageChunk;
-import org.eclipse.mcp.acp.protocol.AcpSchema.SessionAgentThoughtChunk;
-import org.eclipse.mcp.acp.protocol.AcpSchema.SessionAvailableCommandsUpdate;
-import org.eclipse.mcp.acp.protocol.AcpSchema.SessionModeUpdate;
-import org.eclipse.mcp.acp.protocol.AcpSchema.SessionPlan;
-import org.eclipse.mcp.acp.protocol.AcpSchema.SessionToolCall;
-import org.eclipse.mcp.acp.protocol.AcpSchema.SessionToolCallUpdate;
-import org.eclipse.mcp.acp.protocol.AcpSchema.SessionUpdate;
-import org.eclipse.mcp.acp.protocol.AcpSchema.TextBlock;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.google.gson.TypeAdapter;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonWriter;
 
 public class AcpClientLauncher implements Launcher<IAcpAgent> {
 

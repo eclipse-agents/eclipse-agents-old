@@ -1,13 +1,17 @@
-package org.eclipse.mcp.internal;
-
 /*******************************************************************************
-Licensed Materials - Property of IBM
-(C) Copyright IBM Corporation 2024. All Rights Reserved.
-*
-Note to U.S. Government Users Restricted Rights:
-Use, duplication or disclosure restricted by GSA ADP Schedule
-Contract with IBM Corp.
-*******************************************************************************/
+ * Copyright (c) 2025 IBM Corporation and others.
+ *
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
+ * which accompanies this distribution, and is available at
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ * Contributors:
+ *     IBM Corporation - initial API and implementation
+ *******************************************************************************/
+package org.eclipse.mcp.internal;
 
 import java.util.Hashtable;
 
