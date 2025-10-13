@@ -1,3 +1,16 @@
+/*******************************************************************************
+ * Copyright (c) 2025 IBM Corporation and others.
+ *
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
+ * which accompanies this distribution, and is available at
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ * Contributors:
+ *     IBM Corporation - initial API and implementation
+ *******************************************************************************/
 package org.eclipse.mcp.acp.protocol;
 
 import java.io.BufferedReader;
@@ -10,8 +23,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import org.eclipse.core.resources.IWorkspaceRoot;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.mcp.acp.protocol.AcpSchema.ClientCapabilities;
 import org.eclipse.mcp.acp.protocol.AcpSchema.FileSystemCapability;
 import org.eclipse.mcp.acp.protocol.AcpSchema.HttpHeader;

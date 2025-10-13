@@ -1,3 +1,16 @@
+/*******************************************************************************
+ * Copyright (c) 2025 IBM Corporation and others.
+ *
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
+ * which accompanies this distribution, and is available at
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ * Contributors:
+ *     IBM Corporation - initial API and implementation
+ *******************************************************************************/
 package org.eclipse.mcp.acp.view;
 
 import java.time.Instant;
@@ -8,9 +21,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IFolder;
-import org.eclipse.core.resources.IProject;
 import org.eclipse.mcp.Activator;
 import org.eclipse.mcp.acp.protocol.AcpSchema.Annotations;
 import org.eclipse.mcp.acp.protocol.AcpSchema.ContentBlock;
