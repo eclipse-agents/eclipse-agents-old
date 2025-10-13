@@ -64,7 +64,7 @@ function acceptSessionAgentThoughtChunk(blockChunk) {
 		addChild(getTurn(), agent_thoughts);
 	}
 	getTurnMessage().addContentBlock(JSON.parse(blockChunk));
-	scrollToBottom();	
+	scrollToBottom();
 }
 
 function acceptSessionAgentMessageChunk(blockChunk) {
@@ -72,17 +72,19 @@ function acceptSessionAgentMessageChunk(blockChunk) {
 		addChild(getTurn(), agent_messages);
 	}
 	getTurnMessage().addContentBlock(JSON.parse(blockChunk));
-	scrollToBottom();	
+	scrollToBottom();
 }
 
 function acceptSessionToolCall(toolCallId, title, kind, status) {
 	addChild(getTurn(), tool_call).id = toolCallId;
 	getTurnMessage().create(toolCallId, title, kind, status);
+	scrollToBottom();
 }
 
 
 function acceptSessionToolCallUpdate(toolCallId, status) {
     getTurn().querySelector('tool-call#' + toolCallId).updateStatus(status);
+	scrollToBottom();
 }
 
 
