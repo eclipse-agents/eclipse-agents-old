@@ -81,6 +81,7 @@ public class AcpBrowser {
 		new BrowserFunction(browser, "getProgramIcon") {
 			@Override
 	        public Object function(Object[] args) {
+				System.err.println("getProgramIcon:" + args[0]);
 				WorkspaceResourceAdapter adapter = new WorkspaceResourceAdapter(args[0].toString());
 	            IResource resource = adapter.getModel();
 	            final ImageDescriptor imageDescriptor;
@@ -107,28 +108,15 @@ public class AcpBrowser {
 				        Image image = imageDescriptor.createImage(Activator.getDisplay());
 				        ImageLoader loader = new ImageLoader();
 				        loader.data = new ImageData[] { image.getImageData() }; // Get current ImageData from Image
-				        
-				        switch (image.getImageData().type) {
-				        	case SWT.IMAGE_PNG:
-				        		loader.save(bos, SWT.IMAGE_PNG);
-				        		result.append("data:image/jpg;base64,");
-				        		break;
-				        	case SWT.IMAGE_GIF:
-				        		loader.save(bos, SWT.IMAGE_PNG);
-				        		break;
-				        	case SWT.IMAGE_JPEG:
-				        		loader.save(bos, SWT.IMAGE_PNG);
-				        		break;
-				        	case SWT.IMAGE_SVG:
-				        		
-				        		break;
-				        }
+				        result.append("data:image/jpg;base64,");
+				        loader.save(bos, SWT.IMAGE_PNG);
 				        image.dispose();
 				        
 				        byte[] imageBytes = bos.toByteArray();
 				        result.append(Base64.getEncoder().encodeToString(imageBytes));
 					});
 
+					System.err.println(result.toString());
 					return result.toString();
 	            }
 	            return null;
