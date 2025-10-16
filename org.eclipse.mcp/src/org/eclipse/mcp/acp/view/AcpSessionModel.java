@@ -49,6 +49,7 @@ import org.eclipse.mcp.acp.protocol.AcpSchema.SetSessionModeRequest;
 import org.eclipse.mcp.acp.protocol.AcpSchema.SetSessionModeResponse;
 import org.eclipse.mcp.acp.protocol.AcpSchema.TerminalOutputRequest;
 import org.eclipse.mcp.acp.protocol.AcpSchema.TerminalOutputResponse;
+import org.eclipse.mcp.acp.protocol.AcpSchema.TextBlock;
 import org.eclipse.mcp.acp.protocol.AcpSchema.WaitForTerminalExitRequest;
 import org.eclipse.mcp.acp.protocol.AcpSchema.WaitForTerminalExitResponse;
 import org.eclipse.mcp.acp.protocol.AcpSchema.WriteTextFileRequest;
@@ -67,6 +68,7 @@ public class AcpSessionModel implements IAcpSessionListener {
 //	int promptId = 0;
 	List<Object> session = new ArrayList<Object>();
 	
+	AcpView view;
 	AcpBrowser browser;
 	
 	enum MessageType { session_prompt, user_message_chunk, agent_thought_chunk, agent_message_chunk, resource_link };
@@ -87,10 +89,9 @@ public class AcpSessionModel implements IAcpSessionListener {
 		return sessionId;
 	}
 	
-	public void setBrowser(AcpBrowser browser) {
-		this.browser = browser;
-		
-		
+	public void setView(AcpView view) {
+		this.view = view;
+		this.browser = view.getBrowser();
 	}
 	
 	public IAgentService getAgent() {
@@ -235,25 +236,34 @@ public class AcpSessionModel implements IAcpSessionListener {
 
 	@Override
 	public void accept(PromptResponse response) {
+		TextBlock error = null;
+		
 		switch (((PromptResponse)response).stopReason()) {
 		case cancelled:
-//			write("Cancelled\n");
+			error = new TextBlock (null, null, "\nThe exchange has been canceled", "text");
 			break;
 		case end_turn:
+			// the turn has ended normally
 			break;
 		case max_tokens:
-//			write("Max Tokens Reached\n");
+			error = new TextBlock (null, null, "\nThe maximum token limit has been reached", "text");
 			break;
 		case max_turn_requests:
-//			write("Max Turns Reached\n");
+			error = new TextBlock (null, null, "\nThe maximum number of model requests in a single turn has been exceeded", "text");
 			break;
 		case refusal:
-//			write("Refused by Agent\n");
+			error = new TextBlock (null, null, "\nThe Agent has refused to continue", "text");
 			break;
 		default:
 			break;
 		
 		}
+		
+		if (error != null) {
+			browser.acceptSessionAgentMessageChunk(error);
+		}
+		
+		view.prompTurnEnded();
 	}
 
 	//------------------------
@@ -262,7 +272,6 @@ public class AcpSessionModel implements IAcpSessionListener {
 	@Override
 	public void accept(CancelNotification notification) {
 		// TODO Auto-generated method stub
-		
 	}
 
 	//------------------------
@@ -301,6 +310,7 @@ public class AcpSessionModel implements IAcpSessionListener {
 	@Override
 	public void accept(PromptRequest request) {
 		browser.acceptPromptRequest(request);
+		view.prompTurnStarted();
 	}
 
 	//------------------------

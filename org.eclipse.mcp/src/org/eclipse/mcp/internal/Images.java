@@ -17,27 +17,15 @@ public class Images {
 	public static final String IMG_RESOURCEMANAGER = "icons/file_obj.png";
 	public static final String IMG_PROMPTMANAGER = "icons/template_obj.png";
 	public static final String IMG_TOOL = "icons/insert_template.png";
+	public static final String IMG_PLAY = "icons/play.gif";
 	
 	public static String[] imagelist = { 
 			IMG_SERVER, 
 			IMG_RESOURCEMANAGER, 
 			IMG_PROMPTMANAGER, 
-			IMG_TOOL 
+			IMG_TOOL,
+			IMG_PLAY
 	};
-
-	
-	
-//	public static final String IMG_ = "file_obj.png";        
-//	public static final String IMG_ = "fileType_filter.png";       
-//	public static final String IMG_ = "function.png";              
-//	public static final String IMG_ = "insert_template.png";       
-//	public static final String IMG_ = "method_private_obj.gif";    
-//	public static final String IMG_ = "method_protected_obj.gif";  
-//	public static final String IMG_ = "method_public_obj.gif";     
-//	public static final String IMG_ = "new_template.png";          
-//	public static final String IMG_ = "template_obj.png";          
-//	public static final String IMG_ = "templates.png";             
-
 }
 
 

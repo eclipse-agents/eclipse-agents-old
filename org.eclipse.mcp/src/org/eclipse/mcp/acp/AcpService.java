@@ -45,6 +45,7 @@ import org.eclipse.mcp.acp.protocol.AcpSchema.RequestPermissionResponse;
 import org.eclipse.mcp.acp.protocol.AcpSchema.SessionNotification;
 import org.eclipse.mcp.acp.protocol.AcpSchema.SetSessionModeRequest;
 import org.eclipse.mcp.acp.protocol.AcpSchema.SetSessionModeResponse;
+import org.eclipse.mcp.acp.protocol.AcpSchema.StopReason;
 import org.eclipse.mcp.acp.protocol.AcpSchema.TerminalOutputRequest;
 import org.eclipse.mcp.acp.protocol.AcpSchema.TerminalOutputResponse;
 import org.eclipse.mcp.acp.protocol.AcpSchema.WaitForTerminalExitRequest;
@@ -88,6 +89,8 @@ public class AcpService {
 	}
 
 	public void setAcpService(AcpView view, IAgentService agent) {
+		view.agentDisconnected();
+		activeSessionId = null;
 		this.activeAgent = agent;
 		if (!agent.isRunning()) {
 			agent.stop();
@@ -117,7 +120,8 @@ public class AcpService {
 							
 							sessions.put(sessionId, model);
 							
-							model.setBrowser(view.getBrowser());
+							model.setView(view);
+							view.agentConnected();
 							
 							clientRequests(agent.getInitializeRequest());
 							agentResponds(agent.getInitializeResponse());
@@ -255,9 +259,22 @@ public class AcpService {
 		getAgentService().getAgent().prompt(request).whenComplete((result, ex) -> {
 	        if (ex != null) {
 	            ex.printStackTrace();
+	            // Gemini CLI: cancel before first thought throws JSONRPC error
+	            agentResponds(new PromptResponse(null, StopReason.refusal));
 	        } else {
 	           agentResponds(result);
 	        }
 	    });
+	}
+	
+	public void stopPromptTurn(String sessionId) {
+		CancelNotification notification = new CancelNotification(null, sessionId);
+		clientNotifies(notification);
+		try {
+			getAgentService().getAgent().cancel(notification);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }

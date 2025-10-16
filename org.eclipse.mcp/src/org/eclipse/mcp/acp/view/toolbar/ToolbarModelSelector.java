@@ -33,6 +33,7 @@ public class ToolbarModelSelector extends AbstractDynamicToolbarDropdown {
 		for (IAgentService agent: AcpService.instance().getAgents()) {
 			actions.add(new ModelAction(agent));
 		}
+		setEnabled(false);
 	}
 
 	@Override
