@@ -1,6 +1,8 @@
 
 # Eclipse IDE integrations with Coding Agents over ACP and MCP
 
+**NOTE: This code base is a work in progress and is a pre-release.  It is being shared at this time for communication and co-ordination purposes**
+
 This feature adds an open-source Coding Agent chat experience to Eclipse, built atop two open protocols:
 
 - [Model Context Protocol](https://modelcontextprotocol.io/docs/getting-started/intro)
@@ -79,6 +81,19 @@ This feature runs a Model Context Protocol server within the Eclipse IDE VM enab
 - Click "Next" until "Finish"
 - Click "OK" to the security warning and allow the patch to install
 - When prompted to restart, click "Yes"
-- Upon restart, navigate to preference page "MCP Services"
-- Enable the feature, customize the HTTP port, and apply the changes.
-- Copy the MCP server's url to the clipboard and apply it to your clients MCP configuration as a remote MCP server
+
+### To connect the built-in MCP server to an external MCP client
+
+- Navigate to preference page "Coding Agents/Agent Contexts"
+- Select the "Enable MCP HTTP Server" checkbox and apply the changes.
+- Use the "Copy to clipboard" button to copy the MCP's SSE Endpoint to the clipboard.
+- Add the HTTP SSE MCP endpoint to your MCP client of choice.
+
+### To use the Coding Agent view with Google Gemini CLI
+
+- Install the [Google Gemini CLI](https://github.com/google-gemini/gemini-cli) locally
+- In Eclipse navigate to preference page "Coding Agents/Agent CLIs".
+- Enter in a valid location for your node executable and the gemini cli executable
+- Open the Coding Agent view
+- Select Coding Agent: Gemini CLI
+- Type into the chat input, press shift enter to submit prompt

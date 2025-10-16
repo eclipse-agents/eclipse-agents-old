@@ -23,7 +23,6 @@ import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.fieldassist.IContentProposal;
 import org.eclipse.jface.fieldassist.IContentProposalListener;
 import org.eclipse.mcp.acp.AcpService;
-import org.eclipse.mcp.acp.agent.IAgentService;
 import org.eclipse.mcp.acp.protocol.AcpSchema.ContentBlock;
 import org.eclipse.mcp.acp.protocol.AcpSchema.TextBlock;
 import org.eclipse.mcp.acp.view.ContentAssistProvider.ResourceProposal;
@@ -31,6 +30,7 @@ import org.eclipse.mcp.acp.view.toolbar.ToolbarAgentSelector;
 import org.eclipse.mcp.acp.view.toolbar.ToolbarModeSelector;
 import org.eclipse.mcp.acp.view.toolbar.ToolbarModelSelector;
 import org.eclipse.mcp.acp.view.toolbar.ToolbarSessionSelector;
+import org.eclipse.mcp.acp.view.toolbar.ToolbarSessionStartStop;
 import org.eclipse.mcp.platform.resource.WorkspaceResourceAdapter;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
@@ -39,14 +39,13 @@ import org.eclipse.swt.events.TraverseEvent;
 import org.eclipse.swt.events.TraverseListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.part.ViewPart;
 
 
 
-public class AcpView extends ViewPart implements ModifyListener, TraverseListener, IContentProposalListener  {
+public class AcpView extends ViewPart implements TraverseListener, IContentProposalListener, ModifyListener  {
 
 	public static final String ID  = "org.eclipse.mcp.acp.view.AcpView"; //$NON-NLS-1$
 
@@ -58,8 +57,10 @@ public class AcpView extends ViewPart implements ModifyListener, TraverseListene
 
 	Composite middle;
 	Composite topMiddle;
-	Combo model, mode;
 	boolean listening = true;
+	boolean agentConnected = false;
+	
+	ToolbarSessionStartStop startStop;
 
 	@Override
 	public void createPartControl(Composite parent) {
@@ -81,32 +82,10 @@ public class AcpView extends ViewPart implements ModifyListener, TraverseListene
 		gd.heightHint = 60;
 		inputText.setLayoutData(gd);
 		inputText.addTraverseListener(this);
+		inputText.addModifyListener(this);
 		
 		ContentAssistAdapter adapter = new ContentAssistAdapter(inputText);
 		adapter.addContentProposalListener(this);
-		
-		Composite bottom = new Composite(middle, SWT.NONE);
-		bottom.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		bottom.setLayout(new GridLayout(2, false));
-		
-		model = new Combo(bottom, SWT.READ_ONLY);
-		for (IAgentService service: AcpService.instance().getAgents()) {
-			model.add(service.getName());
-			if (service == AcpService.instance().getAgentService()) {
-				model.select(model.getItemCount() - 1);
-				
-				if (AcpService.instance().getActiveSessionId() != null) {
-					AcpSessionModel sessionModel = AcpService.instance().getActiveSession();
-					sessionModel.setBrowser(browser);
-				}
-			}
-		}
-		model.addModifyListener(this);
-		
-		mode = new Combo(bottom, SWT.READ_ONLY);
-		mode.addModifyListener(this);
-		
-		getViewSite().getActionBars().getToolBarManager();
 		
 		IToolBarManager toolbarManager = getViewSite().getActionBars().getToolBarManager();
 
@@ -115,6 +94,9 @@ public class AcpView extends ViewPart implements ModifyListener, TraverseListene
         toolbarManager.add(new ToolbarModelSelector(this));
         toolbarManager.add(new ToolbarModeSelector(this));
         toolbarManager.add(new ToolbarSessionSelector(this));
+        
+        startStop = new ToolbarSessionStartStop(this);
+        toolbarManager.add(startStop);
 
         // The toolbar will be updated automatically, but you can force an update if needed.
         getViewSite().getActionBars().updateActionBars();
@@ -134,41 +116,12 @@ public class AcpView extends ViewPart implements ModifyListener, TraverseListene
 	public void dispose() {
 		super.dispose();
 		this.disposed = true;
-//		AcpService.instance().removeAcpListener(this);
-	}
-
-
-	@Override
-	public void modifyText(ModifyEvent e) {
-		if (!listening) {
-			return;
-		}
-		
-		if (e.getSource() == model) {
-			AcpService.instance().setAcpService(this, AcpService.instance().getAgents()[model.getSelectionIndex()]);
-		} else if (e.getSource() == mode) {
-			
-		}
 	}
 
 	@Override
 	public void keyTraversed(TraverseEvent event) {
-		if (event.detail == SWT.TRAVERSE_RETURN && (event.stateMask & SWT.SHIFT) != 0) {
-			
-			String sessionId = AcpService.instance().getActiveSessionId();
-			if (sessionId != null) {
-				String prompt = inputText.getText();
-				inputText.setText("");
-				inputText.clearSelection();
-				
-				List<ContentBlock> content = new ArrayList<ContentBlock>();
-				content.addAll(contexts.getContextBlocks());
-				content.add(new TextBlock(null, null, prompt, "text"));
-				
-				AcpService.instance().prompt(sessionId, content.toArray(ContentBlock[]::new));
-				
-				contexts.clearAcpContexts();
-			}
+		if (event.detail == SWT.TRAVERSE_RETURN && (event.stateMask & SWT.SHIFT) == 0) {
+			startPromptTurn();
 		}
 	}
 
@@ -190,5 +143,51 @@ public class AcpView extends ViewPart implements ModifyListener, TraverseListene
 			String uri = wra.toUri();
 			contexts.addLinkedResourceContext(((IResource)context).getName(), uri);
 		}
+	}
+
+	public void agentConnected() {
+		agentConnected = true;
+		startStop.setEnabled(true);
+	}
+
+	public void agentDisconnected() {
+		agentConnected = false;
+		startStop.setEnabled(false);
+	}
+
+	@Override
+	public void modifyText(ModifyEvent arg0) {
+		
+	}
+	
+	public void startPromptTurn() {
+		activeSessionId = AcpService.instance().getActiveSessionId();
+		if (agentConnected && activeSessionId != null) {
+			String prompt = inputText.getText();
+			inputText.setText("");
+			inputText.clearSelection();
+			
+			List<ContentBlock> content = new ArrayList<ContentBlock>();
+			content.addAll(contexts.getContextBlocks());
+			content.add(new TextBlock(null, null, prompt, "text"));
+			
+			AcpService.instance().prompt(activeSessionId, content.toArray(ContentBlock[]::new));
+			
+			contexts.clearAcpContexts();
+		}
+	}
+	
+	public void stopPromptTurn() {
+		AcpService.instance().stopPromptTurn(activeSessionId);
+	}
+
+	public void prompTurnStarted() {
+		startStop.prompTurnStarted();
+		getViewSite().getActionBars().updateActionBars();
+	}
+
+	public void prompTurnEnded() {
+		startStop.prompTurnEnded();
+		getViewSite().getActionBars().updateActionBars();
 	}
 }
