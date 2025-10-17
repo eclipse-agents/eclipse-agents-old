@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
       id="org.eclipse.mcp.feature"
-      label="Eclipse Agents"
+      label="Eclipse Coding Agents"
       version="1.0.0.qualifier"
       provider-name="IBM">
 
    <description url="http://www.example.com/description">
-      Eclipse Agents MCP and ACP Services
+      Eclipse Coding Agents, MCP and ACP Services
    </description>
 
    <copyright url="http://www.example.com/copyright">
