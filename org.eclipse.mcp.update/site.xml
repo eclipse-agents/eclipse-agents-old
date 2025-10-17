@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
-   <feature url="features/org.eclipse.mcp.feature_1.0.0.202510162026.jar" id="org.eclipse.mcp.feature" version="1.0.0.202510162026">
+   <feature url="features/org.eclipse.mcp.feature_1.0.0.202510162105.jar" id="org.eclipse.mcp.feature" version="1.0.0.202510162105">
       <category name="org.eclipse.mcp.update.category"/>
    </feature>
    <category-def name="org.eclipse.mcp.update.category" label="Model Context Protocol Services">

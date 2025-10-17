@@ -76,7 +76,7 @@ public class AcpGeneralPreferencePage extends PreferencePage
 		label.setText("Node:");
 		label.setLayoutData(new GridData());
 		
-		node = new Text(parent, SWT.MULTI | SWT.READ_ONLY | SWT.BORDER);
+		node = new Text(parent, SWT.MULTI | SWT.BORDER);
 		node.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		((GridData)node.getLayoutData()).horizontalSpan = 3;
 		
@@ -84,7 +84,7 @@ public class AcpGeneralPreferencePage extends PreferencePage
 		label.setText("Gemini CLI:");
 		label.setLayoutData(new GridData());
 		
-		gemini = new Text(parent, SWT.MULTI | SWT.READ_ONLY | SWT.BORDER);
+		gemini = new Text(parent, SWT.MULTI | SWT.BORDER);
 		gemini.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		((GridData)gemini.getLayoutData()).horizontalSpan = 3;
 		
