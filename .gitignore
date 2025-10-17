@@ -1,3 +1,5 @@
 org.eclipse.mcp/bin
 org.eclipse.mcp.builtin/bin
 org.eclipse.mcp.test/bin
+target/
+bin/
