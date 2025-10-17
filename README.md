@@ -61,18 +61,29 @@ This feature runs a Model Context Protocol server within the Eclipse IDE VM enab
 
 ### Enable the internal MCP Server to run on an HTTP port
 
-![MCP Contexts](org.eclipse.mcp.docs/images/contexts.png)
+![MCP Contexts](org.eclipse.mcp.docs/images/mcpPrefs.png)
 
 ### Prompt the Coding Agent to write code and run tools
 
 ![acp prompt](org.eclipse.mcp.docs/images/acp.png)
 
+### Prompt for sample code
+
+![acp code blocks](org.eclipse.mcp.docs/images/acpCodeBlock.png)
+
+### Prompt for explanations
+
+![acp code blocks](org.eclipse.mcp.docs/images/acpExplain.png)
+
 ## Demonstrations
 
-- [Claude Conversation: What's wrong with my java project](https://claude.ai/share/31968356-df7e-471b-8fec-3b85868a2376)
+- [Coding Agent developing SQL](https://www.youtube.com/watch?v=z1d67Xzq3UU)
+- [HTML and Markdown display, Code Blocks, Resource Links](https://www.youtube.com/watch?v=1G8pt1H27fQ)
+- [Claude Conversation with Eclipse MCP: What's wrong with my java project](https://claude.ai/share/31968356-df7e-471b-8fec-3b85868a2376)
 
 ## Installation
 
+- Download a recent version of [Eclipse J2EE package](https://www.eclipse.org/downloads/packages/release/2025-09/r/eclipse-ide-enterprise-java-and-web-developers) that has this plugins dependencies built-in.
 - Clone this repositority locally
 - From Eclipse navigate to Help > Install New Software...
 - Click "Add..." > "Archive..." and navigate to the org.eclipse.mcp.update folder, then click "Open"
@@ -92,8 +103,14 @@ This feature runs a Model Context Protocol server within the Eclipse IDE VM enab
 ### To use the Coding Agent view with Google Gemini CLI
 
 - Install the [Google Gemini CLI](https://github.com/google-gemini/gemini-cli) locally
+- Start up gemini in a terminal and log in using google.
 - In Eclipse navigate to preference page "Coding Agents/Agent CLIs".
-- Enter in a valid location for your node executable and the gemini cli executable
+- Enter in a valid location for your node executable and the gemini cli js file
+  - while we await improvements on automatically finding gemini files...
+    - use `where node` and `where gemini` in a terminal to find locations
+    - you can use quotes if either contains a space
+    - on windows you may find the gemini js file somewhere like  
+      - C:\Users\<user>\AppData\Roaming\npm\node_modules\@google\gemini-cli\dist\index.js
 - Open the Coding Agent view
 - Select Coding Agent: Gemini CLI
-- Type into the chat input, press shift enter to submit prompt
+- Type into the chat input, press enter to submit prompt
