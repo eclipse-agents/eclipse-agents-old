@@ -88,7 +88,7 @@ public class MCPServerTest {
 		});
 		
 		// Create a sync client with custom configuration
-		HttpClientSseClientTransport transport = new HttpClientSseClientTransport("http://localhost:3028/sse");
+		HttpClientSseClientTransport transport = HttpClientSseClientTransport.builder("http://localhost:3028/sse").build();
 		client = McpClient.sync(transport)
 		    .requestTimeout(Duration.ofSeconds(10))
 		    .capabilities(ClientCapabilities.builder()
@@ -219,7 +219,7 @@ public class MCPServerTest {
 
 		Thread t = new Thread() {
 			public void run() {
-				toolResult[0] = client.callTool(new CallToolRequest("currentSelection", "{}"));
+				toolResult[0] = client.callTool(new CallToolRequest("currentSelection", Map.of()));
 			}
 		};
 		
@@ -277,7 +277,7 @@ public class MCPServerTest {
 	public void listEditors() throws JsonMappingException, JsonProcessingException {
 		Thread t = new Thread() {
 			public void run() {
-				toolResult[1] = client.callTool(new CallToolRequest("listEditors", "{}"));
+				toolResult[1] = client.callTool(new CallToolRequest("listEditors", Map.of()));
 			}
 		};
 		
@@ -333,7 +333,7 @@ public class MCPServerTest {
 	@Order(8)
 	public void listConsoles() throws JsonMappingException, JsonProcessingException {
 
-		toolResult[2] = client.callTool(new CallToolRequest("listConsoles", "{}"));
+		toolResult[2] = client.callTool(new CallToolRequest("listConsoles", Map.of()));
 
 		Content content = toolResult[2].content().get(0);
 		String result = ((TextContent) content).text();

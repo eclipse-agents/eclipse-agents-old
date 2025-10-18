@@ -25,12 +25,10 @@ import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.eclipse.mcp.IFactoryProvider;
 import org.eclipse.mcp.resource.IResourceTemplate;
-import org.springaicommunity.mcp.provider.complete.SyncMcpCompletionProvider;
+import org.springaicommunity.mcp.provider.complete.SyncMcpCompleteProvider;
 import org.springaicommunity.mcp.provider.prompt.SyncMcpPromptProvider;
 import org.springaicommunity.mcp.provider.resource.SyncMcpResourceProvider;
 import org.springaicommunity.mcp.provider.tool.SyncMcpToolProvider;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.modelcontextprotocol.server.McpServer;
 import io.modelcontextprotocol.server.McpServerFeatures.SyncCompletionSpecification;
@@ -107,7 +105,7 @@ public class MCPServer {
 			resourceTemplates.addAll(Arrays.asList(factory.createResourceTemplates()));
 		}
 		
-		completions = new SyncMcpCompletionProvider(annotated).getCompleteSpecifications();
+		completions = new SyncMcpCompleteProvider(annotated).getCompleteSpecifications();
 		tools = new SyncMcpToolProvider(annotated).getToolSpecifications();
 //		loggers = new SyncMcpLogginProvider(factoryList);
 		prompts = new SyncMcpPromptProvider(annotated).getPromptSpecifications();
@@ -119,10 +117,15 @@ public class MCPServer {
 		this.url = "http://localhost:" + port + "/sse";
 
 		
-		HttpServletSseServerTransportProvider transportProvider =
-			    new HttpServletSseServerTransportProvider(
-			        new ObjectMapper(), "/", "/sse");
+		//HttpServletSseServerTransportProvider transportProvider =
+		//	    new HttpServletSseServerTransportProvider(
+		//	        new ObjectMapper(), "/", "/sse");
 		
+		// If JsonMapper not specified, a JacksonJsonMapper will be created from the configured ObjectMapper
+		HttpServletSseServerTransportProvider transportProvider = HttpServletSseServerTransportProvider.builder()
+				.messageEndpoint("/")
+				.sseEndpoint("/sse")
+				.build();
 
 		ServerCapabilities capabilities = ServerCapabilities.builder().resources(true, true) // Enable resource support
 				.tools(true) // Enable tool support
