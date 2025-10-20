@@ -20,7 +20,7 @@
 	<!-- features and plugins -->
 	<modules>
 		<module>org.eclipse.mcp.feature</module>
-		<module>io.modelcontextprotocol</module>
+		<!--<module>io.modelcontextprotocol</module>-->
 		<module>org.eclipse.mcp</module>
 		<module>org.eclipse.mcp.test</module>
 
@@ -33,6 +33,10 @@
 				<artifactId>target-platform-configuration</artifactId>
 				<version>${tycho.version}</version>
 				<configuration>
+					<target>
+						<file>
+							${maven.multiModuleProjectDirectory}/target-platforms/latest.target</file>
+					</target>
 					<environments>
 						<environment>
 							<os>win32</os>
@@ -40,6 +44,11 @@
 							<arch>x86_64</arch>
 						</environment>
 						<environment>
+							<os>linux</os>
+							<ws>gtk</ws>
+							<arch>x86_64</arch>
+						</environment>
+						<environment>
 							<os>macosx</os>
 							<ws>cocoa</ws>
 							<arch>x86_64</arch>
@@ -47,16 +56,6 @@
 						<environment>
 							<os>macosx</os>
 							<ws>cocoa</ws>
-							<arch>aarch64</arch>
-						</environment>
-						<environment>
-							<os>linux</os>
-							<ws>gtk</ws>
-							<arch>x86_64</arch>
-						</environment>
-						<environment>
-							<os>linux</os>
-							<ws>gtk</ws>
 							<arch>aarch64</arch>
 						</environment>
 					</environments>
@@ -79,35 +78,11 @@
 				<version>${tycho.version}</version>
 			</plugin>
 			<plugin>
-				<groupId>org.eclipse.tycho.extras</groupId>
-				<artifactId>tycho-source-feature-plugin</artifactId>
-				<version>${tycho.version}</version>
-				<configuration>
-					<includeBinaryFeature>false</includeBinaryFeature>
-				</configuration>
-			</plugin>
-			<plugin>
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>tycho-p2-plugin</artifactId>
 				<version>${tycho.version}</version>
 			</plugin>
 		</plugins>
 	</build>
-
-	<repositories>
-		<repository>
-			<layout>p2</layout>
-			<id>eclipse</id>
-			<url>https://download.eclipse.org/releases/2025-09/202509101001/</url>
-		</repository>
-	</repositories>
-
-	<dependencies>
-		<dependency>
-			<groupId>io.modelcontextprotocol.sdk</groupId>
-			<artifactId>mcp</artifactId>
-			<version>0.14.1</version>
-		</dependency>
-	</dependencies>
 
 </project>

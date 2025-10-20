@@ -29,15 +29,14 @@
       <import plugin="com.fasterxml.jackson.core.jackson-annotations"/>
       <import plugin="com.fasterxml.jackson.core.jackson-core"/>
       <import plugin="com.fasterxml.jackson.core.jackson-databind"/>
-      <import plugin="jakarta.servlet"/>
    </requires>
 
    <plugin
          id="org.eclipse.mcp"
          version="0.0.0"/>
 
-   <plugin
+   <!--<plugin
          id="io.modelcontextprotocol"
-         version="0.0.0"/>
+         version="0.0.0"/>-->
 
 </feature>
