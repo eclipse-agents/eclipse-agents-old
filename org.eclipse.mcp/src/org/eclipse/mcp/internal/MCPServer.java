@@ -38,7 +38,7 @@ import io.modelcontextprotocol.server.McpServerFeatures.SyncPromptSpecification;
 import io.modelcontextprotocol.server.McpServerFeatures.SyncResourceSpecification;
 import io.modelcontextprotocol.server.McpServerFeatures.SyncToolSpecification;
 import io.modelcontextprotocol.server.McpSyncServer;
-import io.modelcontextprotocol.server.transport.HttpServletSseServerTransportProvider;
+import io.modelcontextprotocol.server.transport.HttpServletStreamableServerTransportProvider;
 import io.modelcontextprotocol.spec.McpError;
 import io.modelcontextprotocol.spec.McpSchema;
 import io.modelcontextprotocol.spec.McpSchema.LoggingLevel;
@@ -116,12 +116,14 @@ public class MCPServer {
 //		progressives = new SyncMcpProgressProvider(factoryList);
 //		samplers = new SyncMcpSamplingProvider(factoryList);
 
-		this.url = "http://localhost:" + port + "/sse";
+		this.url = "http://localhost:" + port + "/mcp";
 
 		
-		HttpServletSseServerTransportProvider transportProvider =
-			    new HttpServletSseServerTransportProvider(
-			        new ObjectMapper(), "/", "/sse");
+		HttpServletStreamableServerTransportProvider transportProvider = 
+				HttpServletStreamableServerTransportProvider.builder()
+				.objectMapper(new ObjectMapper())
+		        .mcpEndpoint("/mcp")
+		        .build();
 		
 
 		ServerCapabilities capabilities = ServerCapabilities.builder().resources(true, true) // Enable resource support

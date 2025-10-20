@@ -26,10 +26,10 @@ import java.util.concurrent.ExecutionException;
 import org.eclipse.mcp.acp.protocol.AcpSchema.ClientCapabilities;
 import org.eclipse.mcp.acp.protocol.AcpSchema.FileSystemCapability;
 import org.eclipse.mcp.acp.protocol.AcpSchema.HttpHeader;
+import org.eclipse.mcp.acp.protocol.AcpSchema.HttpTransport;
 import org.eclipse.mcp.acp.protocol.AcpSchema.InitializeRequest;
 import org.eclipse.mcp.acp.protocol.AcpSchema.McpServer;
 import org.eclipse.mcp.acp.protocol.AcpSchema.NewSessionRequest;
-import org.eclipse.mcp.acp.protocol.AcpSchema.SseTransport;
 
 import com.google.gson.Gson;
 
@@ -107,11 +107,11 @@ public class RawDriver {
 		System.err.println(line);
 			
 		
-		McpServer server = new SseTransport(
+		McpServer server = new HttpTransport(
 				new HttpHeader[0],
 				"Eclipse MCP",
-				"sse",
-				"http://localhost:8683/sse"); 
+				"http",
+				"http://localhost:8683/mcp"); 
 		
 		NewSessionRequest session = new NewSessionRequest(
 				null,

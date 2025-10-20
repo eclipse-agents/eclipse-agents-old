@@ -117,7 +117,7 @@ public class McpGeneralPreferencePage extends PreferencePage
 		pathCopy.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				StringSelection strSelection = new StringSelection("http://localhost:" + serverPort.getText() + "/sse");
+				StringSelection strSelection = new StringSelection("http://localhost:" + serverPort.getText() + "/mcp");
 				Clipboard systemClipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
 				systemClipboard.setContents(strSelection, null);
 			}

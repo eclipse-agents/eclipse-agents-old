@@ -56,7 +56,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.modelcontextprotocol.client.McpClient;
 import io.modelcontextprotocol.client.McpSyncClient;
-import io.modelcontextprotocol.client.transport.HttpClientSseClientTransport;
+import io.modelcontextprotocol.client.transport.HttpClientStreamableHttpTransport;
 import io.modelcontextprotocol.spec.McpSchema.CallToolRequest;
 import io.modelcontextprotocol.spec.McpSchema.CallToolResult;
 import io.modelcontextprotocol.spec.McpSchema.ClientCapabilities;
@@ -88,7 +88,7 @@ public class MCPServerTest {
 		});
 		
 		// Create a sync client with custom configuration
-		HttpClientSseClientTransport transport = new HttpClientSseClientTransport("http://localhost:3028/sse");
+		HttpClientStreamableHttpTransport transport = HttpClientStreamableHttpTransport.builder("http://localhost:3028/mcp").build();
 		client = McpClient.sync(transport)
 		    .requestTimeout(Duration.ofSeconds(10))
 		    .capabilities(ClientCapabilities.builder()
@@ -252,7 +252,7 @@ public class MCPServerTest {
       "file":{
          "type":"resource_link",
          "name":"HelloWorld.java",
-         "uri":"file://workspace/Project%2FHelloWorld.java",
+         "uri":"file:/Users/jflicke/junit-workspace/Project/HelloWorld.java",
          "description":"Eclipse workspace file",
          "mimeType":"text/plain",
          "size":124

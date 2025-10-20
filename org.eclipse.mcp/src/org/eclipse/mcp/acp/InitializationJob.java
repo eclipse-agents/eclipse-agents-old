@@ -26,13 +26,13 @@ import org.eclipse.mcp.acp.agent.IAgentService;
 import org.eclipse.mcp.acp.protocol.AcpSchema.ClientCapabilities;
 import org.eclipse.mcp.acp.protocol.AcpSchema.FileSystemCapability;
 import org.eclipse.mcp.acp.protocol.AcpSchema.HttpHeader;
+import org.eclipse.mcp.acp.protocol.AcpSchema.HttpTransport;
 import org.eclipse.mcp.acp.protocol.AcpSchema.InitializeRequest;
 import org.eclipse.mcp.acp.protocol.AcpSchema.InitializeResponse;
 import org.eclipse.mcp.acp.protocol.AcpSchema.McpServer;
 import org.eclipse.mcp.acp.protocol.AcpSchema.NewSessionRequest;
 import org.eclipse.mcp.acp.protocol.AcpSchema.NewSessionResponse;
 import org.eclipse.mcp.acp.protocol.AcpSchema.SessionModeState;
-import org.eclipse.mcp.acp.protocol.AcpSchema.SseTransport;
 import org.eclipse.mcp.internal.preferences.IPreferenceConstants;
 
 
@@ -86,9 +86,9 @@ public class InitializationJob extends Job {
 			monitor.worked(1);
 			monitor.subTask("Loading Session");
 			
-			boolean supportsSseMcp = initializeResponse.agentCapabilities() != null &&
+			boolean supportsHttpMcp = initializeResponse.agentCapabilities() != null &&
 					initializeResponse.agentCapabilities().mcpCapabilities() != null &&
-							initializeResponse.agentCapabilities().mcpCapabilities().sse();
+							initializeResponse.agentCapabilities().mcpCapabilities().http();
 			
 			boolean supportsLoadSession = initializeResponse.agentCapabilities() != null &&
 					initializeResponse.agentCapabilities().loadSession();
@@ -99,8 +99,8 @@ public class InitializationJob extends Job {
 
 				this.mcpServers = new McpServer[0];
 				
-				if (supportsSseMcp) {
-					System.err.println(service.getName() + " supports SSE MCP");
+				if (supportsHttpMcp) {
+					System.err.println(service.getName() + " supports HTTP MCP");
 					
 					boolean eclipseMcpEnabled = Activator.getDefault().getPreferenceStore().getBoolean(IPreferenceConstants.P_SERVER_ENABLED);
 					
@@ -108,16 +108,16 @@ public class InitializationJob extends Job {
 						String httpPort = Activator.getDefault().getPreferenceStore().getString(IPreferenceConstants.P_SERVER_HTTP_PORT);
 						System.err.println("Eclipse MCP is running on port " + httpPort);
 						
-						this.mcpServers = new McpServer[] { new SseTransport(
+						this.mcpServers = new McpServer[] { new HttpTransport(
 								new HttpHeader[0],
 								"Eclipse MCP",
-								"sse",
-								"http://localhost:" + httpPort + "/sse")}; 
+								"http",
+								"http://localhost:" + httpPort + "/mcp")}; 
 					} else {
 						System.err.println("Eclipse MCP is not running");
 					}
 				} else {
-					System.err.println(service.getName() + " does not support SSE MCP");
+					System.err.println(service.getName() + " does not support HTTP MCP");
 				}
 				
 				
