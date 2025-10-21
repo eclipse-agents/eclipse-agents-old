@@ -24,6 +24,10 @@ import org.eclipse.mcp.acp.protocol.IAcpAgent;
 public interface IAgentService {
 
 	public String getName();
+	
+	public String getId();
+	
+	public String[] getDefaultStartupCommand();
 
 	public void start();
 	

@@ -20,7 +20,6 @@ import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.mcp.acp.agent.GeminiService;
-import org.eclipse.mcp.acp.agent.GooseService;
 import org.eclipse.mcp.acp.agent.IAgentService;
 import org.eclipse.mcp.acp.protocol.AcpSchema.AgentNotification;
 import org.eclipse.mcp.acp.protocol.AcpSchema.AgentRequest;
@@ -74,8 +73,8 @@ public class AcpService {
 	IAgentService[] agentServices;
 	private AcpService() {
 		agentServices = new IAgentService[] { 
-			new GeminiService(),
-			new GooseService()
+			new GeminiService()
+//			new GooseService()
 		};
 		listenerList = new  ListenerList<IAcpSessionListener>();
 	}

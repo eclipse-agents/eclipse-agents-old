@@ -17,6 +17,7 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferenceManager;
 import org.eclipse.jface.preference.PreferencePage;
 import org.eclipse.mcp.Activator;
+import org.eclipse.mcp.acp.agent.GeminiService;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -40,8 +41,8 @@ public class AcpGeneralPreferencePage extends PreferencePage
 
 	VerifyListener integerListener;
 	PreferenceManager preferenceManager;
+	final String geminiPreferenceId = new GeminiService().getStartupCommandPreferenceId();
 	
-	Text node;
 	Text gemini;
 	
 	public AcpGeneralPreferencePage() {
@@ -72,20 +73,14 @@ public class AcpGeneralPreferencePage extends PreferencePage
 		gd.horizontalSpan = 4;
 		instructions.setLayoutData(gd);
 		
+
 		Label label = new Label(parent, SWT.NONE);
-		label.setText("Node:");
-		label.setLayoutData(new GridData());
-		
-		node = new Text(parent, SWT.MULTI | SWT.BORDER);
-		node.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		((GridData)node.getLayoutData()).horizontalSpan = 3;
-		
-		label = new Label(parent, SWT.NONE);
 		label.setText("Gemini CLI:");
 		label.setLayoutData(new GridData());
 		
 		gemini = new Text(parent, SWT.MULTI | SWT.BORDER);
 		gemini.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		((GridData)gemini.getLayoutData()).minimumHeight = 30;
 		((GridData)gemini.getLayoutData()).horizontalSpan = 3;
 		
 		
@@ -112,15 +107,13 @@ public class AcpGeneralPreferencePage extends PreferencePage
 
 	private void loadPreferences() {
 		IPreferenceStore store = getPreferenceStore();
-		node.setText(store.getString(P_ACP_NODE));
-		gemini.setText(store.getString(P_ACP_GEMINI));
+		gemini.setText(store.getString(geminiPreferenceId));
 	}
 
 	private void savePreferences() {
 		IPreferenceStore store = getPreferenceStore();
 
-		store.setValue(P_ACP_NODE, node.getText());
-		store.setValue(P_ACP_GEMINI, gemini.getText());;
+		store.setValue(geminiPreferenceId, gemini.getText());;
 
 	}
 
@@ -139,8 +132,7 @@ public class AcpGeneralPreferencePage extends PreferencePage
 	protected void performDefaults() {
 		IPreferenceStore store = getPreferenceStore();
 
-		node.setText(store.getDefaultString(P_ACP_NODE));
-		gemini.setText(store.getDefaultString(P_ACP_GEMINI));
+		gemini.setText(store.getDefaultString(geminiPreferenceId));
 		
 		updateValidation();
 	}
