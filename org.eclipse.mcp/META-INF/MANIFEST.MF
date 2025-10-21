@@ -24,7 +24,8 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.ui.editors,
  org.eclipse.lsp4j.jsonrpc;bundle-version="0.24.0",
  com.google.gson;bundle-version="2.13.1",
- org.eclipse.ui.navigator
+ org.eclipse.ui.navigator,
+ org.eclipse.wildwebdeveloper.embedder.node;bundle-version="1.0.7"
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: org.eclipse.mcp
 Bundle-ActivationPolicy: lazy
