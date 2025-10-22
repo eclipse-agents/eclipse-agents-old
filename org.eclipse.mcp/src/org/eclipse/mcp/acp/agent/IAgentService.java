@@ -13,6 +13,7 @@
  *******************************************************************************/
 package org.eclipse.mcp.acp.agent;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
@@ -29,6 +30,8 @@ public interface IAgentService {
 	
 	public String[] getDefaultStartupCommand();
 
+	public void checkForUpdates() throws IOException;
+	
 	public void start();
 	
 	public void stop();

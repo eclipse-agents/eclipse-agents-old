@@ -13,6 +13,7 @@
  *******************************************************************************/
 package org.eclipse.mcp.acp;
 
+import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 
 import org.eclipse.core.resources.IWorkspaceRoot;
@@ -50,7 +51,7 @@ public class InitializationJob extends Job {
 
 
 	public InitializationJob(IAgentService service, String oldSessionId) {
-		super("Initializing " + service.getName());
+		super("Coding Agent");
 		this.service = service;
 		this.oldSessionId = oldSessionId;
 	}
@@ -58,19 +59,36 @@ public class InitializationJob extends Job {
 	@Override
 	protected IStatus run(IProgressMonitor monitor) {
 		
-		monitor.beginTask("Initializing", 2);
-		monitor.subTask("Starting CLI process");
-		
-		service.stop();
-		service.start();
-		
-		monitor.subTask("Initializing CLI");
-		
-		if (monitor.isCanceled()) {
-			return Status.CANCEL_STATUS;
-		}
-		
 		try {
+			
+			monitor.beginTask(service.getName(), 5);
+			monitor.subTask("Stopping");
+			service.stop();
+			
+			if (monitor.isCanceled()) {
+				return Status.CANCEL_STATUS;
+			}
+
+			monitor.worked(1);
+			monitor.subTask("Checking for updates");
+			service.checkForUpdates();
+			
+			if (monitor.isCanceled()) {
+				return Status.CANCEL_STATUS;
+			}
+			
+			monitor.worked(1);
+			monitor.subTask("Starting");
+			service.start();
+			
+			if (monitor.isCanceled()) {
+				return Status.CANCEL_STATUS;
+			}
+			
+			
+			monitor.worked(1);
+			monitor.subTask("Connecting");
+			
 			FileSystemCapability fsc = new FileSystemCapability(null, true, true);
 			ClientCapabilities capabilities = new ClientCapabilities(null, fsc, true);
 			InitializeRequest initializeRequest = new InitializeRequest(null, capabilities, 1);
@@ -82,9 +100,9 @@ public class InitializationJob extends Job {
 			if (monitor.isCanceled()) {
 				return Status.CANCEL_STATUS;
 			} 
-			
+
 			monitor.worked(1);
-			monitor.subTask("Loading Session");
+			monitor.subTask("Starting session");
 			
 			boolean supportsSseMcp = initializeResponse.agentCapabilities() != null &&
 					initializeResponse.agentCapabilities().mcpCapabilities() != null &&
@@ -139,9 +157,11 @@ public class InitializationJob extends Job {
 				this.sessionId = newSessionResponse.sessionId();
 			}
 		} catch (InterruptedException e) {
-			new Status(IStatus.ERROR, Activator.PLUGIN_ID, e.getLocalizedMessage(), e);
+			return new Status(IStatus.ERROR, Activator.PLUGIN_ID, e.getLocalizedMessage(), e);
 		} catch (ExecutionException e) {
-			new Status(IStatus.ERROR, Activator.PLUGIN_ID, e.getLocalizedMessage(), e);
+			return new Status(IStatus.ERROR, Activator.PLUGIN_ID, e.getLocalizedMessage(), e);
+		} catch (IOException e) {
+			return new Status(IStatus.ERROR, Activator.PLUGIN_ID, e.getLocalizedMessage(), e);
 		}
 		
 		return Status.OK_STATUS;
