@@ -45,9 +45,7 @@ public class GeminiService extends AbstractService {
 	}
 
 	@Override
-	public Process createProcess() throws IOException {
-
-
+	public void checkForUpdates() throws IOException {
 		String startupDefault[] = getDefaultStartupCommand();
 		String startup[] = getStartupCommand();
 
@@ -104,7 +102,12 @@ public class GeminiService extends AbstractService {
 			}
 			
 		}
-		
+	}
+
+	@Override
+	public Process createProcess() throws IOException {
+		String startup[] = getStartupCommand();
+
 		
 		
 	    System.err.println(startup);
@@ -129,4 +132,5 @@ public class GeminiService extends AbstractService {
 				"--experimental-acp"};
 
 	}
+
 }
