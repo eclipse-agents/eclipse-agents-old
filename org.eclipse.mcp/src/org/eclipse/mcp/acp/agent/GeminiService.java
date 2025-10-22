@@ -13,41 +13,124 @@
  *******************************************************************************/
 package org.eclipse.mcp.acp.agent;
 
+import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.Arrays;
+import java.util.Map;
 
-import org.eclipse.mcp.Activator;
-import org.eclipse.mcp.internal.preferences.IPreferenceConstants;
+import org.eclipse.mcp.internal.Tracer;
+import org.eclipse.wildwebdeveloper.embedder.node.NodeJSManager;
 
 public class GeminiService extends AbstractService {
 
-	
+	public static final String ECLIPSEAGENTS = ".eclipseagents";
+	public static final String ECLIPSEAGENTSNODE = "node";
+
 	public GeminiService() {
-		
+		// always bootstrap NodeJSManager first
+		NodeJSManager.getNodeJsLocation();
 	}
 
 	@Override
 	public String getName() {
 		return "Gemini CLI";
 	}
+	
+	@Override
+	public String getId() {
+		return "gemini";
+	}
+
+	@Override
+	public void checkForUpdates() throws IOException {
+		String startupDefault[] = getDefaultStartupCommand();
+		String startup[] = getStartupCommand();
+
+		if (Arrays.equals(startupDefault, startup)) {
+
+			// if user has not customized the gemini cli location, we install and update
+			// npm package automatically in private location
+			
+			File userHome = new File(System.getProperty("user.home"));
+			if (!userHome.exists() || !userHome.isDirectory()) {
+				throw new RuntimeException("user home not found");
+			}
+			
+			File agentsNodeDir = getAgentsNodeDirectory();
+
+		    ProcessBuilder pb = NodeJSManager.prepareNPMProcessBuilder("i", "@google/gemini-cli");
+		    pb.directory(agentsNodeDir);
+		    Map<?,?> env = pb.environment();
+		    String path = pb.environment().get("PATH");
+		    path = NodeJSManager.getNodeJsLocation().getParentFile().getAbsolutePath() + 
+		    		System.getProperty("path.separator") +
+		    		path;
+		    
+		    pb.environment().put("PATH", path);
+	        
+		    Process process = pb.start();
+		    
+		    try {
+				int result = process.waitFor();
+				Tracer.trace().trace(Tracer.ACP, "npm i gemini exit:" + result);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		    
+		    InputStream inputStream = process.getInputStream();
+		    InputStream errorStream = process.getErrorStream();
+			
+			if (!process.isAlive()) {
+				BufferedReader br = new BufferedReader(new InputStreamReader(errorStream, "UTF-8"));
+				String line = br.readLine();
+				while (line != null) {
+					System.err.println(line);
+					line = br.readLine();
+				}
+				br.close();
+				
+				br = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
+				line = br.readLine();
+				while (line != null) {
+					System.err.println(line);
+					line = br.readLine();
+				}
+				br.close();
+			}
+			
+		}
+	}
 
 	@Override
 	public Process createProcess() throws IOException {
-		String node = Activator.getDefault().getPreferenceStore().getString(IPreferenceConstants.P_ACP_NODE); 
-		String gemini = Activator.getDefault().getPreferenceStore().getString(IPreferenceConstants.P_ACP_GEMINI);
+		String startup[] = getStartupCommand();
 
+		
+		
+	    System.err.println(startup);
+	    
+	    ProcessBuilder pb = new ProcessBuilder(startup);
+	    Process process = pb.start();
+	   
+	    return process;
+		
+	}
 	
-		List<String> commandAndArgs = new ArrayList<String>();
-//		commandAndArgs.add("gemini");
-		commandAndArgs.add(node);
-		commandAndArgs.add(gemini);
-		commandAndArgs.add("--experimental-acp");
-//		commandAndArgs.add("--debug");
+	public String[] getDefaultStartupCommand() {
 		
-		ProcessBuilder pb = new ProcessBuilder(commandAndArgs);
-		return pb.start();
-		
+		return new String[] {
+				NodeJSManager.getNodeJsLocation().getAbsolutePath(),
+				getAgentsNodeDirectory().getAbsolutePath() + 
+					File.separator + "node_modules" +
+					File.separator + "@google" + 
+					File.separator + "gemini-cli" + 
+					File.separator + "dist" + 
+					File.separator + "index.js",
+				"--experimental-acp"};
+
 	}
 
 }

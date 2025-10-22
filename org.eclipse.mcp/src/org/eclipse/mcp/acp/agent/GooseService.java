@@ -17,6 +17,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+
 public class GooseService extends AbstractService {
 
 	
@@ -42,4 +44,21 @@ public class GooseService extends AbstractService {
 		
 	}
 
+	@Override
+	public String getId() {
+		return "goose";
+	}
+
+	@Override
+	public String[] getDefaultStartupCommand() {
+		return new String[] {
+				"/Users/jflicke/.local/bin/goose",
+				"acp"
+		};
+	}
+
+	@Override
+	public void checkForUpdates() throws IOException {
+		
+	}
 }

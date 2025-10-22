@@ -27,6 +27,7 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.jetty.ee10.servlet;bundle-version="12.1.0",
  org.eclipse.jetty.server;bundle-version="12.1.0",
  org.eclipse.jetty.util;bundle-version="12.1.0"
+ org.eclipse.wildwebdeveloper.embedder.node
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: org.eclipse.mcp
 Bundle-ActivationPolicy: lazy
