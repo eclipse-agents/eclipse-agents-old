@@ -135,9 +135,9 @@ public class ExtensionManager {
 		String output = "[" + identifier +"]:: " + message;
 		
 		if (t != null) {
-			Tracer.trace().trace(Tracer.EXTENTIONS, output, t);
+			Tracer.trace().trace(Tracer.EXTENSIONS, output, t);
 		} else {
-			Tracer.trace().trace(Tracer.EXTENTIONS, output);
+			Tracer.trace().trace(Tracer.EXTENSIONS, output);
 		}
 	}
 }

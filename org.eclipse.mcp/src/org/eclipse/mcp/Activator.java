@@ -71,7 +71,7 @@ public class Activator extends AbstractUIPlugin {
 			@Override
 			public void bundleChanged(BundleEvent event) {
 				if (event.getBundle() == getBundle() && event.getType() == BundleEvent.STARTED) {
-					Tracer.trace().trace(Tracer.DEBUG, event.getBundle().getBundleId() + " STARTED"); //$NON-NLS-1$
+					Tracer.trace().trace(Tracer.CONTEXTS, event.getBundle().getBundleId() + " STARTED"); //$NON-NLS-1$
 					extensionManager = new ExtensionManager();
 					serverManager = new ServerManager();
 				}
@@ -82,7 +82,7 @@ public class Activator extends AbstractUIPlugin {
 		if (PlatformUI.isWorkbenchRunning()) {
 
 		} else {
-			Tracer.trace().trace(Tracer.DEBUG, "Copy action cannot be initialized w/o a workbench"); //$NON-NLS-1$
+			
 		}
 	}
 
@@ -93,7 +93,7 @@ public class Activator extends AbstractUIPlugin {
 	}
 	
 	public void requestServerRestart() {
-		Tracer.trace().trace(Tracer.DEBUG, "MCP Server Restart Requested"); //$NON-NLS-1$
+		Tracer.trace().trace(Tracer.CONTEXTS, "MCP Server Restart Requested"); //$NON-NLS-1$
 		serverManager.forceRestart();
 	}
 
@@ -126,7 +126,7 @@ public class Activator extends AbstractUIPlugin {
 	protected ImageDescriptor createImageDescriptor(String relativePath) {
 		Optional<ImageDescriptor> imageDescriptor = ResourceLocator.imageDescriptorFromBundle(PLUGIN_ID, relativePath);
 		if (!imageDescriptor.isPresent()) {
-			Tracer.trace().trace(Tracer.DEBUG, "Failed to load image: " + relativePath); //$NON-NLS-1$
+			Tracer.trace().trace(Tracer.CONTEXTS, "Failed to load image: " + relativePath); //$NON-NLS-1$
 			return ImageDescriptor.getMissingImageDescriptor();
 		}
 		return imageDescriptor.get();
@@ -181,13 +181,13 @@ public class Activator extends AbstractUIPlugin {
 	}
 	
 	public File getBundleFile(String bundlePath) throws IOException, URISyntaxException {
-		Tracer.trace().trace(Tracer.DEBUG, "getBundleFile(): " + bundlePath); //$NON-NLS-1$
+		Tracer.trace().trace(Tracer.CONTEXTS, "getBundleFile(): " + bundlePath); //$NON-NLS-1$
 		URL pathUrl = FileLocator.find(getBundle(), new Path(bundlePath));
-		Tracer.trace().trace(Tracer.DEBUG, "pathUrl: " + pathUrl); //$NON-NLS-1$
+		Tracer.trace().trace(Tracer.CONTEXTS, "pathUrl: " + pathUrl); //$NON-NLS-1$
 		URL fileUrl = FileLocator.toFileURL(pathUrl);
-		Tracer.trace().trace(Tracer.DEBUG, "fileUrl: " + fileUrl); //$NON-NLS-1$
+		Tracer.trace().trace(Tracer.CONTEXTS, "fileUrl: " + fileUrl); //$NON-NLS-1$
 		URI fileUri = new URI(fileUrl.getProtocol(), fileUrl.getPath(), null);
-		Tracer.trace().trace(Tracer.DEBUG, "fileUri: " + fileUri); //$NON-NLS-1$
+		Tracer.trace().trace(Tracer.CONTEXTS, "fileUri: " + fileUri); //$NON-NLS-1$
 		return new File(fileUri);
 	}
 	

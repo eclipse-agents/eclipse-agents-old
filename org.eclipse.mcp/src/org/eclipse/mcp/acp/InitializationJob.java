@@ -34,6 +34,7 @@ import org.eclipse.mcp.acp.protocol.AcpSchema.NewSessionRequest;
 import org.eclipse.mcp.acp.protocol.AcpSchema.NewSessionResponse;
 import org.eclipse.mcp.acp.protocol.AcpSchema.SessionModeState;
 import org.eclipse.mcp.acp.protocol.AcpSchema.SseTransport;
+import org.eclipse.mcp.internal.Tracer;
 import org.eclipse.mcp.internal.preferences.IPreferenceConstants;
 
 
@@ -118,13 +119,13 @@ public class InitializationJob extends Job {
 				this.mcpServers = new McpServer[0];
 				
 				if (supportsSseMcp) {
-					System.err.println(service.getName() + " supports SSE MCP");
+					Tracer.trace().trace(Tracer.ACP, service.getName() + " supports SSE MCP");
 					
 					boolean eclipseMcpEnabled = Activator.getDefault().getPreferenceStore().getBoolean(IPreferenceConstants.P_SERVER_ENABLED);
 					
 					if (eclipseMcpEnabled) {
 						String httpPort = Activator.getDefault().getPreferenceStore().getString(IPreferenceConstants.P_SERVER_HTTP_PORT);
-						System.err.println("Eclipse MCP is running on port " + httpPort);
+						Tracer.trace().trace(Tracer.ACP, "Eclipse MCP is running on port " + httpPort);
 						
 						this.mcpServers = new McpServer[] { new SseTransport(
 								new HttpHeader[0],
@@ -132,10 +133,10 @@ public class InitializationJob extends Job {
 								"sse",
 								"http://localhost:" + httpPort + "/sse")}; 
 					} else {
-						System.err.println("Eclipse MCP is not running");
+						Tracer.trace().trace(Tracer.ACP, "Eclipse MCP is not running");
 					}
 				} else {
-					System.err.println(service.getName() + " does not support SSE MCP");
+					Tracer.trace().trace(Tracer.ACP, service.getName() + " does not support SSE MCP");
 				}
 				
 				

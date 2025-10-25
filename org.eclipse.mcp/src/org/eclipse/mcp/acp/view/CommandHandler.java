@@ -18,6 +18,7 @@ import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.mcp.acp.view.actions.AddToChatAction;
+import org.eclipse.mcp.internal.Tracer;
 
 /**
 * Handles command invocations and routes to 
@@ -26,7 +27,7 @@ public class CommandHandler extends AbstractHandler {
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-		System.err.println(event);
+		Tracer.trace().trace(Tracer.CHAT, event.toString());
 		if (AddToChatAction.ID.equals(event.getCommand().getId())) {
 			new AddToChatAction(event).run();
 		}

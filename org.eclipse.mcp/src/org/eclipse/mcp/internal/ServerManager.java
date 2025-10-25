@@ -32,7 +32,6 @@ import org.eclipse.ui.activities.IActivity;
 import org.eclipse.ui.activities.IActivityManager;
 import org.eclipse.ui.activities.IActivityManagerListener;
 
-
 import io.modelcontextprotocol.spec.McpSchema.LoggingLevel;
 
 public class ServerManager implements IPreferenceConstants, IActivityManagerListener {
@@ -55,7 +54,7 @@ public class ServerManager implements IPreferenceConstants, IActivityManagerList
 	}
 	
 	public void start() {
-		Tracer.trace().trace(Tracer.DEBUG, "Starting"); //$NON-NLS-1$
+		Tracer.trace().trace(Tracer.MCP, "Starting"); //$NON-NLS-1$
 		
 		server = null;
 
@@ -97,7 +96,7 @@ public class ServerManager implements IPreferenceConstants, IActivityManagerList
 	}
 	
 	public void stop() {
-		Tracer.trace().trace(Tracer.DEBUG, "Stopping"); //$NON-NLS-1$
+		Tracer.trace().trace(Tracer.MCP, "Stopping"); //$NON-NLS-1$
 		isRunning = false;
 		if (server != null) {
 			server.stop();
@@ -138,7 +137,7 @@ public class ServerManager implements IPreferenceConstants, IActivityManagerList
 				if (!event.getActivityManager().getEnabledActivityIds().contains(oldActivityId)) {
 					// oldActivityId was disabled/removed
 					if (activityIds.contains(oldActivityId)) {
-						Tracer.trace().trace(Tracer.DEBUG, "Activity Disabled: " + oldActivityId); //$NON-NLS-1$
+						Tracer.trace().trace(Tracer.MCP, "Activity Disabled: " + oldActivityId); //$NON-NLS-1$
 						forceRestart();
 						return;
 					}
@@ -150,7 +149,7 @@ public class ServerManager implements IPreferenceConstants, IActivityManagerList
 				if (!event.getPreviouslyEnabledActivityIds().contains(newActivityId)) {
 					// newctivityId was enabled/added
 					if (!activityIds.contains(newActivityId)) {
-						Tracer.trace().trace(Tracer.DEBUG, "Activity Enabled: " + newActivityId); //$NON-NLS-1$
+						Tracer.trace().trace(Tracer.MCP, "Activity Enabled: " + newActivityId); //$NON-NLS-1$
 						forceRestart();
 						return;
 					}

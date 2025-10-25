@@ -35,6 +35,7 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.mcp.Activator;
 import org.eclipse.mcp.MCPException;
+import org.eclipse.mcp.internal.Tracer;
 import org.eclipse.mcp.platform.resource.ResourceSchema.Editor;
 import org.eclipse.mcp.platform.resource.ResourceSchema.Editors;
 import org.eclipse.mcp.platform.resource.ResourceSchema.TextEditorSelection;
@@ -120,8 +121,9 @@ public class EditorAdapter implements IResourceTemplate<IEditorReference, Editor
 		boolean isDirty = editorReference.isDirty();
 		String contentDescription = editorReference.getContentDescription();
 		String tooltip = editorReference.getTitleToolTip();
-		System.out.println(contentDescription);
-		System.out.println(tooltip);
+		
+		Tracer.trace().trace(Tracer.PLATFORM, contentDescription);
+		Tracer.trace().trace(Tracer.PLATFORM, tooltip);
 		
 		
 		boolean[] isActive = new boolean[] { false };

@@ -17,6 +17,7 @@ import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.mcp.acp.view.AcpView;
+import org.eclipse.mcp.internal.Tracer;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
@@ -34,7 +35,7 @@ public class AddToChatAction extends Action {
 
 	@Override
 	public void run() {
-		System.out.println(event);
+		Tracer.trace().trace(Tracer.CHAT, event.toString());
 		
 		IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
 		try {

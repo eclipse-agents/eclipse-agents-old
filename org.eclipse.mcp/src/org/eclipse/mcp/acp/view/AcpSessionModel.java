@@ -54,6 +54,7 @@ import org.eclipse.mcp.acp.protocol.AcpSchema.WaitForTerminalExitRequest;
 import org.eclipse.mcp.acp.protocol.AcpSchema.WaitForTerminalExitResponse;
 import org.eclipse.mcp.acp.protocol.AcpSchema.WriteTextFileRequest;
 import org.eclipse.mcp.acp.protocol.AcpSchema.WriteTextFileResponse;
+import org.eclipse.mcp.internal.Tracer;
 
 public class AcpSessionModel implements IAcpSessionListener {
 
@@ -138,15 +139,15 @@ public class AcpSessionModel implements IAcpSessionListener {
 			PlanEntry[] entries = ((SessionPlan)notification.update()).entries();
 			for (int i = 1; i <= entries.length; i++) {
 				if (entries[i].status() == PlanEntryStatus.in_progress) {
-					System.err.println("Step " + i + " of " + (entries.length + 1) + ": " + entries[i].content());
+					Tracer.trace().trace(Tracer.ACP, "Step " + i + " of " + (entries.length + 1) + ": " + entries[i].content());
 				}
 			}
 		}
 		else if (notification.update() instanceof SessionAvailableCommandsUpdate) {
-			System.err.println(SessionAvailableCommandsUpdate.class.getCanonicalName());
+			Tracer.trace().trace(Tracer.ACP, SessionAvailableCommandsUpdate.class.getCanonicalName());
 		}
 		else if (notification.update() instanceof SessionModeUpdate ) {
-			System.err.println(SessionModeUpdate.class.getCanonicalName());
+			Tracer.trace().trace(Tracer.ACP, SessionModeUpdate.class.getCanonicalName());
 		}
 	}
 

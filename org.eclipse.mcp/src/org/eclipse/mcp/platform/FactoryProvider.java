@@ -43,7 +43,7 @@ public class FactoryProvider implements IFactoryProvider {
 	public Object[] getAnnotatedObjects() {
 		return new Object[] {
 			new Tools(),
-			new ResaourceTemplates()
+			new ResourceTemplates()
 		};
 	}
 

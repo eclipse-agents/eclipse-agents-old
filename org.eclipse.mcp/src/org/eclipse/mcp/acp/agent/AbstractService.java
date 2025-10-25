@@ -21,7 +21,6 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 
-import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.mcp.Activator;
 import org.eclipse.mcp.acp.protocol.AcpClient;
 import org.eclipse.mcp.acp.protocol.AcpClientLauncher;
@@ -30,6 +29,7 @@ import org.eclipse.mcp.acp.protocol.AcpSchema.AuthenticateResponse;
 import org.eclipse.mcp.acp.protocol.AcpSchema.InitializeRequest;
 import org.eclipse.mcp.acp.protocol.AcpSchema.InitializeResponse;
 import org.eclipse.mcp.acp.protocol.IAcpAgent;
+import org.eclipse.mcp.internal.Tracer;
 
 public abstract class AbstractService implements IAgentService {
 
@@ -101,7 +101,7 @@ public abstract class AbstractService implements IAgentService {
 				BufferedReader br = new BufferedReader(new InputStreamReader(errorStream, "UTF-8"));
 				String line = br.readLine();
 				while (line != null) {
-					System.err.println(line);
+					Tracer.trace().trace(Tracer.ACP, line);
 					line = br.readLine();
 				}
 				return;
@@ -113,10 +113,11 @@ public abstract class AbstractService implements IAgentService {
 							BufferedReader br = new BufferedReader(new InputStreamReader(errorStream, "UTF-8"));
 							while (_agentProcess.isAlive()) {
 								String line = br.readLine();
-								System.err.println(line);
+								Tracer.trace().trace(Tracer.ACP, line);
 							}
 						} catch (IOException e) {
-								e.printStackTrace();
+							Tracer.trace().trace(Tracer.ACP, e.getMessage(), e);
+							e.printStackTrace();
 						}							
 					}
 				}.start();
@@ -127,7 +128,7 @@ public abstract class AbstractService implements IAgentService {
 			thread = new AcpClientThread(launcher) {
 				@Override
 				public void statusChanged() {
-					System.err.println(getStatus());
+					Tracer.trace().trace(Tracer.ACP, getStatus().getMessage(), getStatus().getException());
 				}
 			};
 			thread.start();
@@ -139,13 +140,15 @@ public abstract class AbstractService implements IAgentService {
 					String output = null;
 					String errorString = null;
 
-					System.out.println("Gemini Exit:" + exitValue);
+					Tracer.trace().trace(Tracer.ACP, "Gemini Exit:" + exitValue);
 				}
 			});
 
 		} catch (UnsupportedEncodingException e) {
+			Tracer.trace().trace(Tracer.ACP, "Error: ", e);
 			e.printStackTrace();
 		} catch (IOException e) {
+			Tracer.trace().trace(Tracer.ACP, "Error: ", e);
 			e.printStackTrace();
 		}
 	}
