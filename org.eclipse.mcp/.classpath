@@ -1,8 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
+	<classpathentry exported="true" kind="lib" path="lib/classmate-1.7.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jackson-datatype-jsr310-2.20.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jsonschema-generator-4.38.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jsonschema-module-jackson-4.38.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jsonschema-module-swagger-2-4.38.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/json-schema-validator-1.5.9.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jsr305-3.0.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/mcp-core-0.14.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/mcp-json-jackson2-0.14.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/reactive-streams-1.0.4.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/reactor-core-3.7.12.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/reactor-stream-2.0.8.RELEASE.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/swagger-annotations-2.2.39.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/mcp-annotations-0.5.1.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/mcp-core-0.14.1.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-17">
 		<attributes>
 			<attribute name="module" value="true"/>
