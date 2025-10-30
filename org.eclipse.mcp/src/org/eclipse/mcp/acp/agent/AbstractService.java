@@ -52,7 +52,10 @@ public abstract class AbstractService implements IAgentService {
 	}
 	
 	public String[] getStartupCommand() {
-		return Activator.getDefault().getPreferenceStore().getString(getStartupCommandPreferenceId()).split("\n");
+		String preference = Activator.getDefault().getPreferenceStore().getString(getStartupCommandPreferenceId());
+		// Handle when line delimiters contain a carriage return character
+		preference = preference.replaceAll("\r\n", "\n");
+		return preference.split("\n");
 	}
 	
 	public String getStartupCommandPreferenceId() {
