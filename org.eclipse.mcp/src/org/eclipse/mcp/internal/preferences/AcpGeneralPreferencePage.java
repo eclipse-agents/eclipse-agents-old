@@ -117,8 +117,7 @@ public class AcpGeneralPreferencePage extends PreferencePage
 		// Handle when line delimiters contain a carriage return character
 		preference = preference.replaceAll("\r\n", "\n");
 		
-		store.setValue(geminiPreferenceId, gemini.getText());;
-
+		store.setValue(geminiPreferenceId, preference);
 	}
 
 	@Override
