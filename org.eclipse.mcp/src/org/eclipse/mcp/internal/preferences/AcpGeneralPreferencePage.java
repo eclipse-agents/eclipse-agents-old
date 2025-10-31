@@ -113,6 +113,10 @@ public class AcpGeneralPreferencePage extends PreferencePage
 	private void savePreferences() {
 		IPreferenceStore store = getPreferenceStore();
 
+		String preference = gemini.getText();
+		// Handle when line delimiters contain a carriage return character
+		preference = preference.replaceAll("\r\n", "\n");
+		
 		store.setValue(geminiPreferenceId, gemini.getText());;
 
 	}
