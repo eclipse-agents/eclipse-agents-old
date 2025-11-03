@@ -45,7 +45,8 @@ Bundle-ClassPath: .,
  lib/reactive-streams-1.0.4.jar,
  lib/reactor-core-3.7.12.jar,
  lib/reactor-stream-2.0.8.RELEASE.jar,
- lib/swagger-annotations-2.2.39.jar
+ lib/swagger-annotations-2.2.39.jar,
+ lib/slf4j-api-2.0.16.jar
 Import-Package: jakarta.servlet;version="6.1.0",
  jakarta.servlet.annotation;version="[6.1.0,7.0.0)",
  jakarta.servlet.http;version="[6.1.0,7.0.0)",

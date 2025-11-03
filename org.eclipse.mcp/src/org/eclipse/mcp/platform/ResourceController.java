@@ -15,12 +15,13 @@ package org.eclipse.mcp.platform;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.eclipse.mcp.IMCPServices;
 import org.eclipse.mcp.internal.Tracer;
+import org.eclipse.mcp.platform.resource.EditorAdapter;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorReference;
 import org.eclipse.ui.IPageListener;
@@ -31,11 +32,12 @@ import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.texteditor.ITextEditor;
-import org.springaicommunity.mcp.provider.resource.SyncMcpResourceProvider;
 
 import io.modelcontextprotocol.server.McpServerFeatures.SyncResourceSpecification;
 import io.modelcontextprotocol.spec.McpSchema;
+import io.modelcontextprotocol.spec.McpSchema.ReadResourceResult;
 import io.modelcontextprotocol.spec.McpSchema.Resource;
+import io.modelcontextprotocol.spec.McpSchema.TextResourceContents;
 
 /**
  * Synchronizes availability of one ""eclipse://editor/{name}" MCP resource for each open Eclipse editor
@@ -53,18 +55,9 @@ public class ResourceController  {
 	ITextEditor lastActiveTextEditor;
 	
 	Set<String> resourceURIs = new HashSet<String>();
-	SyncResourceSpecification editorTemplateSpec;
 
 	public ResourceController() {
 		super();
-		
-		SyncMcpResourceProvider provider = new SyncMcpResourceProvider(Arrays.asList(new ResaourceTemplates()));
-		for (SyncResourceSpecification spec: provider.getResourceSpecifications()) {
-			if (spec.resource().uri().equals("eclipse://editor/{name}")) {
-				editorTemplateSpec = spec;
-				break;
-			}
-		}
  
 		windowListener = new IWindowListener() {
 			@Override
@@ -172,7 +165,13 @@ public class ResourceController  {
 				.mimeType("text/plain")
 				.build();
 
-			SyncResourceSpecification spec = new SyncResourceSpecification(resource, editorTemplateSpec.readHandler());
+			
+			SyncResourceSpecification spec = new SyncResourceSpecification(resource, (ctx, req) -> {
+				EditorAdapter adapter = new EditorAdapter(req.uri());
+				TextResourceContents contents = new TextResourceContents(req.uri(), resource.mimeType(), adapter.toContent());
+				return new ReadResourceResult(List.of(contents));
+			});
+			
 			services.addResource(spec);
 			
 			Tracer.trace().trace(Tracer.PLATFORM, "Adding Text Editor Resource: " + resource.uri());

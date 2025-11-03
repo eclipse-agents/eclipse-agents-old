@@ -39,6 +39,7 @@ import org.eclipse.ui.PlatformUI;
 import org.springaicommunity.mcp.annotation.McpComplete;
 import org.springaicommunity.mcp.annotation.McpResource;
 
+import io.modelcontextprotocol.spec.McpSchema.CompleteRequest;
 import io.modelcontextprotocol.spec.McpSchema.CompleteRequest.CompleteArgument;
 import io.modelcontextprotocol.spec.McpSchema.CompleteRequest.CompleteContext;
 
@@ -60,8 +61,11 @@ public class ResaourceTemplates {
 	}
     
     @McpComplete(uri="eclipse://editor/{name}")
-	public List<String> completeName(CompleteArgument name) {
+	public List<String> completeName(CompleteRequest request) {
     	
+    	CompleteArgument argument = request.argument();
+    	CompleteContext context = request.context();
+
     	List<String> result = new ArrayList<String>();
 		for (IWorkbenchWindow ww: PlatformUI.getWorkbench().getWorkbenchWindows()) {
 			for (IWorkbenchPage page: ww.getPages()) {
@@ -87,9 +91,11 @@ public class ResaourceTemplates {
 	}
     
     @McpComplete(uri = "file://workspace/{project}/{projectRelativePath}")
-   	public List<String> completeRelativePath(
-   			CompleteArgument argument, CompleteContext context) {
+   	public List<String> completeRelativePath(CompleteRequest request) {
     	
+    	CompleteArgument argument = request.argument();
+    	CompleteContext context = request.context();
+
     	List<String> result = new ArrayList<String>();
 		if (argument.name().equals("project")) {
 			IWorkspace workspace = ResourcesPlugin.getWorkspace();
