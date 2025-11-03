@@ -61,7 +61,7 @@ public class GeminiService extends AbstractService {
 			
 			File agentsNodeDir = getAgentsNodeDirectory();
 
-		    ProcessBuilder pb = NodeJSManager.prepareNPMProcessBuilder("i", "@google/gemini-cli");
+		    ProcessBuilder pb = NodeJSManager.prepareNPMProcessBuilder("i", "@google/gemini-cli", "--prefix", agentsNodeDir.getPath());
 		    pb.directory(agentsNodeDir);
 		    Map<?,?> env = pb.environment();
 		    String path = pb.environment().get("PATH");
