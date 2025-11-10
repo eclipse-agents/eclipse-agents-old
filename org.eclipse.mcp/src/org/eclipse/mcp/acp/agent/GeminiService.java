@@ -19,7 +19,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Arrays;
-import java.util.Map;
 
 import org.eclipse.mcp.internal.Tracer;
 import org.eclipse.wildwebdeveloper.embedder.node.NodeJSManager;
@@ -60,28 +59,27 @@ public class GeminiService extends AbstractService {
 			}
 			
 			File agentsNodeDir = getAgentsNodeDirectory();
-
-		    ProcessBuilder pb = NodeJSManager.prepareNPMProcessBuilder("i", "@google/gemini-cli");
-		    pb.directory(agentsNodeDir);
-		    Map<?,?> env = pb.environment();
-		    String path = pb.environment().get("PATH");
-		    path = NodeJSManager.getNodeJsLocation().getParentFile().getAbsolutePath() + 
-		    		System.getProperty("path.separator") +
-		    		path;
-		    
-		    pb.environment().put("PATH", path);
-	        
-		    Process process = pb.start();
-		    
-		    try {
+			
+			ProcessBuilder pb = NodeJSManager.prepareNPMProcessBuilder("i", "@google/gemini-cli", "--prefix", agentsNodeDir.getAbsolutePath());
+			pb.directory(agentsNodeDir);
+			String path = pb.environment().get("PATH");
+			path = NodeJSManager.getNodeJsLocation().getParentFile().getAbsolutePath() + 
+					System.getProperty("path.separator") +
+					path;
+			
+			pb.environment().put("PATH", path);
+			
+			Process process = pb.start();
+			
+			try {
 				int result = process.waitFor();
 				Tracer.trace().trace(Tracer.ACP, "npm i gemini exit:" + result);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
-		    
-		    InputStream inputStream = process.getInputStream();
-		    InputStream errorStream = process.getErrorStream();
+			
+			InputStream inputStream = process.getInputStream();
+			InputStream errorStream = process.getErrorStream();
 			
 			if (!process.isAlive()) {
 				BufferedReader br = new BufferedReader(new InputStreamReader(errorStream, "UTF-8"));
@@ -108,15 +106,12 @@ public class GeminiService extends AbstractService {
 	public Process createProcess() throws IOException {
 		String startup[] = getStartupCommand();
 
+		System.err.println(startup);
 		
+		ProcessBuilder pb = new ProcessBuilder(startup);
+		Process process = pb.start();
 		
-	    System.err.println(startup);
-	    
-	    ProcessBuilder pb = new ProcessBuilder(startup);
-	    Process process = pb.start();
-	   
-	    return process;
-		
+		return process;	
 	}
 	
 	public String[] getDefaultStartupCommand() {
@@ -130,7 +125,6 @@ public class GeminiService extends AbstractService {
 					File.separator + "dist" + 
 					File.separator + "index.js",
 				"--experimental-acp"};
-
 	}
 
 }
