@@ -15,6 +15,7 @@
 div {
 	margin-top: 10px;
 }
+
 span button  {
 	background-color: #eee;
 	color: #444;
@@ -25,7 +26,6 @@ span button  {
 	text-align: left;
 	outline: none;
 }
-
 
 .active, span button:hover {
 	background-color: #ccc;
@@ -39,8 +39,6 @@ span chunked-markdown {
 	max-height: 0;
 	overflow: hidden;
 	transition: max-height 0.2s ease-out;
-	cursor: pointer;
-	width: 100%;
 	border: none;
 	text-align: left;
 	outline: none;

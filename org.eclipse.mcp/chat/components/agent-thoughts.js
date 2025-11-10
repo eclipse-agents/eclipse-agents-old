@@ -23,7 +23,7 @@ class AgentThoughts extends DivTemplate {
 	}
 
 	connectedCallback() {
-        // Create and append children to the shadow root
+		// Create and append children to the shadow root
 		this.markdown = this.root.querySelector('span chunked-markdown');
 		this.button = this.root.querySelector('span button');
 		this.button.addEventListener("click", function() {
@@ -32,7 +32,7 @@ class AgentThoughts extends DivTemplate {
 			if (content.style.maxHeight) {
 				content.style.maxHeight = null;
 			} else {
-				content.style.maxHeight = content.scrollHeight + "px";
+				content.style.maxHeight = "100%";
 				content.style.display = "block";
 			}
 		});
