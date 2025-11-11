@@ -52,6 +52,7 @@ import org.eclipse.mcp.acp.protocol.AcpSchema.WaitForTerminalExitRequest;
 import org.eclipse.mcp.acp.protocol.AcpSchema.WaitForTerminalExitResponse;
 import org.eclipse.mcp.acp.protocol.AcpSchema.WriteTextFileRequest;
 import org.eclipse.mcp.acp.protocol.AcpSchema.WriteTextFileResponse;
+import org.eclipse.mcp.internal.Tracer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -148,7 +149,7 @@ public class AcpClient implements IAcpClient {
 								length = doc.getLineOffset(endLine) + doc.getLineLength(endLine);
 							}
 						}
-						System.err.println("read: " + offset +": "  + length);
+						Tracer.trace().trace(Tracer.ACP, "read: " + offset +": "  + length);
 						String text = doc.get(offset, length);
 						result.complete(new ReadTextFileResponse(null, text));
 					} catch (BadLocationException e) {

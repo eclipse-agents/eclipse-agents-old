@@ -23,7 +23,7 @@ public interface IMCPServices {
 	/**
 	 * The option argument extensions must use when using MCP's DebugTrace
 	 */
-	public final static String EXTENSIONS_TRACE_OPTION = Tracer.OTHERS;
+	public final static String EXTENSIONS_TRACE_OPTION = Tracer.THIRDPARTY;
 	
 	/**
 	 * Adds a resource to the server.  

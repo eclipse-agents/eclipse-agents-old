@@ -180,7 +180,7 @@ public class MCPServer {
 			log(LoggingLevel.INFO, this, "Server initialized");
 
 		} catch (Exception e) {
-			Tracer.trace().trace(Tracer.DEBUG, "Failed to initialize resource factory: " + e.getLocalizedMessage(), e);
+			Tracer.trace().trace(Tracer.MCP, "Failed to initialize jetty server", e);
 			e.printStackTrace();
 		}
 	}

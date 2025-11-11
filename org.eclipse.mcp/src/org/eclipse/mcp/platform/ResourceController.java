@@ -113,7 +113,7 @@ public class ResourceController  {
 			@Override
 			public void partDeactivated(IWorkbenchPart part) {
 				// do nothing
-				System.out.println("DEACTIVATE: " + part.getTitle());
+				Tracer.trace().trace(Tracer.PLATFORM, "DEACTIVATE: " + part.getTitle());
 			}
 			
 			@Override

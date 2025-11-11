@@ -31,6 +31,7 @@ import org.eclipse.lsp4j.jsonrpc.json.MessageConstants;
 import org.eclipse.lsp4j.jsonrpc.json.MessageJsonHandler;
 import org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer;
 import org.eclipse.lsp4j.jsonrpc.messages.Message;
+import org.eclipse.mcp.internal.Tracer;
 
 public class StdinoutMessageProducer implements MessageProducer, Closeable, MessageConstants {
 
@@ -127,11 +128,12 @@ public class StdinoutMessageProducer implements MessageProducer, Closeable, Mess
 	 * @return {@code true} if we should continue reading from the input stream, {@code false} if we should stop
 	 */
 	protected boolean handleMessage(String line) throws IOException {
-		if (callback == null)
+		if (callback == null) {
 			callback = message -> LOG.log(Level.INFO, "Received message: " + message);
+		}
 
 		try {
-			System.err.println(line);
+			Tracer.trace().trace(Tracer.ACP, line);
 			
 			Message message = jsonHandler.parseMessage(line);
 			callback.consume(message);	

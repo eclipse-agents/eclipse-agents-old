@@ -85,7 +85,7 @@ public class GeminiService extends AbstractService {
 				BufferedReader br = new BufferedReader(new InputStreamReader(errorStream, "UTF-8"));
 				String line = br.readLine();
 				while (line != null) {
-					System.err.println(line);
+					Tracer.trace().trace(Tracer.ACP, line);
 					line = br.readLine();
 				}
 				br.close();
@@ -93,7 +93,7 @@ public class GeminiService extends AbstractService {
 				br = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
 				line = br.readLine();
 				while (line != null) {
-					System.err.println(line);
+					Tracer.trace().trace(Tracer.ACP, line);
 					line = br.readLine();
 				}
 				br.close();
@@ -106,12 +106,12 @@ public class GeminiService extends AbstractService {
 	public Process createProcess() throws IOException {
 		String startup[] = getStartupCommand();
 
-		System.err.println(startup);
-		
-		ProcessBuilder pb = new ProcessBuilder(startup);
-		Process process = pb.start();
-		
-		return process;	
+		Tracer.trace().trace(Tracer.ACP, String.join(", ", startup));
+	    
+	    ProcessBuilder pb = new ProcessBuilder(startup);
+	    Process process = pb.start();
+	   
+	    return process;
 	}
 	
 	public String[] getDefaultStartupCommand() {

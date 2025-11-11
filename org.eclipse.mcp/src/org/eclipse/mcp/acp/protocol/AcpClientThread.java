@@ -35,10 +35,9 @@ public abstract class AcpClientThread extends Thread {
 	@Override
 	public void run() {
 		
-		Tracer.trace().trace(Tracer.ACP, "starting Db2 for z/OS tooling client on port ");
+		Tracer.trace().trace(Tracer.ACP, "Starting AcpClientThread");
 		
 		try {
-			Tracer.trace().trace(Tracer.ACP, "Calling DssClientLauncher.startListening()"); //$NON-NLS-1$
 			launcher.startListening().get();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
@@ -49,9 +48,9 @@ public abstract class AcpClientThread extends Thread {
 		}
 
 		if (lastException == null) {
-			Tracer.trace().trace(Tracer.ACP, "DssClientLauncher has stopped listening"); //$NON-NLS-1$
+			Tracer.trace().trace(Tracer.ACP, "AcpClientThread has stopped listening"); //$NON-NLS-1$
 		} else {
-			Tracer.trace().trace(Tracer.ACP, "DssClientLauncher has stopped listening", lastException); //$NON-NLS-1$
+			Tracer.trace().trace(Tracer.ACP, "AcpClientThread has stopped listening", lastException); //$NON-NLS-1$
 		}
 
 		

@@ -24,54 +24,28 @@ import org.osgi.framework.BundleContext;
 
 public class Tracer implements DebugOptionsListener, DebugTrace {
 
-
-	public static final String DEBUG = "/debug";
-	public static final String EXTENTIONS = "/debug/extensions";
-	public static final String PLATFORM = "/debug/extensions/platform";
-	public static final String ACP = "/debug/acp";
-	public static final String OTHERS = "/debug/extensions/others";
+	public static final String CONTEXTS = "/contexts";
+	public static final String MCP = "/contexts/protocol";
+	public static final String EXTENSIONS = "/contexts/extensions";
+	public static final String PLATFORM = "/contexts/platform";
+	public static final String THIRDPARTY ="/contexts/thirdparty";
+	public static final String CHAT = "/chat";
+	public static final String BROWSER = "/chat/browser";
+	public static final String ACP = "/chat/protocol";
 	
-	public enum OPTION {
-		DEBUG("/debug"),
-		EXTENTIONS("/debug/extensions"),
-		PLATFORM("/debug/extensions/platform"),
-		ACP("/debug/acp"),
-		OTHERS("org.eclipse.mcp/debug/extensions/others");
-		
-		private String location;
-		private String fullPath;
-		private boolean isActive;
-		
-	    private OPTION(String location) {
-	    	this.location = location;
-	    	fullPath = Activator.PLUGIN_ID + location;
-	    	isActive = false;
-	    }
-
-		public boolean isActive() {
-			return isActive;
-		}
-
-		private void setActive(boolean isActive) {
-			this.isActive = isActive;
-		}
-
-		public String getLocation() {
-			return location;
-		}
-
-		public String getFullPath() {
-			return fullPath;
-		}
-
-		@Override
-		public String toString() {
-			return getLocation();
-		}
-	}
+	public static final String[] OPTIONS = new String[] {
+		CONTEXTS,
+		MCP,
+		EXTENSIONS,
+		PLATFORM,
+		THIRDPARTY,
+		CHAT,
+		BROWSER,
+		ACP
+	};
 	
 	private static DebugTrace trace = null;
-   private static Tracer instance = null;
+    private static Tracer instance = null;
 	private static DebugTrace nullTrace = new DebugTrace() {
 		@Override
 		public void trace(String arg0, String arg1) {}
@@ -106,28 +80,12 @@ public class Tracer implements DebugOptionsListener, DebugTrace {
 	
 	@Override
 	public void optionsChanged(DebugOptions options) {
-
-		for (OPTION level: OPTION.values()) {
-			level.setActive(options.getBooleanOption(level.getFullPath(), false));
-		}
-		if (trace == null) {
-			trace = options.newDebugTrace(Activator.PLUGIN_ID);
-		}
-		trace.trace(OPTION.DEBUG.getLocation(), toString());
+		trace = options.newDebugTrace(Activator.PLUGIN_ID);
+		trace.trace(CONTEXTS, toString());
 } 
 
 	// used to bypass eclipse dependencies during unit testing
 	public static boolean disableTracing = false;	
-
-	@Override
-	public String toString() {
-		StringBuffer sb = new StringBuffer();
-		for (OPTION level: OPTION.values()) {
-			sb.append(level.getLocation() + ": " + level.isActive() + "; ");
-		}
-		return sb.toString();
-		
-	}
 	
 	public static DebugTrace trace() {
 		if (trace == null || disableTracing) {
@@ -136,16 +94,19 @@ public class Tracer implements DebugOptionsListener, DebugTrace {
 		return trace;
 	}
 
-
 	@Override
 	public void trace(String option, String message) {
 		trace().trace(option, message);
-		Activator.getDefault().getServerManager().log(message, null);
+		if (MCP.equals(option)) {
+			Activator.getDefault().getServerManager().log(message, null);
+		}
 	}
 	@Override
 	public void trace(String option, String message, Throwable error) {
 		trace().trace(option, message, error);
-		Activator.getDefault().getServerManager().log(message, error);
+		if (MCP.equals(option)) {
+			Activator.getDefault().getServerManager().log(message, error);
+		}
 	}
 	
 	@Override

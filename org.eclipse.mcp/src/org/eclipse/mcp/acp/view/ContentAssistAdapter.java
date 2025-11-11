@@ -17,6 +17,7 @@ import org.eclipse.jface.fieldassist.ContentProposalAdapter;
 import org.eclipse.jface.fieldassist.IContentProposal;
 import org.eclipse.jface.fieldassist.IContentProposalListener;
 import org.eclipse.jface.fieldassist.TextContentAdapter;
+import org.eclipse.mcp.internal.Tracer;
 import org.eclipse.swt.widgets.Text;
 
 public class ContentAssistAdapter extends ContentProposalAdapter implements IContentProposalListener {
@@ -29,6 +30,6 @@ public class ContentAssistAdapter extends ContentProposalAdapter implements ICon
 
 	@Override
 	public void proposalAccepted(IContentProposal proposal) {
-		System.out.println(proposal);
+		Tracer.trace().trace(Tracer.CHAT, proposal.getLabel());
 	}
 }

@@ -52,6 +52,7 @@ import org.eclipse.mcp.acp.protocol.AcpSchema.WaitForTerminalExitResponse;
 import org.eclipse.mcp.acp.protocol.AcpSchema.WriteTextFileResponse;
 import org.eclipse.mcp.acp.view.AcpSessionModel;
 import org.eclipse.mcp.acp.view.AcpView;
+import org.eclipse.mcp.internal.Tracer;
 
 public class AcpService {
 
@@ -88,6 +89,7 @@ public class AcpService {
 	}
 
 	public void setAcpService(AcpView view, IAgentService agent) {
+		Tracer.trace().trace(Tracer.CHAT, "setAcpService: " + agent.getName()); //$NON-NLS-1$
 		view.agentDisconnected();
 		activeSessionId = null;
 		this.activeAgent = agent;
@@ -128,11 +130,14 @@ public class AcpService {
 							
 						} else {
 							//TODO
-							System.err.println("found a pre-existing matching session id");
+							Tracer.trace().trace(Tracer.CHAT, "setAcpService: found a pre-existing matching session id");
 						}
 					} else {
-						System.err.println("initialization job has an error");
-						System.err.println(event.getJob().getResult());
+						Tracer.trace().trace(Tracer.CHAT, "initialization job has an error");
+						Tracer.trace().trace(Tracer.CHAT, event.getJob().getResult().getMessage(), event.getJob().getResult().getException());
+						if (event.getJob().getResult().getException() != null) {
+							event.getJob().getResult().getException().printStackTrace();
+						}
 					}
 				}
 			});
@@ -257,7 +262,9 @@ public class AcpService {
 		clientRequests(request);
 		getAgentService().getAgent().prompt(request).whenComplete((result, ex) -> {
 	        if (ex != null) {
+	        	Tracer.trace().trace(Tracer.CHAT, "prompt error", ex); //$NON-NLS-1$
 	            ex.printStackTrace();
+	            
 	            // Gemini CLI: cancel before first thought throws JSONRPC error
 	            agentResponds(new PromptResponse(null, StopReason.refusal));
 	        } else {
@@ -271,9 +278,9 @@ public class AcpService {
 		clientNotifies(notification);
 		try {
 			getAgentService().getAgent().cancel(notification);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		} catch (Exception ex) {
+			Tracer.trace().trace(Tracer.CHAT, "stop prompt error", ex); //$NON-NLS-1$
+			ex.printStackTrace();
 		}
 	}
 }

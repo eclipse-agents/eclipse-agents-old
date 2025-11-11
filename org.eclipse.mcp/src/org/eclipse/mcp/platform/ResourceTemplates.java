@@ -43,9 +43,9 @@ import io.modelcontextprotocol.spec.McpSchema.CompleteRequest;
 import io.modelcontextprotocol.spec.McpSchema.CompleteRequest.CompleteArgument;
 import io.modelcontextprotocol.spec.McpSchema.CompleteRequest.CompleteContext;
 
-public class ResaourceTemplates {
+public class ResourceTemplates {
 
-	public ResaourceTemplates() {
+	public ResourceTemplates() {
 		
 	}
 

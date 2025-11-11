@@ -31,6 +31,7 @@ import org.eclipse.mcp.Activator;
 import org.eclipse.mcp.acp.protocol.AcpSchema.ContentBlock;
 import org.eclipse.mcp.acp.protocol.AcpSchema.PromptRequest;
 import org.eclipse.mcp.acp.protocol.AcpSchema.SessionUpdate;
+import org.eclipse.mcp.internal.Tracer;
 import org.eclipse.mcp.platform.resource.WorkspaceResourceAdapter;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser;
@@ -81,7 +82,7 @@ public class AcpBrowser {
 		new BrowserFunction(browser, "getProgramIcon") {
 			@Override
 	        public Object function(Object[] args) {
-				System.err.println("getProgramIcon:" + args[0]);
+				Tracer.trace().trace(Tracer.BROWSER, "getProgramIcon:" + args[0]);
 				WorkspaceResourceAdapter adapter = new WorkspaceResourceAdapter(args[0].toString());
 	            IResource resource = adapter.getModel();
 	            final ImageDescriptor imageDescriptor;
@@ -116,7 +117,7 @@ public class AcpBrowser {
 				        result.append(Base64.getEncoder().encodeToString(imageBytes));
 					});
 
-					System.err.println(result.toString());
+					Tracer.trace().trace(Tracer.BROWSER, result.toString());
 					return result.toString();
 	            }
 	            return null;
@@ -157,7 +158,9 @@ public class AcpBrowser {
 				
 				String fxn = String.format("setStyle(`%spx`, `%s`, `%s`, `%s`, `%s`, `%s`, `%s`)", 
 						fontHeight, textFg, textBg, linkFg, linkActive, infoFg, infoBg);
-				System.err.println(fxn);
+				
+				Tracer.trace().trace(Tracer.BROWSER, fxn);
+
 				Activator.getDisplay().syncExec(()->browser.evaluate(fxn));
 				
 				browser.setVisible(true);
@@ -248,9 +251,9 @@ public class AcpBrowser {
 			try {
 				String json = mapper.writeValueAsString(update);
 				String fxn = String.format("updateSession(%s)", sanitize(json));
-				System.err.println(fxn);
+				Tracer.trace().trace(Tracer.BROWSER, fxn);
 				Activator.getDisplay().syncExec(()-> {
-					System.err.println(browser.evaluate(fxn));
+					Tracer.trace().trace(Tracer.BROWSER, "" + browser.evaluate(fxn));
 				});
 			} catch (JsonProcessingException e) {
 				e.printStackTrace();
@@ -263,9 +266,9 @@ public class AcpBrowser {
 			try {
 				String json = mapper.writeValueAsString(request);
 				String fxn = "acceptPromptRequest('" + sanitize(json) + "');";
-				System.err.println(fxn);
+				Tracer.trace().trace(Tracer.BROWSER, fxn);
 				Activator.getDisplay().syncExec(()-> {
-					System.err.println(browser.evaluate(fxn));
+					Tracer.trace().trace(Tracer.BROWSER, "" + browser.evaluate(fxn));
 				});
 			} catch (JsonProcessingException e) {
 				e.printStackTrace();
@@ -278,9 +281,9 @@ public class AcpBrowser {
 //			try {
 //				String json = mapper.writeValueAsString(notification.update());
 //				String fxn = "acceptSessionNotification('" + sanitize(json) + "');";
-//				System.err.println(fxn);
+//				Tracer.trace().trace(Tracer.BROWSER, fxn);
 //				Activator.getDisplay().syncExec(()-> {
-//					System.err.println(browser.evaluate(fxn));
+//					Tracer.trace().trace(Tracer.BROWSER, "" + browser.evaluate(fxn));
 //				});
 //			} catch (JsonProcessingException e) {
 //				e.printStackTrace();
@@ -293,9 +296,9 @@ public class AcpBrowser {
 			try {
 				String json = mapper.writeValueAsString(block);
 				String fxn = "acceptSessionUserMessageChunk('" + sanitize(json) + "');";
-				System.err.println(fxn);
+				Tracer.trace().trace(Tracer.BROWSER, fxn);
 				Activator.getDisplay().syncExec(()-> {
-					System.err.println(browser.evaluate(fxn));
+					Tracer.trace().trace(Tracer.BROWSER, "" + browser.evaluate(fxn));
 				});
 			} catch (JsonProcessingException e) {
 				e.printStackTrace();
@@ -308,12 +311,12 @@ public class AcpBrowser {
 			try {
 				String json = mapper.writeValueAsString(block);
 				String fxn = "acceptSessionAgentThoughtChunk('" + sanitize(json) + "');";
-				System.err.println(fxn);
+				Tracer.trace().trace(Tracer.BROWSER, fxn);
 //				new JsonParser().parse(json);
 //				new JsonParser().parse(sanitize(json));
 				
 				Activator.getDisplay().syncExec(()-> {
-					System.err.println(browser.evaluate(fxn));
+					Tracer.trace().trace(Tracer.BROWSER, "" + browser.evaluate(fxn));
 				});
 			} catch (JsonProcessingException e) {
 				e.printStackTrace();
@@ -326,9 +329,9 @@ public class AcpBrowser {
 			try {
 				String json = mapper.writeValueAsString(block);
 				String fxn = "acceptSessionAgentMessageChunk('" + sanitize(json) + "');";
-				System.err.println(fxn);
+				Tracer.trace().trace(Tracer.BROWSER, fxn);
 				Activator.getDisplay().syncExec(()-> {
-					System.err.println(browser.evaluate(fxn));
+					Tracer.trace().trace(Tracer.BROWSER, "" + browser.evaluate(fxn));
 				});
 			} catch (JsonProcessingException e) {
 				e.printStackTrace();
@@ -340,9 +343,9 @@ public class AcpBrowser {
 		if (!browser.isDisposed()) {
 			String fxn = String.format("acceptSessionToolCall(`%s`, `%s`, `%s`, `%s`);", 
 					toolCallId, title, kind, status);
-			System.err.println(fxn);
+			Tracer.trace().trace(Tracer.BROWSER, fxn);
 			Activator.getDisplay().syncExec(()-> {
-				System.err.println(browser.evaluate(fxn));
+				Tracer.trace().trace(Tracer.BROWSER, "" + browser.evaluate(fxn));
 			});
 		}
 	}
@@ -352,9 +355,9 @@ public class AcpBrowser {
 		if (!browser.isDisposed()) {
 			String fxn = String.format("acceptSessionToolCallUpdate(`%s`, `%s`);", 
 					toolCallId, status);
-			System.err.println(fxn);
+			Tracer.trace().trace(Tracer.BROWSER, fxn);
 			Activator.getDisplay().syncExec(()-> {
-				System.err.println(browser.evaluate(fxn));
+				Tracer.trace().trace(Tracer.BROWSER, "" + browser.evaluate(fxn));
 			});
 		}
 	}
