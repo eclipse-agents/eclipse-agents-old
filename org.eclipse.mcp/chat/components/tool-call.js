@@ -20,9 +20,9 @@ class ToolCall extends DivTemplate {
 
 	connectedCallback() {
         this._div = this.root.querySelector('div');
-		this._kind = this.root.querySelector('div i#kind');
+		this._kind = this.root.querySelector('div img#kind');
         this._title = this.root.querySelector('div span#title');
-        this._status = this.root.querySelector('div i#status');
+        this._status = this.root.querySelector('div img#status');
     }
 
 	create(toolCallId, title, kind, status) {
@@ -32,34 +32,34 @@ class ToolCall extends DivTemplate {
         
         switch(kind) { 
              case "read":
-                this._kind.className = "fa fa-thin fa-glasses";
+                this._kind.src = "icons/read.png";
                 break;
             case "edit":
-                this._kind.className = "fa fa-thin fa-pen";
+                this._kind.src = "icons/edit.png";
                 break;
             case "delete":
-                this._kind.className = "fa fa-thin fa-trash";
+                this._kind.src = "icons/delete.png";
                 break;
             case "move":
-                this._kind.className = "fa fa-thin fa-arrows-up-down-left-right";
+                this._kind.src = "icons/move.gif";
                 break;
             case "search":
-                this._kind.className = "fa fa-thin fa-magnifying-glass";
+                this._kind.src = "icons/search.png";
                 break;
             case "execute":
-                this._kind.className = "fa fa-thin fa-rocket";
+                this._kind.src = "icons/execute.png";
                 break;
             case "think":
-                this._kind.className = "fa fa-thin fa-brain";
+                this._kind.src = "icons/think.png";
                 break;
             case "fetch":
-                this._kind.className = "fa fa-thin fa-download";
+                this._kind.src = "icons/fetch.png";
                 break;
             case "switch_mode":
-                this._kind.className = "fa fa-thin fa-arrow-right-arrow-left";
+                this._kind.src = "icons/switch_mode.gif";
                 break;
             case "other":
-                this._kind.className = "fa fa-thin fa-toolbox";
+                this._kind.src = "icons/other.png";
                 break;
         }
         this.updateStatus(status);
@@ -76,13 +76,13 @@ class ToolCall extends DivTemplate {
              case "pending":
                 //fall through
              case "in_progress":
-                this._status.className = "fa fa-thin fa-spinner";
+                this._status.src = "icons/in_progress.png";
                 break;
              case "completed":
-                this._status.className = "fa fa-thin fa-check";
+                this._status.src = "icons/completed.png";
                 break;
              case "failed":
-                this._status.className = "fa fa-thin fa-xmark";
+                this._status.src = "icons/failed.png";
                 break;
         }
     }
