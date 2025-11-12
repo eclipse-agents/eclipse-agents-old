@@ -20,10 +20,21 @@ function demo() {
 	
 	acceptSessionAgentThoughtChunk(JSON.stringify({"content":{"text":"**Im Thinking About**\n- one thing\n- another thing","type":"text"},"sessionUpdate":"session1"}.content));
 
-	acceptSessionToolCall("tool1", "readConsole", "read", "pending");
-	
+	acceptSessionToolCall("tool1", "read: /eclipse/console/javaConsole", "read", "pending");
 	acceptSessionToolCallUpdate("tool1", "completed");
-
+	
+	acceptSessionToolCall("tool3", "edit abc.txt", "edit", "pending");
+	acceptSessionToolCall("tool4", "delete abc.txt", "delete", "pending");
+	acceptSessionToolCall("tool5", "copy file to abc", "move", "pending");
+	acceptSessionToolCall("tool6", "grep *abc", "search", "pending");
+	acceptSessionToolCall("tool7", "ls -al", "execute", "pending");
+	acceptSessionToolCallUpdate("tool7", "failed");	
+	acceptSessionToolCall("tool8", "thinking of lorem ipsum", "think", "pending");
+	acceptSessionToolCall("tool9", "fetch abc.txt", "fetch", "pending");
+	acceptSessionToolCall("tool10", "switch mode: plan", "switch_mode", "pending");
+	acceptSessionToolCall("tool11", "lorem ipsum", "other", "pending");
+	
+		
 	acceptSessionAgentThoughtChunk(JSON.stringify({"content":{"text":"**Im Also Thinking About**\n- one thing\n- another thing","type":"text"},"sessionUpdate":"session1"}.content));
 
 	acceptSessionAgentMessageChunk(JSON.stringify({"content":{"text":"Here i's what i came up with:\n```json\n \"a\": {\n\"B\": \"C\"","type":"text"},"sessionUpdate":"session1"}.content));
