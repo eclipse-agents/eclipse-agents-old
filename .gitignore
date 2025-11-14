@@ -1,5 +1,4 @@
-org.eclipse.mcp/bin
-org.eclipse.mcp.builtin/bin
-org.eclipse.mcp.test/bin
+org.eclipse.agents/bin
+org.eclipse.agents.test/bin
 target/
 bin/
