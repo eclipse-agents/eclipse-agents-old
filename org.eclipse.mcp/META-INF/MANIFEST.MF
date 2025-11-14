@@ -1,9 +1,9 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: ModelContextProtocol
-Bundle-SymbolicName: org.eclipse.mcp;singleton:=true
+Bundle-SymbolicName: org.eclipse.agents;singleton:=true
 Bundle-Version: 1.0.0.qualifier
-Bundle-Activator: org.eclipse.mcp.Activator
+Bundle-Activator: org.eclipse.agents.Activator
 Eclipse-BundleShape: dir
 Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.ui,
@@ -29,7 +29,7 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.jetty.util;bundle-version="12.1.0",
  org.eclipse.wildwebdeveloper.embedder.node
 Bundle-RequiredExecutionEnvironment: JavaSE-17
-Automatic-Module-Name: org.eclipse.mcp
+Automatic-Module-Name: org.eclipse.agents
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .,
  lib/mcp-annotations-0.5.1.jar,
@@ -61,18 +61,19 @@ Export-Package: io.modelcontextprotocol.client,
  io.modelcontextprotocol.server.transport,
  io.modelcontextprotocol.spec,
  io.modelcontextprotocol.util,
- org.eclipse.mcp;uses:="org.eclipse.core.runtime,org.eclipse.ui.dialogs,org.eclipse.jface.dialogs",
- org.eclipse.mcp.acp,
- org.eclipse.mcp.acp.agent,
- org.eclipse.mcp.acp.protocol,
- org.eclipse.mcp.acp.view,
- org.eclipse.mcp.acp.view.actions,
- org.eclipse.mcp.acp.view.toolbar,
- org.eclipse.mcp.internal;x-friends:="org.eclipse.mcp.builtins,org.eclipse.mcp.test,org.eclipse.mcp.test",
- org.eclipse.mcp.internal.preferences;x-friends:="org.eclipse.mcp.test",
- org.eclipse.mcp.platform,
- org.eclipse.mcp.platform.resource,
- org.eclipse.mcp.resource,
+ org.eclipse.agents;uses:="org.eclipse.core.runtime,org.eclipse.ui.dialogs,org.eclipse.jface.dialogs",
+ org.eclipse.agents.acp,
+ org.eclipse.agents.acp.protocol,
+ org.eclipse.agents.acp.services,
+ org.eclipse.agents.acp.view,
+ org.eclipse.agents.acp.view.actions,
+ org.eclipse.agents.acp.view.toolbar,
+ org.eclipse.agents.mcp,
+ org.eclipse.agents.mcp.adapters,
+ org.eclipse.agents.mcp.internal;x-friends:="org.eclipse.agents.test",
+ org.eclipse.agents.mcp.platform,
+ org.eclipse.agents.mcp.platform.adapters,
+ org.eclipse.agents.preferences,
  org.springaicommunity.mcp,
  org.springaicommunity.mcp.adapter,
  org.springaicommunity.mcp.annotation,
