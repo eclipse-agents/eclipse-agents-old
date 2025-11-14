@@ -15,18 +15,23 @@
 class AgentMessages extends DivTemplate {
 	
 	markdown;
+	anchorElements;
 
 	constructor() {
 		super("agent-message-chunk");
 	}
 
 	connectedCallback() {
-        // Create and append children to the shadow root
+		// Create and append children to the shadow root
 		this.markdown = this.root.querySelector('chunked-markdown');
 	}
 
 	addContentBlock(block) {
 		this.markdown.addContentBlock(block);
+		this.anchorElements = this.markdown.querySelectorAll('a');
+		this.anchorElements.forEach(anchor => {
+			anchor.tabIndex = 0;
+		});
 	}
 }
 customElements.define("agent-messages", AgentMessages);
