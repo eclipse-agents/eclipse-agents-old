@@ -13,6 +13,7 @@
  *******************************************************************************/
 package org.eclipse.agents.contexts.server;
 
+import org.eclipse.agents.Tracer;
 import org.eclipse.agents.contexts.IMCPServices;
 import org.eclipse.osgi.service.debug.DebugTrace;
 

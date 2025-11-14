@@ -19,12 +19,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.eclipse.agents.Tracer;
 import org.eclipse.agents.contexts.IFactoryProvider;
+import org.eclipse.agents.resource.adapters.IResourceTemplate;
 import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
 import org.eclipse.jetty.ee10.servlet.ServletHolder;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
-import org.eclipse.mcp.resource.adapters.IResourceTemplate;
 import org.springaicommunity.mcp.provider.complete.SyncMcpCompleteProvider;
 import org.springaicommunity.mcp.provider.prompt.SyncMcpPromptProvider;
 import org.springaicommunity.mcp.provider.resource.SyncMcpResourceProvider;

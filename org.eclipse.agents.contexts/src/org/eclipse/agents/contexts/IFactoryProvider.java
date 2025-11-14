@@ -13,7 +13,7 @@
  *******************************************************************************/
 package org.eclipse.agents.contexts;
 
-import org.eclipse.mcp.resource.adapters.IResourceTemplate;
+import org.eclipse.agents.resource.adapters.IResourceTemplate;
 
 /**
  * Convenience for creating multiple factories programmatically

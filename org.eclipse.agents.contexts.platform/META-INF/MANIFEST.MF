@@ -7,3 +7,5 @@ Automatic-Module-Name: org.eclipse.agents.contexts.platform
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Export-Package: org.eclipse.mcp.platform,
  org.eclipse.mcp.platform.resource
+Require-Bundle: org.eclipse.agents,
+ org.eclipse.agents.contexts

@@ -25,7 +25,8 @@ Require-Bundle: org.eclipse.core.runtime,
  com.google.gson;bundle-version="2.13.1",
  org.eclipse.jetty.ee10.servlet;bundle-version="12.1.0",
  org.eclipse.jetty.server;bundle-version="12.1.0",
- org.eclipse.jetty.util;bundle-version="12.1.0"
+ org.eclipse.jetty.util;bundle-version="12.1.0",
+ org.eclipse.agents
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: org.eclipse.agents.contexts
 Bundle-ActivationPolicy: lazy
@@ -59,6 +60,9 @@ Export-Package: io.modelcontextprotocol.client,
  io.modelcontextprotocol.server.transport,
  io.modelcontextprotocol.spec,
  io.modelcontextprotocol.util,
+ org.eclipse.agents.contexts,
+ org.eclipse.agents.preferences,
+ org.eclipse.agents.resource.adapters,
  org.springaicommunity.mcp,
  org.springaicommunity.mcp.adapter,
  org.springaicommunity.mcp.annotation,

@@ -19,13 +19,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.eclipse.agents.Tracer;
 import org.eclipse.agents.contexts.Activator;
 import org.eclipse.agents.contexts.IFactoryProvider;
 import org.eclipse.agents.contexts.server.ExtensionManager.Contributor;
+import org.eclipse.agents.preferences.IPreferenceConstants;
+import org.eclipse.agents.resource.adapters.IResourceTemplate;
 import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.jface.preference.IPreferenceStore;
-import org.eclipse.mcp.preferences.IPreferenceConstants;
-import org.eclipse.mcp.resource.adapters.IResourceTemplate;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.activities.ActivityManagerEvent;
 import org.eclipse.ui.activities.IActivity;

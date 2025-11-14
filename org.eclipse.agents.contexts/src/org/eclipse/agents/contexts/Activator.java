@@ -20,10 +20,9 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Optional;
 
-import org.eclipse.agents.contexts.internal.Tracer;
+import org.eclipse.agents.Tracer;
 import org.eclipse.agents.contexts.server.ExtensionManager;
 import org.eclipse.agents.contexts.server.ServerManager;
-import org.eclipse.agents.contexts.ui.Images;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.preferences.InstanceScope;
@@ -39,6 +38,8 @@ import org.eclipse.ui.preferences.ScopedPreferenceStore;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleEvent;
 import org.osgi.framework.BundleListener;
+
+
 
 /**
  * The activator class controls the plug-in life cycle
@@ -65,7 +66,6 @@ public class Activator extends AbstractUIPlugin {
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
 		plugin = this;
-		Tracer.setup(context);
 		
 		context.addBundleListener(new BundleListener() {
 			@Override
@@ -114,71 +114,11 @@ public class Activator extends AbstractUIPlugin {
 	public ServerManager getServerManager() {
 		return serverManager;
 	}
-
-	@Override
-	protected void initializeImageRegistry(ImageRegistry reg) {
-		for (int i = 0; i < Images.imagelist.length; i++) {
-			String key = Images.imagelist[i];
-			reg.put(key, createImageDescriptor(key));
-		}
-	}
-
-	protected ImageDescriptor createImageDescriptor(String relativePath) {
-		Optional<ImageDescriptor> imageDescriptor = ResourceLocator.imageDescriptorFromBundle(PLUGIN_ID, relativePath);
-		if (!imageDescriptor.isPresent()) {
-			Tracer.trace().trace(Tracer.CONTEXTS, "Failed to load image: " + relativePath); //$NON-NLS-1$
-			return ImageDescriptor.getMissingImageDescriptor();
-		}
-		return imageDescriptor.get();
-	}
 	
 	public static Display getDisplay() {
 		return Display.getCurrent() == null ? Display.getDefault() : Display.getCurrent();
 	}
 	
-	// Behavior tested against OS X Voice Over and Windows 11 + JAWS 2022
-	public static void addAccessibilityData(Control control, final String name, final String tooltip) {
-//		control.getAccessible().addAccessibleListener(new AccessibleListener() {
-//			@Override
-//			public void getDescription(AccessibleEvent arg0) {
-//				if (SystemUtils.IS_OS_MAC) {
-//					arg0.result = name;
-//					if (arg0.getSource() instanceof Accessible) {
-//						// Mac Voice Over does not include name of surrounding swt group
-//						Control c = ((Accessible)arg0.getSource()).getControl();
-//						if (c.getParent() instanceof Group) {
-//							arg0.result = MessageFormat.format(Messages.Accessibility_OSMAC_GROUPNAME_CONTROLNAME, ((Group)c.getParent()).getText(), name);
-//						}
-//					}
-//				} else {
-//					arg0.result = tooltip;
-//				}
-//			}
-//
-//			@Override
-//			public void getHelp(AccessibleEvent arg0) {
-//				if (SystemUtils.IS_OS_MAC) {
-//					arg0.result = tooltip;
-//				} else {
-//					arg0.result = null;
-//				}
-//			}
-//
-//			@Override
-//			public void getKeyboardShortcut(AccessibleEvent arg0) {
-//				arg0.result = null;
-//			}
-//
-//			@Override
-//			public void getName(AccessibleEvent arg0) {
-//				if (SystemUtils.IS_OS_MAC) {
-//					arg0.result = null;
-//				} else {
-//					arg0.result = name;
-//				}
-//			}
-//		});
-	}
 	
 	public File getBundleFile(String bundlePath) throws IOException, URISyntaxException {
 		Tracer.trace().trace(Tracer.CONTEXTS, "getBundleFile(): " + bundlePath); //$NON-NLS-1$
