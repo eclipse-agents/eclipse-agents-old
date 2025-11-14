@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Services
+Bundle-SymbolicName: org.eclipse.agents.services
+Bundle-Version: 1.0.0.qualifier
+Automatic-Module-Name: org.eclipse.agents.services
+Bundle-RequiredExecutionEnvironment: JavaSE-21
+Export-Package: org.eclipse.mcp.acp,
+ org.eclipse.mcp.acp.agent,
+ org.eclipse.mcp.acp.protocol

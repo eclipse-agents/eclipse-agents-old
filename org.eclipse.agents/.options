@@ -1,0 +1,16 @@
+# Main Debug Trace switch
+org.eclipse.agents/contexts = false
+# Trace switch for issues instantiating extensions
+org.eclipse.agents/contexts/protocol = false
+# Trace switch for issues instantiating extensions
+org.eclipse.agents/contexts/extensions = false
+# Trace switch for built-in platform extensions
+org.eclipse.agents/contexts/platform = false
+# Trace switch for other MCP extensions
+org.eclipse.agents/contexts/thirdparty = false
+# Trace switch for built-in platform extensions
+org.eclipse.agents/chat = false
+# Trace switch for built-in platform extensions
+org.eclipse.agents/chat/browser = false
+# Trace switch for built-in platform extensions
+org.eclipse.agents/chat/protocol = false

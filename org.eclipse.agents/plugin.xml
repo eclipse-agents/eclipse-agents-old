@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+
+	<extension
+		point="org.eclipse.ui.keywords">
+		<keyword
+			id="org.eclipse.agents.keyword.mcp"
+			label="MCP">
+		</keyword>
+		<keyword
+			id="org.eclipse.agents.keyword.acp"
+			label="ACP">
+		</keyword>
+		<keyword
+			id="org.eclipse.agents.keyword.model"
+			label="MODEL">
+		</keyword>
+		<keyword
+			id="org.eclipse.agents.keyword.context"
+			label="CONTEXT">
+		</keyword>
+		<keyword
+			id="org.eclipse.agents.keyword.agent"
+			label="AGENT">
+		</keyword>
+		<keyword
+			id="org.eclipse.agents.keyword.client"
+			label="CLIENT">
+		</keyword>
+		<keyword
+			id="org.eclipse.agents.keyword.protocol"
+			label="PROTOCOL">
+		</keyword>
+		<keyword
+			id="org.eclipse.agents.keyword.coding"
+			label="CODING">
+		</keyword>
+		<keyword
+			id="org.eclipse.agents.keyword.cli"
+			label="CLI">
+		</keyword>
+	</extension>
+
+
+	<extension point="org.eclipse.ui.trace.traceComponents">
+		<component
+			id="org.eclipse.agents.traceComponent"
+			label="Coding Agent Services">
+			<bundle
+				name="org.eclipse.agents">
+			</bundle>
+		</component>
+	</extension>
+
+
+</plugin>

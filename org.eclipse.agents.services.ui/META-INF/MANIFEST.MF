@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Ui
+Bundle-SymbolicName: org.eclipse.agents.services.ui
+Bundle-Version: 1.0.0.qualifier
+Bundle-Activator: org.eclipse.agents.services.ui.Activator
+Require-Bundle: org.eclipse.core.runtime
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Automatic-Module-Name: org.eclipse.agents.services.ui
+Bundle-ActivationPolicy: lazy
+Export-Package: org.eclipse.mcp.acp.view,
+ org.eclipse.mcp.acp.view.actions,
+ org.eclipse.mcp.acp.view.toolbar

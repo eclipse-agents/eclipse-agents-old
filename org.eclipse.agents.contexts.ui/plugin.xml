@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+
+	<extension point="org.eclipse.ui.preferencePages">
+		<page
+			id="org.eclipse.agents.preferences.general"
+			class="org.eclipse.mcp.internal.preferences.AgentGeneralPreferencePage"
+			name="Coding Agents">
+			<keywordReference id="org.eclipse.mcp.keyword.mcp" />
+			<keywordReference id="org.eclipse.mcp.keyword.acp" />
+			<keywordReference id="org.eclipse.mcp.keyword.model" />
+			<keywordReference id="org.eclipse.mcp.keyword.agent" />
+			<keywordReference id="org.eclipse.mcp.keyword.client" />
+			<keywordReference id="org.eclipse.mcp.keyword.context" />
+			<keywordReference id="org.eclipse.mcp.keyword.protocol" />
+			<keywordReference id="org.eclipse.mcp.keyword.coding" />
+		</page>
+		<page
+			id="org.eclipse.mcp.preferences.general"
+			name="Agent Contexts"
+			category="org.eclipse.agents.preferences.general"
+			class="org.eclipse.mcp.internal.preferences.McpGeneralPreferencePage">
+			<keywordReference id="org.eclipse.mcp.keyword.mcp" />
+			<keywordReference id="org.eclipse.mcp.keyword.acp" />
+			<keywordReference id="org.eclipse.mcp.keyword.model" />
+			<keywordReference id="org.eclipse.mcp.keyword.agent" />
+			<keywordReference id="org.eclipse.mcp.keyword.client" />
+			<keywordReference id="org.eclipse.mcp.keyword.context" />
+			<keywordReference id="org.eclipse.mcp.keyword.protocol" />
+			<keywordReference id="org.eclipse.mcp.keyword.coding" />
+		</page>
+		<page
+			id="org.eclipse.acp.preferences.general"
+			name="Agent CLIs"
+			category="org.eclipse.agents.preferences.general"
+			class="org.eclipse.mcp.internal.preferences.AcpGeneralPreferencePage">
+			<keywordReference id="org.eclipse.mcp.keyword.mcp" />
+			<keywordReference id="org.eclipse.mcp.keyword.acp" />
+			<keywordReference id="org.eclipse.mcp.keyword.model" />
+			<keywordReference id="org.eclipse.mcp.keyword.agent" />
+			<keywordReference id="org.eclipse.mcp.keyword.client" />
+			<keywordReference id="org.eclipse.mcp.keyword.context" />
+			<keywordReference id="org.eclipse.mcp.keyword.protocol" />
+			<keywordReference id="org.eclipse.mcp.keyword.coding" />
+			<keywordReference id="org.eclipse.mcp.keyword.cli" />
+		</page>
+	</extension>
+
+</plugin>

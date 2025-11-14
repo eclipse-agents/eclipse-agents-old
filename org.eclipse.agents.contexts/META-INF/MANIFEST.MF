@@ -1,9 +1,9 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: ModelContextProtocol
-Bundle-SymbolicName: org.eclipse.mcp;singleton:=true
+Bundle-SymbolicName: org.eclipse.agents.contexts;singleton:=true
 Bundle-Version: 1.0.0.qualifier
-Bundle-Activator: org.eclipse.mcp.Activator
+Bundle-Activator: org.eclipse.agents.contexts.Activator
 Eclipse-BundleShape: dir
 Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.ui,
@@ -23,13 +23,11 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.ui.editors,
  org.eclipse.lsp4j.jsonrpc;bundle-version="0.24.0",
  com.google.gson;bundle-version="2.13.1",
- org.eclipse.ui.navigator,
  org.eclipse.jetty.ee10.servlet;bundle-version="12.1.0",
  org.eclipse.jetty.server;bundle-version="12.1.0",
- org.eclipse.jetty.util;bundle-version="12.1.0",
- org.eclipse.wildwebdeveloper.embedder.node
+ org.eclipse.jetty.util;bundle-version="12.1.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-17
-Automatic-Module-Name: org.eclipse.mcp
+Automatic-Module-Name: org.eclipse.agents.contexts
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .,
  lib/mcp-annotations-0.5.1.jar,
