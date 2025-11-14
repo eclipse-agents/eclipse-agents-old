@@ -31,9 +31,12 @@ class AgentThoughts extends DivTemplate {
 			let content = this.nextElementSibling;
 			if (content.style.maxHeight) {
 				content.style.maxHeight = null;
+				content.tabIndex = -1;
 			} else {
 				content.style.maxHeight = "100%";
 				content.style.display = "block";
+				content.tabIndex = 0;
+				content.focus();
 			}
 		});
 	}
