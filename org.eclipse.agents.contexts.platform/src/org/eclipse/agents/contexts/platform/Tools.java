@@ -11,12 +11,26 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.mcp.platform;
+package org.eclipse.agents.contexts.platform;
 
 
 import java.util.Arrays;
 import java.util.Comparator;
 
+import org.eclipse.agents.contexts.platform.resource.ConsoleAdapter;
+import org.eclipse.agents.contexts.platform.resource.EditorAdapter;
+import org.eclipse.agents.contexts.platform.resource.MarkerAdapter;
+import org.eclipse.agents.contexts.platform.resource.ResourceSchema.Consoles;
+import org.eclipse.agents.contexts.platform.resource.ResourceSchema.Editor;
+import org.eclipse.agents.contexts.platform.resource.ResourceSchema.Editors;
+import org.eclipse.agents.contexts.platform.resource.ResourceSchema.Problems;
+import org.eclipse.agents.contexts.platform.resource.ResourceSchema.Tasks;
+import org.eclipse.agents.contexts.platform.resource.ResourceSchema.TextEditorSelection;
+import org.eclipse.agents.contexts.platform.resource.ResourceSchema.TextReplacement;
+import org.eclipse.agents.resource.core.ResourceSchema.Children;
+import org.eclipse.agents.resource.core.ResourceSchema.DEPTH;
+import org.eclipse.agents.resource.core.ResourceSchema.File;
+import org.eclipse.agents.resource.core.WorkspaceResourceAdapter;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -27,20 +41,6 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRewriteTarget;
 import org.eclipse.mcp.Activator;
 import org.eclipse.mcp.MCPException;
-import org.eclipse.mcp.platform.resource.ConsoleAdapter;
-import org.eclipse.mcp.platform.resource.EditorAdapter;
-import org.eclipse.mcp.platform.resource.MarkerAdapter;
-import org.eclipse.mcp.platform.resource.ResourceSchema.Children;
-import org.eclipse.mcp.platform.resource.ResourceSchema.Consoles;
-import org.eclipse.mcp.platform.resource.ResourceSchema.DEPTH;
-import org.eclipse.mcp.platform.resource.ResourceSchema.Editor;
-import org.eclipse.mcp.platform.resource.ResourceSchema.Editors;
-import org.eclipse.mcp.platform.resource.ResourceSchema.File;
-import org.eclipse.mcp.platform.resource.ResourceSchema.Problems;
-import org.eclipse.mcp.platform.resource.ResourceSchema.Tasks;
-import org.eclipse.mcp.platform.resource.ResourceSchema.TextEditorSelection;
-import org.eclipse.mcp.platform.resource.ResourceSchema.TextReplacement;
-import org.eclipse.mcp.platform.resource.WorkspaceResourceAdapter;
 import org.eclipse.mcp.resource.IResourceHierarchy;
 import org.eclipse.mcp.resource.IResourceTemplate;
 import org.eclipse.swt.widgets.Display;

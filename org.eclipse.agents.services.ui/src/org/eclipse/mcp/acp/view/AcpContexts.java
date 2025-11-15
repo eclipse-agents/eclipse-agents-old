@@ -21,10 +21,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.mcp.Activator;
+import org.eclipse.agents.services.ui.Activator;
 import org.eclipse.mcp.acp.protocol.AcpSchema.Annotations;
 import org.eclipse.mcp.acp.protocol.AcpSchema.ContentBlock;
 import org.eclipse.mcp.acp.protocol.AcpSchema.EmbeddedResourceBlock;
+import org.eclipse.mcp.acp.protocol.AcpSchema.ResourceLink;
 import org.eclipse.mcp.acp.protocol.AcpSchema.ResourceLinkBlock;
 import org.eclipse.mcp.acp.protocol.AcpSchema.Role;
 import org.eclipse.mcp.acp.protocol.AcpSchema.TextResourceContents;
@@ -34,8 +35,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
-
-import io.modelcontextprotocol.spec.McpSchema.ResourceLink;
 
 public class AcpContexts extends Composite {
 

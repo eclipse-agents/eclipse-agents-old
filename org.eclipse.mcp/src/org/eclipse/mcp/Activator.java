@@ -136,49 +136,7 @@ public class Activator extends AbstractUIPlugin {
 		return Display.getCurrent() == null ? Display.getDefault() : Display.getCurrent();
 	}
 	
-	// Behavior tested against OS X Voice Over and Windows 11 + JAWS 2022
-	public static void addAccessibilityData(Control control, final String name, final String tooltip) {
-//		control.getAccessible().addAccessibleListener(new AccessibleListener() {
-//			@Override
-//			public void getDescription(AccessibleEvent arg0) {
-//				if (SystemUtils.IS_OS_MAC) {
-//					arg0.result = name;
-//					if (arg0.getSource() instanceof Accessible) {
-//						// Mac Voice Over does not include name of surrounding swt group
-//						Control c = ((Accessible)arg0.getSource()).getControl();
-//						if (c.getParent() instanceof Group) {
-//							arg0.result = MessageFormat.format(Messages.Accessibility_OSMAC_GROUPNAME_CONTROLNAME, ((Group)c.getParent()).getText(), name);
-//						}
-//					}
-//				} else {
-//					arg0.result = tooltip;
-//				}
-//			}
-//
-//			@Override
-//			public void getHelp(AccessibleEvent arg0) {
-//				if (SystemUtils.IS_OS_MAC) {
-//					arg0.result = tooltip;
-//				} else {
-//					arg0.result = null;
-//				}
-//			}
-//
-//			@Override
-//			public void getKeyboardShortcut(AccessibleEvent arg0) {
-//				arg0.result = null;
-//			}
-//
-//			@Override
-//			public void getName(AccessibleEvent arg0) {
-//				if (SystemUtils.IS_OS_MAC) {
-//					arg0.result = null;
-//				} else {
-//					arg0.result = name;
-//				}
-//			}
-//		});
-	}
+	
 	
 	public File getBundleFile(String bundlePath) throws IOException, URISyntaxException {
 		Tracer.trace().trace(Tracer.CONTEXTS, "getBundleFile(): " + bundlePath); //$NON-NLS-1$

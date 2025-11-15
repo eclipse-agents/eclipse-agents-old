@@ -11,7 +11,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.mcp.platform.resource;
+package org.eclipse.agents.resource.core;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -24,6 +24,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.eclipse.agents.contexts.MCPException;
+import org.eclipse.agents.resource.adapters.IResourceHierarchy;
+import org.eclipse.agents.resource.core.ResourceSchema.Children;
+import org.eclipse.agents.resource.core.ResourceSchema.DEPTH;
+import org.eclipse.agents.resource.core.ResourceSchema.File;
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileInfo;
 import org.eclipse.core.filesystem.IFileStore;
@@ -37,11 +42,6 @@ import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.mcp.MCPException;
-import org.eclipse.mcp.platform.resource.ResourceSchema.Children;
-import org.eclipse.mcp.platform.resource.ResourceSchema.DEPTH;
-import org.eclipse.mcp.platform.resource.ResourceSchema.File;
-import org.eclipse.mcp.resource.IResourceHierarchy;
 
 import io.modelcontextprotocol.spec.McpSchema;
 import io.modelcontextprotocol.spec.McpSchema.ResourceLink;

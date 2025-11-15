@@ -13,8 +13,8 @@
  *******************************************************************************/
 package org.eclipse.agents.resource.adapters;
 
-import org.eclipse.agents.resource.adapters.ResourceSchema.Children;
-import org.eclipse.agents.resource.adapters.ResourceSchema.DEPTH;
+import org.eclipse.agents.resource.core.ResourceSchema.Children;
+import org.eclipse.agents.resource.core.ResourceSchema.DEPTH;
 
 public interface IResourceHierarchy<T, U> extends IResourceTemplate<T, U> {
 

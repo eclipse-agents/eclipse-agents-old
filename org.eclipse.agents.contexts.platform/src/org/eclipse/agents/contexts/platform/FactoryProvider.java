@@ -11,14 +11,17 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.mcp.platform;
+package org.eclipse.agents.contexts.platform;
 
-import org.eclipse.mcp.IFactoryProvider;
-import org.eclipse.mcp.IMCPServices;
-import org.eclipse.mcp.platform.resource.ConsoleAdapter;
-import org.eclipse.mcp.platform.resource.EditorAdapter;
-import org.eclipse.mcp.platform.resource.WorkspaceResourceAdapter;
-import org.eclipse.mcp.resource.IResourceTemplate;
+import org.eclipse.agents.contexts.IFactoryProvider;
+import org.eclipse.agents.contexts.IMCPServices;
+import org.eclipse.agents.contexts.platform.resource.ConsoleAdapter;
+import org.eclipse.agents.contexts.platform.resource.EditorAdapter;
+import org.eclipse.agents.resource.adapters.IResourceTemplate;
+import org.eclipse.agents.resource.core.WorkspaceResourceAdapter;
+import org.eclipse.mcp.platform.ResourceController;
+import org.eclipse.mcp.platform.ResourceTemplates;
+import org.eclipse.mcp.platform.Tools;
 
 public class FactoryProvider implements IFactoryProvider {
 

@@ -71,20 +71,4 @@ public class Activator extends AbstractUIPlugin {
 	public static Activator getDefault() {
 		return plugin;
 	}
-	
-	public static Display getDisplay() {
-		return Display.getCurrent() == null ? Display.getDefault() : Display.getCurrent();
-	}
-	
-	
-	public File getBundleFile(String bundlePath) throws IOException, URISyntaxException {
-		Tracer.trace().trace(Tracer.CONTEXTS, "getBundleFile(): " + bundlePath); //$NON-NLS-1$
-		URL pathUrl = FileLocator.find(getBundle(), new Path(bundlePath));
-		Tracer.trace().trace(Tracer.CONTEXTS, "pathUrl: " + pathUrl); //$NON-NLS-1$
-		URL fileUrl = FileLocator.toFileURL(pathUrl);
-		Tracer.trace().trace(Tracer.CONTEXTS, "fileUrl: " + fileUrl); //$NON-NLS-1$
-		URI fileUri = new URI(fileUrl.getProtocol(), fileUrl.getPath(), null);
-		Tracer.trace().trace(Tracer.CONTEXTS, "fileUri: " + fileUri); //$NON-NLS-1$
-		return new File(fileUri);
-	}
 }

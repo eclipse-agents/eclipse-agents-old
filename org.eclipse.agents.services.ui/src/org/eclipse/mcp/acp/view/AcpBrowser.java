@@ -19,6 +19,9 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Base64;
 
+import org.eclipse.agents.Tracer;
+import org.eclipse.agents.Util;
+import org.eclipse.agents.services.ui.Activator;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
@@ -27,11 +30,9 @@ import org.eclipse.jface.preference.JFacePreferences;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.viewers.StructuredSelection;
-import org.eclipse.mcp.Activator;
 import org.eclipse.mcp.acp.protocol.AcpSchema.ContentBlock;
 import org.eclipse.mcp.acp.protocol.AcpSchema.PromptRequest;
 import org.eclipse.mcp.acp.protocol.AcpSchema.SessionUpdate;
-import org.eclipse.mcp.internal.Tracer;
 import org.eclipse.mcp.platform.resource.WorkspaceResourceAdapter;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser;
@@ -74,8 +75,8 @@ public class AcpBrowser {
 		browser = new Browser(parent, style);
 		browser.setJavascriptEnabled(true);
 
-		browser.setForeground(Activator.getDisplay().getSystemColor(SWT.COLOR_INFO_FOREGROUND));
-		browser.setBackground(Activator.getDisplay().getSystemColor(SWT.COLOR_INFO_BACKGROUND));
+		browser.setForeground(Util.getDisplay().getSystemColor(SWT.COLOR_INFO_FOREGROUND));
+		browser.setBackground(Util.getDisplay().getSystemColor(SWT.COLOR_INFO_BACKGROUND));
 		browser.setLayoutData(new GridData(GridData.FILL_BOTH));
 		browser.setVisible(false);
 		
@@ -104,9 +105,9 @@ public class AcpBrowser {
 	            if (imageDescriptor != null) {
 	            	StringBuffer result = new StringBuffer();
 					
-					Activator.getDisplay().syncExec(()-> {
+	            	Util.getDisplay().syncExec(()-> {
 						ByteArrayOutputStream bos = new ByteArrayOutputStream();
-				        Image image = imageDescriptor.createImage(Activator.getDisplay());
+				        Image image = imageDescriptor.createImage(Util.getDisplay());
 				        ImageLoader loader = new ImageLoader();
 				        loader.data = new ImageData[] { image.getImageData() }; // Get current ImageData from Image
 				        result.append("data:image/jpg;base64,");
@@ -137,9 +138,9 @@ public class AcpBrowser {
 					fontHeight = data[0].getHeight();
 				}
 				
-//				Color bg = Activator.getDisplay().getSystemColor(SWT.COLOR_LIST_BACKGROUND);
-//			 	Color fg = Activator.getDisplay().getSystemColor(SWT.COLOR_LIST_FOREGROUND);
-//				Color link = Activator.getDisplay().getSystemColor(SWT.COLOR_LINK_FOREGROUND);
+//				Color bg = Util.getDisplay().getSystemColor(SWT.COLOR_LIST_BACKGROUND);
+//			 	Color fg = Util.getDisplay().getSystemColor(SWT.COLOR_LIST_FOREGROUND);
+//				Color link = Util.getDisplay().getSystemColor(SWT.COLOR_LINK_FOREGROUND);
 				
 				Color link = JFaceResources.getColorRegistry().get(JFacePreferences.HYPERLINK_COLOR);
 				Color linkActive = JFaceResources.getColorRegistry().get(JFacePreferences.ACTIVE_HYPERLINK_COLOR); 
@@ -161,7 +162,7 @@ public class AcpBrowser {
 				
 				Tracer.trace().trace(Tracer.BROWSER, fxn);
 
-				Activator.getDisplay().syncExec(()->browser.evaluate(fxn));
+				Util.getDisplay().syncExec(()->browser.evaluate(fxn));
 				
 				browser.setVisible(true);
 				
@@ -207,7 +208,7 @@ public class AcpBrowser {
 				o.put("stateMask", e.stateMask);
 				o.put("time", e.time);
 				
-				Activator.getDisplay().syncExec(()-> {
+				Util.getDisplay().syncExec(()-> {
 					Object doit = browser.evaluate(String.format("keyTraversed(`%s`)", sanitize(o.toString())));
 					e.doit = Boolean.valueOf(doit.toString());
 				});
@@ -252,7 +253,7 @@ public class AcpBrowser {
 				String json = mapper.writeValueAsString(update);
 				String fxn = String.format("updateSession(%s)", sanitize(json));
 				Tracer.trace().trace(Tracer.BROWSER, fxn);
-				Activator.getDisplay().syncExec(()-> {
+				Util.getDisplay().syncExec(()-> {
 					Tracer.trace().trace(Tracer.BROWSER, "" + browser.evaluate(fxn));
 				});
 			} catch (JsonProcessingException e) {
@@ -267,7 +268,7 @@ public class AcpBrowser {
 				String json = mapper.writeValueAsString(request);
 				String fxn = "acceptPromptRequest('" + sanitize(json) + "');";
 				Tracer.trace().trace(Tracer.BROWSER, fxn);
-				Activator.getDisplay().syncExec(()-> {
+				Util.getDisplay().syncExec(()-> {
 					Tracer.trace().trace(Tracer.BROWSER, "" + browser.evaluate(fxn));
 				});
 			} catch (JsonProcessingException e) {
@@ -282,7 +283,7 @@ public class AcpBrowser {
 //				String json = mapper.writeValueAsString(notification.update());
 //				String fxn = "acceptSessionNotification('" + sanitize(json) + "');";
 //				Tracer.trace().trace(Tracer.BROWSER, fxn);
-//				Activator.getDisplay().syncExec(()-> {
+//				Util.getDisplay().syncExec(()-> {
 //					Tracer.trace().trace(Tracer.BROWSER, "" + browser.evaluate(fxn));
 //				});
 //			} catch (JsonProcessingException e) {
@@ -297,7 +298,7 @@ public class AcpBrowser {
 				String json = mapper.writeValueAsString(block);
 				String fxn = "acceptSessionUserMessageChunk('" + sanitize(json) + "');";
 				Tracer.trace().trace(Tracer.BROWSER, fxn);
-				Activator.getDisplay().syncExec(()-> {
+				Util.getDisplay().syncExec(()-> {
 					Tracer.trace().trace(Tracer.BROWSER, "" + browser.evaluate(fxn));
 				});
 			} catch (JsonProcessingException e) {
@@ -315,7 +316,7 @@ public class AcpBrowser {
 //				new JsonParser().parse(json);
 //				new JsonParser().parse(sanitize(json));
 				
-				Activator.getDisplay().syncExec(()-> {
+				Util.getDisplay().syncExec(()-> {
 					Tracer.trace().trace(Tracer.BROWSER, "" + browser.evaluate(fxn));
 				});
 			} catch (JsonProcessingException e) {
@@ -330,7 +331,7 @@ public class AcpBrowser {
 				String json = mapper.writeValueAsString(block);
 				String fxn = "acceptSessionAgentMessageChunk('" + sanitize(json) + "');";
 				Tracer.trace().trace(Tracer.BROWSER, fxn);
-				Activator.getDisplay().syncExec(()-> {
+				Util.getDisplay().syncExec(()-> {
 					Tracer.trace().trace(Tracer.BROWSER, "" + browser.evaluate(fxn));
 				});
 			} catch (JsonProcessingException e) {
@@ -344,7 +345,7 @@ public class AcpBrowser {
 			String fxn = String.format("acceptSessionToolCall(`%s`, `%s`, `%s`, `%s`);", 
 					toolCallId, title, kind, status);
 			Tracer.trace().trace(Tracer.BROWSER, fxn);
-			Activator.getDisplay().syncExec(()-> {
+			Util.getDisplay().syncExec(()-> {
 				Tracer.trace().trace(Tracer.BROWSER, "" + browser.evaluate(fxn));
 			});
 		}
@@ -356,7 +357,7 @@ public class AcpBrowser {
 			String fxn = String.format("acceptSessionToolCallUpdate(`%s`, `%s`);", 
 					toolCallId, status);
 			Tracer.trace().trace(Tracer.BROWSER, fxn);
-			Activator.getDisplay().syncExec(()-> {
+			Util.getDisplay().syncExec(()-> {
 				Tracer.trace().trace(Tracer.BROWSER, "" + browser.evaluate(fxn));
 			});
 		}

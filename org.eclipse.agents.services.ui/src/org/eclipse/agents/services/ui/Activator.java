@@ -20,6 +20,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Optional;
 
+import org.eclipse.agents.Tracer;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.preferences.InstanceScope;
@@ -27,18 +28,11 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.jface.resource.ResourceLocator;
-import org.eclipse.mcp.internal.ExtensionManager;
-import org.eclipse.mcp.internal.Images;
-import org.eclipse.mcp.internal.ServerManager;
-import org.eclipse.mcp.internal.Tracer;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.eclipse.ui.preferences.ScopedPreferenceStore;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.BundleEvent;
-import org.osgi.framework.BundleListener;
 
 /**
  * The activator class controls the plug-in life cycle
@@ -46,15 +40,12 @@ import org.osgi.framework.BundleListener;
 public class Activator extends AbstractUIPlugin {
 
 	// The plug-in ID
-	public static final String PLUGIN_ID = "org.eclipse.mcp"; //$NON-NLS-1$
+	public static final String PLUGIN_ID = "org.eclipse.agents.services.ui"; //$NON-NLS-1$
 
 	// The shared instance
 	private static Activator plugin;
 	
 	private ScopedPreferenceStore preferenceStore = null;
-	private ExtensionManager extensionManager = null;
-	private ServerManager serverManager = null;
-
 	/**
 	 * The constructor
 	 */
@@ -65,36 +56,12 @@ public class Activator extends AbstractUIPlugin {
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
 		plugin = this;
-		Tracer.setup(context);
-		
-		context.addBundleListener(new BundleListener() {
-			@Override
-			public void bundleChanged(BundleEvent event) {
-				if (event.getBundle() == getBundle() && event.getType() == BundleEvent.STARTED) {
-					Tracer.trace().trace(Tracer.CONTEXTS, event.getBundle().getBundleId() + " STARTED"); //$NON-NLS-1$
-					extensionManager = new ExtensionManager();
-					serverManager = new ServerManager();
-				}
-			}
-		});
-		
-		// if not running headless unit tests
-		if (PlatformUI.isWorkbenchRunning()) {
-
-		} else {
-			
-		}
 	}
 
 	@Override
 	public void stop(BundleContext context) throws Exception {
 		plugin = null;
 		super.stop(context);
-	}
-	
-	public void requestServerRestart() {
-		Tracer.trace().trace(Tracer.CONTEXTS, "MCP Server Restart Requested"); //$NON-NLS-1$
-		serverManager.forceRestart();
 	}
 
 	/**
@@ -104,15 +71,6 @@ public class Activator extends AbstractUIPlugin {
 	 */
 	public static Activator getDefault() {
 		return plugin;
-	}
-	
-
-	public ExtensionManager getExtensionManager() {
-		return extensionManager;
-	}
-
-	public ServerManager getServerManager() {
-		return serverManager;
 	}
 
 	@Override

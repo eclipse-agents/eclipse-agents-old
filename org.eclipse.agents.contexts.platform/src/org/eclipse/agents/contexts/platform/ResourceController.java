@@ -11,7 +11,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.mcp.platform;
+package org.eclipse.agents.contexts.platform;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -19,9 +19,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.eclipse.mcp.IMCPServices;
-import org.eclipse.mcp.internal.Tracer;
-import org.eclipse.mcp.platform.resource.EditorAdapter;
+import org.eclipse.agents.Tracer;
+import org.eclipse.agents.contexts.IMCPServices;
+import org.eclipse.agents.contexts.platform.resource.EditorAdapter;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorReference;
 import org.eclipse.ui.IPageListener;

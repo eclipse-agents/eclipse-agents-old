@@ -13,25 +13,11 @@
  *******************************************************************************/
 package org.eclipse.agents.contexts;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.util.Optional;
-
 import org.eclipse.agents.Tracer;
 import org.eclipse.agents.contexts.server.ExtensionManager;
 import org.eclipse.agents.contexts.server.ServerManager;
-import org.eclipse.core.runtime.FileLocator;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.preference.IPreferenceStore;
-import org.eclipse.jface.resource.ImageDescriptor;
-import org.eclipse.jface.resource.ImageRegistry;
-import org.eclipse.jface.resource.ResourceLocator;
-import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.eclipse.ui.preferences.ScopedPreferenceStore;
@@ -47,7 +33,7 @@ import org.osgi.framework.BundleListener;
 public class Activator extends AbstractUIPlugin {
 
 	// The plug-in ID
-	public static final String PLUGIN_ID = "org.eclipse.mcp"; //$NON-NLS-1$
+	public static final String PLUGIN_ID = "org.eclipse.agents.contexts"; //$NON-NLS-1$
 
 	// The shared instance
 	private static Activator plugin;
@@ -114,23 +100,6 @@ public class Activator extends AbstractUIPlugin {
 	public ServerManager getServerManager() {
 		return serverManager;
 	}
-	
-	public static Display getDisplay() {
-		return Display.getCurrent() == null ? Display.getDefault() : Display.getCurrent();
-	}
-	
-	
-	public File getBundleFile(String bundlePath) throws IOException, URISyntaxException {
-		Tracer.trace().trace(Tracer.CONTEXTS, "getBundleFile(): " + bundlePath); //$NON-NLS-1$
-		URL pathUrl = FileLocator.find(getBundle(), new Path(bundlePath));
-		Tracer.trace().trace(Tracer.CONTEXTS, "pathUrl: " + pathUrl); //$NON-NLS-1$
-		URL fileUrl = FileLocator.toFileURL(pathUrl);
-		Tracer.trace().trace(Tracer.CONTEXTS, "fileUrl: " + fileUrl); //$NON-NLS-1$
-		URI fileUri = new URI(fileUrl.getProtocol(), fileUrl.getPath(), null);
-		Tracer.trace().trace(Tracer.CONTEXTS, "fileUri: " + fileUri); //$NON-NLS-1$
-		return new File(fileUri);
-	}
-	
 	
 	public IPreferenceStore getPreferenceStore() {
 

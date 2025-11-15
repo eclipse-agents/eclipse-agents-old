@@ -2,4 +2,30 @@
 <?eclipse version="3.4"?>
 <plugin>
 
+	<extension
+		point="org.eclipse.mcp.modelContextProtocolServer"
+		id="org.eclipse.mcp.platform"
+		name="Eclipse Platform Services">
+		<contributor
+			id="org.eclipse.mcp.platform.contributor"
+			name="Eclipse Platform Services"
+			description="Eclipse Platform Services for Files, Editors, Consoles and Markers"
+			provider="Eclipse"
+			activityId="org.eclipse.mcp.platform">
+			<factory class="org.eclipse.mcp.platform.FactoryProvider" />
+		</contributor>
+	</extension>
+
+	<extension point="org.eclipse.ui.activities">
+
+		<activity id="org.eclipse.mcp.platform"
+			description="Services for Editors, Files, Consoles, Problems and Tasks"
+			name="Eclipse Platform Contexts" />
+
+		<categoryActivityBinding activityId="org.eclipse.mcp.platform"
+			categoryId="org.eclipse.mcp.activity" />
+
+		<defaultEnablement id="org.eclipse.mcp.platform" />
+	</extension>
+
 </plugin>

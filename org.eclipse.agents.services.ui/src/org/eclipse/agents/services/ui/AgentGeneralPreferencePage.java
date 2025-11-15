@@ -11,7 +11,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.agents.contexts.ui;
+package org.eclipse.agents.services.ui;
 
 import org.eclipse.jface.preference.PreferencePage;
 import org.eclipse.mcp.internal.preferences.IPreferenceConstants;

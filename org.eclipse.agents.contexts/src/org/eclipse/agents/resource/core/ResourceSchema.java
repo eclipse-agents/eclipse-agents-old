@@ -11,12 +11,15 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.agents.resource.adapters;
+package org.eclipse.agents.resource.core;
 
+import com.fasterxml.jackson.annotation.JsonClassDescription;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyDescription;
+
+import io.modelcontextprotocol.spec.McpSchema;
 
 public class ResourceSchema {
 
@@ -35,6 +38,21 @@ public class ResourceSchema {
 		}
 	};
 	
+	@JsonInclude(JsonInclude.Include.NON_ABSENT)
+	@JsonIgnoreProperties(ignoreUnknown = true)
+	@JsonClassDescription("Element of an hierarchical file system")
+	public record File (
+		
+		@JsonProperty
+		String name,
+		
+		@JsonPropertyDescription("Folders may have children")
+		@JsonProperty
+		boolean isFolder,
+		
+		@JsonProperty
+		McpSchema.ResourceLink uri) {
+	}
 
 	@JsonInclude(JsonInclude.Include.NON_ABSENT)
 	@JsonIgnoreProperties(ignoreUnknown = true)

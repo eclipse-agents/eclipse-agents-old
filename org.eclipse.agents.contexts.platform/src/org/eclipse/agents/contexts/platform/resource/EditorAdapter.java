@@ -11,7 +11,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.mcp.platform.resource;
+package org.eclipse.agents.contexts.platform.resource;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -25,6 +25,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.eclipse.agents.Tracer;
+import org.eclipse.agents.contexts.MCPException;
+import org.eclipse.agents.contexts.platform.resource.ResourceSchema.Editor;
+import org.eclipse.agents.contexts.platform.resource.ResourceSchema.Editors;
+import org.eclipse.agents.contexts.platform.resource.ResourceSchema.TextEditorSelection;
+import org.eclipse.agents.contexts.platform.resource.ResourceSchema.TextSelection;
+import org.eclipse.agents.resource.adapters.IResourceTemplate;
+import org.eclipse.agents.resource.core.WorkspaceResourceAdapter;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.BadLocationException;
@@ -33,14 +41,7 @@ import org.eclipse.jface.text.IMarkSelection;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionProvider;
-import org.eclipse.mcp.Activator;
-import org.eclipse.mcp.MCPException;
-import org.eclipse.mcp.internal.Tracer;
-import org.eclipse.mcp.platform.resource.ResourceSchema.Editor;
-import org.eclipse.mcp.platform.resource.ResourceSchema.Editors;
-import org.eclipse.mcp.platform.resource.ResourceSchema.TextEditorSelection;
-import org.eclipse.mcp.platform.resource.ResourceSchema.TextSelection;
-import org.eclipse.mcp.resource.IResourceTemplate;
+import org.eclipse.mcp.platform.resource.EditorAdapter;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
