@@ -24,7 +24,6 @@ import org.eclipse.agents.contexts.MCPException;
 import org.eclipse.agents.contexts.platform.resource.ResourceSchema.Console;
 import org.eclipse.agents.contexts.platform.resource.ResourceSchema.Consoles;
 import org.eclipse.agents.resource.adapters.IResourceTemplate;
-import org.eclipse.mcp.platform.resource.ConsoleAdapter;
 import org.eclipse.ui.console.ConsolePlugin;
 import org.eclipse.ui.console.IConsole;
 import org.eclipse.ui.console.IConsoleManager;

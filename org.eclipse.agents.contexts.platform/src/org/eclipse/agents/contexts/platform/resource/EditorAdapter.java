@@ -41,7 +41,6 @@ import org.eclipse.jface.text.IMarkSelection;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionProvider;
-import org.eclipse.mcp.platform.resource.EditorAdapter;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
@@ -133,7 +132,7 @@ public class EditorAdapter implements IResourceTemplate<IEditorReference, Editor
 		
 		IEditorPart part = editorReference.getEditor(false);
 		if (part != null) {
-			Activator.getDisplay().syncExec(new Runnable() {
+			getDisplay().syncExec(new Runnable() {
 				@Override
 				public void run() {
 					IWorkbench workbench = PlatformUI.getWorkbench();
@@ -170,7 +169,7 @@ public class EditorAdapter implements IResourceTemplate<IEditorReference, Editor
 			.name(editorReference.getTitle())
 			.description("Content of an Eclipse IDE Editor");
 		
-		Activator.getDisplay().syncExec(new Runnable() {
+		getDisplay().syncExec(new Runnable() {
 			@Override
 			public void run() {
 				IEditorPart part = editorReference.getEditor(false);
@@ -198,7 +197,7 @@ public class EditorAdapter implements IResourceTemplate<IEditorReference, Editor
 	public String toContent() {
 		
 		StringBuffer result = new StringBuffer();
-		Activator.getDisplay().syncExec(new Runnable() {
+		getDisplay().syncExec(new Runnable() {
 			@Override
 			public void run() {
 				IEditorPart part = editorReference.getEditor(true);
@@ -331,5 +330,9 @@ public class EditorAdapter implements IResourceTemplate<IEditorReference, Editor
 		}
 
 		return new Editors(editors.toArray(Editor[]::new));
+	}
+	
+	public Display getDisplay() {
+		return Display.getCurrent() == null ? Display.getDefault() : Display.getCurrent();
 	}
 }

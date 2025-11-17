@@ -17,6 +17,8 @@ package org.eclipse.agents.contexts.platform;
 import java.util.Arrays;
 import java.util.Comparator;
 
+import org.eclipse.agents.contexts.Activator;
+import org.eclipse.agents.contexts.MCPException;
 import org.eclipse.agents.contexts.platform.resource.ConsoleAdapter;
 import org.eclipse.agents.contexts.platform.resource.EditorAdapter;
 import org.eclipse.agents.contexts.platform.resource.MarkerAdapter;
@@ -27,6 +29,8 @@ import org.eclipse.agents.contexts.platform.resource.ResourceSchema.Problems;
 import org.eclipse.agents.contexts.platform.resource.ResourceSchema.Tasks;
 import org.eclipse.agents.contexts.platform.resource.ResourceSchema.TextEditorSelection;
 import org.eclipse.agents.contexts.platform.resource.ResourceSchema.TextReplacement;
+import org.eclipse.agents.resource.adapters.IResourceHierarchy;
+import org.eclipse.agents.resource.adapters.IResourceTemplate;
 import org.eclipse.agents.resource.core.ResourceSchema.Children;
 import org.eclipse.agents.resource.core.ResourceSchema.DEPTH;
 import org.eclipse.agents.resource.core.ResourceSchema.File;
@@ -39,10 +43,6 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRewriteTarget;
-import org.eclipse.mcp.Activator;
-import org.eclipse.mcp.MCPException;
-import org.eclipse.mcp.resource.IResourceHierarchy;
-import org.eclipse.mcp.resource.IResourceTemplate;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
@@ -235,7 +235,7 @@ public class Tools {
 		final IEditorReference reference = adapter.getModel();
 
 		// TODO close just the editor, not all editors on editor's file
-		Activator.getDisplay().syncExec(new Runnable() {
+		getDisplay().syncExec(new Runnable() {
 			@Override
 			public void run() {
 				reference.getPage().closeEditors(new IEditorReference[] { reference }, true);
@@ -256,7 +256,7 @@ public class Tools {
 		boolean[] result = new boolean[] { false };
 		if (reference != null) {
 			if (reference.isDirty()) {
-				Activator.getDisplay().syncExec(new Runnable() {
+				getDisplay().syncExec(new Runnable() {
 					@Override
 					public void run() {
 						try {
@@ -306,7 +306,7 @@ public class Tools {
 		if (reference != null) {
 			IEditorPart part = reference.getEditor(true);
 			if (part instanceof ITextEditor) {
-				Activator.getDisplay().syncExec(new Runnable() {
+				getDisplay().syncExec(new Runnable() {
 					@Override
 					public void run() {
 						ITextEditor textEditor = (ITextEditor) part;
@@ -418,5 +418,8 @@ public class Tools {
 			}
 		}
 	}
-
+	
+	public Display getDisplay() {
+		return Display.getCurrent() == null ? Display.getDefault() : Display.getCurrent();
+	}
 }

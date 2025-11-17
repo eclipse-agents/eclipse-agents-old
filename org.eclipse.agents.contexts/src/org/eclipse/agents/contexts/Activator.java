@@ -16,10 +16,10 @@ package org.eclipse.agents.contexts;
 import org.eclipse.agents.Tracer;
 import org.eclipse.agents.contexts.server.ExtensionManager;
 import org.eclipse.agents.contexts.server.ServerManager;
+import org.eclipse.core.runtime.Plugin;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.eclipse.ui.preferences.ScopedPreferenceStore;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleEvent;
@@ -30,7 +30,7 @@ import org.osgi.framework.BundleListener;
 /**
  * The activator class controls the plug-in life cycle
  */
-public class Activator extends AbstractUIPlugin {
+public class Activator extends Plugin {
 
 	// The plug-in ID
 	public static final String PLUGIN_ID = "org.eclipse.agents.contexts"; //$NON-NLS-1$
@@ -63,13 +63,6 @@ public class Activator extends AbstractUIPlugin {
 				}
 			}
 		});
-		
-		// if not running headless unit tests
-		if (PlatformUI.isWorkbenchRunning()) {
-
-		} else {
-			
-		}
 	}
 
 	@Override

@@ -19,9 +19,7 @@ import org.eclipse.agents.contexts.platform.resource.ConsoleAdapter;
 import org.eclipse.agents.contexts.platform.resource.EditorAdapter;
 import org.eclipse.agents.resource.adapters.IResourceTemplate;
 import org.eclipse.agents.resource.core.WorkspaceResourceAdapter;
-import org.eclipse.mcp.platform.ResourceController;
-import org.eclipse.mcp.platform.ResourceTemplates;
-import org.eclipse.mcp.platform.Tools;
+
 
 public class FactoryProvider implements IFactoryProvider {
 

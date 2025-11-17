@@ -19,11 +19,13 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.agents.contexts.MCPException;
+import org.eclipse.agents.contexts.platform.resource.ResourceSchema.Marker;
 import org.eclipse.agents.contexts.platform.resource.ResourceSchema.PRIORITY;
 import org.eclipse.agents.contexts.platform.resource.ResourceSchema.Problems;
 import org.eclipse.agents.contexts.platform.resource.ResourceSchema.SEVERITY;
 import org.eclipse.agents.contexts.platform.resource.ResourceSchema.TYPE;
 import org.eclipse.agents.contexts.platform.resource.ResourceSchema.Tasks;
+import org.eclipse.agents.resource.adapters.IResourceAdapter;
 import org.eclipse.agents.resource.core.WorkspaceResourceAdapter;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
@@ -32,8 +34,6 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.Position;
 import org.eclipse.jface.text.source.Annotation;
 import org.eclipse.jface.text.source.IAnnotationModel;
-import org.eclipse.mcp.platform.resource.EditorAdapter;
-import org.eclipse.mcp.platform.resource.MarkerAdapter;
 import org.eclipse.ui.texteditor.ITextEditor;
 import org.eclipse.ui.texteditor.SimpleMarkerAnnotation;
 
