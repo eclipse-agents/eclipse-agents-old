@@ -18,6 +18,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.agents.contexts.MCPException;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
@@ -25,7 +26,6 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.Position;
 import org.eclipse.jface.text.source.Annotation;
 import org.eclipse.jface.text.source.IAnnotationModel;
-import org.eclipse.mcp.MCPException;
 import org.eclipse.mcp.platform.resource.ResourceSchema.Marker;
 import org.eclipse.mcp.platform.resource.ResourceSchema.PRIORITY;
 import org.eclipse.mcp.platform.resource.ResourceSchema.Problems;

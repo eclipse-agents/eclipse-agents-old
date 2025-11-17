@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.mcp.MCPException;
+import org.eclipse.agents.contexts.MCPException;
 import org.eclipse.mcp.platform.resource.ResourceSchema.Console;
 import org.eclipse.mcp.platform.resource.ResourceSchema.Consoles;
 import org.eclipse.mcp.resource.IResourceTemplate;

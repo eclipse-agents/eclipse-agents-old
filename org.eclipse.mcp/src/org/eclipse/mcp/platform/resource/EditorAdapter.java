@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.eclipse.agents.contexts.MCPException;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.BadLocationException;
@@ -34,7 +35,6 @@ import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.mcp.Activator;
-import org.eclipse.mcp.MCPException;
 import org.eclipse.mcp.internal.Tracer;
 import org.eclipse.mcp.platform.resource.ResourceSchema.Editor;
 import org.eclipse.mcp.platform.resource.ResourceSchema.Editors;

@@ -17,6 +17,7 @@ package org.eclipse.mcp.platform;
 import java.util.Arrays;
 import java.util.Comparator;
 
+import org.eclipse.agents.contexts.MCPException;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -26,7 +27,6 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRewriteTarget;
 import org.eclipse.mcp.Activator;
-import org.eclipse.mcp.MCPException;
 import org.eclipse.mcp.platform.resource.ConsoleAdapter;
 import org.eclipse.mcp.platform.resource.EditorAdapter;
 import org.eclipse.mcp.platform.resource.MarkerAdapter;

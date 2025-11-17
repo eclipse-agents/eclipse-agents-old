@@ -11,7 +11,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.mcp;
+package org.eclipse.agents.contexts;
 
 import org.eclipse.core.runtime.IStatus;
 
