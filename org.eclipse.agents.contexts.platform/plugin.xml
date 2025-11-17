@@ -3,16 +3,16 @@
 <plugin>
 
 	<extension
-		point="org.eclipse.mcp.modelContextProtocolServer"
+		point="org.eclipse.agents.contexts.modelContextProtocolServer"
 		id="org.eclipse.mcp.platform"
 		name="Eclipse Platform Services">
 		<contributor
-			id="org.eclipse.mcp.platform.contributor"
+			id="org.eclipse.agents.contexts.platform.contributor"
 			name="Eclipse Platform Services"
 			description="Eclipse Platform Services for Files, Editors, Consoles and Markers"
 			provider="Eclipse"
-			activityId="org.eclipse.mcp.platform">
-			<factory class="org.eclipse.mcp.platform.FactoryProvider" />
+			activityId="org.eclipse.agents.contexts.activity">
+			<factory class="org.eclipse.agents.contexts.platform.FactoryProvider" />
 		</contributor>
 	</extension>
 

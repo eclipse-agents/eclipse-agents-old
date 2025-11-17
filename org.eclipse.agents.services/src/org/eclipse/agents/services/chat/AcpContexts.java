@@ -21,7 +21,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.agents.services.Activator;
+import org.eclipse.agents.contexts.resource.adapters.IResourceTemplate;
+import org.eclipse.agents.contexts.resource.core.WorkspaceResourceAdapter;
 import org.eclipse.agents.services.acp.protocol.AcpSchema.Annotations;
 import org.eclipse.agents.services.acp.protocol.AcpSchema.ContentBlock;
 import org.eclipse.agents.services.acp.protocol.AcpSchema.EmbeddedResourceBlock;
@@ -29,8 +30,6 @@ import org.eclipse.agents.services.acp.protocol.AcpSchema.ResourceLink;
 import org.eclipse.agents.services.acp.protocol.AcpSchema.ResourceLinkBlock;
 import org.eclipse.agents.services.acp.protocol.AcpSchema.Role;
 import org.eclipse.agents.services.acp.protocol.AcpSchema.TextResourceContents;
-import org.eclipse.mcp.platform.resource.WorkspaceResourceAdapter;
-import org.eclipse.mcp.resource.IResourceTemplate;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -52,9 +51,9 @@ public class AcpContexts extends Composite {
 	
 	public void addEmbeddedResourceContext(String name, String uri) {
 		if (!contexts.containsKey(uri)) {
-			IResourceTemplate<?, ?> resourceTemplate = Activator.getDefault().getServerManager().getResourceTemplate(uri);
+			IResourceTemplate<?, ?> resourceTemplate = org.eclipse.agents.contexts.Activator.getDefault().getServerManager().getResourceTemplate(uri);
 			if (resourceTemplate != null) {
-				ResourceLink link = resourceTemplate.toResourceLink();
+				ResourceLink link = (ResourceLink)resourceTemplate.toResourceLink();
 				TextResourceContents contents = new TextResourceContents(
 						null, 
 						link.mimeType(),

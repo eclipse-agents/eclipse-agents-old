@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.eclipse.mcp.IMCPServices;
+import org.eclipse.mcp.internal.Tracer;
 import org.eclipse.mcp.platform.resource.EditorAdapter;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorReference;

@@ -29,4 +29,6 @@ Require-Bundle: org.eclipse.core.runtime,
  com.google.gson;bundle-version="2.13.1",
  org.eclipse.wildwebdeveloper.embedder.node,
  org.eclipse.agents,
- org.eclipse.agents.contexts
+ org.eclipse.agents.contexts,
+ org.eclipse.ui.navigator,
+ org.eclipse.agents.contexts.platform

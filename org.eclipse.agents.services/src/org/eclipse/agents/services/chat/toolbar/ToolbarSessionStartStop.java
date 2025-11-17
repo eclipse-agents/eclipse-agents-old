@@ -14,9 +14,9 @@
 package org.eclipse.agents.services.chat.toolbar;
 
 import org.eclipse.agents.services.Activator;
+import org.eclipse.agents.services.Images;
 import org.eclipse.agents.services.chat.AcpView;
 import org.eclipse.jface.action.Action;
-import org.eclipse.mcp.internal.Images;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 

@@ -16,12 +16,13 @@ package org.eclipse.agents.services.chat;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.agents.contexts.platform.resource.EditorAdapter;
+import org.eclipse.agents.contexts.platform.resource.ResourceSchema.Editor;
 import org.eclipse.jface.fieldassist.ContentProposal;
 import org.eclipse.jface.fieldassist.IContentProposal;
 import org.eclipse.jface.fieldassist.IContentProposalListener;
 import org.eclipse.jface.fieldassist.IContentProposalProvider;
-import org.eclipse.mcp.platform.resource.EditorAdapter;
-import org.eclipse.mcp.platform.resource.ResourceSchema.Editor;
+
 
 public class ContentAssistProvider implements IContentProposalProvider, IContentProposalListener {
 
