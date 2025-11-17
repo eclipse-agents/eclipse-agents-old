@@ -3,7 +3,7 @@
 <plugin>
 
 	<extension
-		point="org.eclipse.agents.contexts.modelContextProtocolServer"
+		point="org.eclipse.agents.contexts.modelContextProtocolServices"
 		id="org.eclipse.mcp.platform"
 		name="Eclipse Platform Services">
 		<contributor
@@ -18,14 +18,14 @@
 
 	<extension point="org.eclipse.ui.activities">
 
-		<activity id="org.eclipse.mcp.platform"
+		<activity id="org.eclipse.agents.contexts.platform"
 			description="Services for Editors, Files, Consoles, Problems and Tasks"
 			name="Eclipse Platform Contexts" />
 
-		<categoryActivityBinding activityId="org.eclipse.mcp.platform"
-			categoryId="org.eclipse.mcp.activity" />
+		<categoryActivityBinding activityId="org.eclipse.agents.contexts.platform"
+			categoryId="org.eclipse.agents.contexts.activity" />
 
-		<defaultEnablement id="org.eclipse.mcp.platform" />
+		<defaultEnablement id="org.eclipse.agents.contexts.platform" />
 	</extension>
 
 </plugin>

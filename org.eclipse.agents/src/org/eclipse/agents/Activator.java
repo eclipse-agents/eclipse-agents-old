@@ -13,24 +13,15 @@
  *******************************************************************************/
 package org.eclipse.agents;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-
-import org.eclipse.core.runtime.FileLocator;
-import org.eclipse.core.runtime.Path;
-import org.eclipse.swt.widgets.Display;
+import org.eclipse.core.runtime.Plugin;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
 
 /**
  * The activator class controls the plug-in life cycle
  */
-public class Activator extends AbstractUIPlugin {
+public class Activator extends Plugin {
 
 	// The plug-in ID
 	public static final String PLUGIN_ID = "org.eclipse.agents"; //$NON-NLS-1$
