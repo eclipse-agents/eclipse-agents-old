@@ -21,7 +21,7 @@ import java.util.Set;
 
 import org.eclipse.agents.Tracer;
 import org.eclipse.agents.contexts.IFactoryProvider;
-import org.eclipse.agents.resource.adapters.IResourceTemplate;
+import org.eclipse.agents.contexts.resource.adapters.IResourceTemplate;
 import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
 import org.eclipse.jetty.ee10.servlet.ServletHolder;
 import org.eclipse.jetty.server.ServerConnector;

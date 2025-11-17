@@ -2,23 +2,23 @@
 <?eclipse version="3.4"?>
 <plugin>
 
-	<extension-point id="org.eclipse.mcp.modelContextProtocolServer"
-		name="Model Context Protocol Server"
-		schema="schema/modelContextProtocolServer.exsd" />
+	<extension-point id="org.eclipse.agents.contexts.modelContextProtocolServices"
+		name="Model Context Protocol Services"
+		schema="schema/modelContextProtocolServices.exsd" />
 
 	<extension point="org.eclipse.ui.activities">
-		<category id="org.eclipse.mcp.activity"
+		<category id="org.eclipse.agents.contexts.activity"
 			description="Connect Agentic clients to Model Context Protocol servers running within the workbench"
 			name="Agent Context Services" />
 	</extension>
 
 	<extension point="org.eclipse.core.runtime.preferences">
 		<initializer
-			class="org.eclipse.mcp.internal.preferences.PreferenceInitializer" />
+			class="org.eclipse.agents.contexts.preferences.PreferenceInitializer" />
 	</extension>
 
 	<extension point="org.eclipse.ui.startup">
-		<startup class="org.eclipse.mcp.internal.Startup" />
+		<startup class="org.eclipse.agents.contexts.server.Startup" />
 	</extension>
 	
 </plugin>

@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.agents.contexts.platform.resource.EditorAdapter;
-import org.eclipse.agents.resource.core.WorkspaceResourceAdapter;
+import org.eclipse.agents.contexts.resource.core.WorkspaceResourceAdapter;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;

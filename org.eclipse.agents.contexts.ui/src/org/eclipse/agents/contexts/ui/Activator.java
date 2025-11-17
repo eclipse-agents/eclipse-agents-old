@@ -20,6 +20,9 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Optional;
 
+import org.eclipse.agents.Tracer;
+import org.eclipse.agents.contexts.server.ExtensionManager;
+import org.eclipse.agents.contexts.server.ServerManager;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.preferences.InstanceScope;
@@ -27,10 +30,6 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.jface.resource.ResourceLocator;
-import org.eclipse.mcp.internal.ExtensionManager;
-import org.eclipse.mcp.internal.Images;
-import org.eclipse.mcp.internal.ServerManager;
-import org.eclipse.mcp.internal.Tracer;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PlatformUI;
@@ -46,7 +45,7 @@ import org.osgi.framework.BundleListener;
 public class Activator extends AbstractUIPlugin {
 
 	// The plug-in ID
-	public static final String PLUGIN_ID = "org.eclipse.mcp"; //$NON-NLS-1$
+	public static final String PLUGIN_ID = "org.eclipse.agents.contexts.ui"; //$NON-NLS-1$
 
 	// The shared instance
 	private static Activator plugin;

@@ -18,11 +18,11 @@ import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 
 import org.eclipse.agents.contexts.Activator;
+import org.eclipse.agents.contexts.preferences.IPreferenceConstants;
+import org.eclipse.agents.contexts.server.ServerManager.IServerListener;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferenceManager;
 import org.eclipse.jface.preference.PreferencePage;
-import org.eclipse.mcp.internal.ServerManager.IServerListener;
-import org.eclipse.mcp.internal.preferences.IPreferenceConstants;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
