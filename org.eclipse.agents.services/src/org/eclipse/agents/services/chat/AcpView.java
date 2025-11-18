@@ -17,6 +17,7 @@ package org.eclipse.agents.services.chat;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.agents.contexts.resource.core.WorkspaceResourceAdapter;
 import org.eclipse.agents.services.acp.AcpService;
 import org.eclipse.agents.services.acp.protocol.AcpSchema.ContentBlock;
 import org.eclipse.agents.services.acp.protocol.AcpSchema.TextBlock;
@@ -31,7 +32,6 @@ import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.fieldassist.IContentProposal;
 import org.eclipse.jface.fieldassist.IContentProposalListener;
-import org.eclipse.mcp.platform.resource.WorkspaceResourceAdapter;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;

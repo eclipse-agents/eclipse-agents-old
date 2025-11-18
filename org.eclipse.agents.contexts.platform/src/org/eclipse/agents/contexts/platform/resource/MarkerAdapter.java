@@ -19,12 +19,12 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.agents.contexts.MCPException;
-import org.eclipse.agents.contexts.platform.resource.ResourceSchema.Marker;
-import org.eclipse.agents.contexts.platform.resource.ResourceSchema.PRIORITY;
-import org.eclipse.agents.contexts.platform.resource.ResourceSchema.Problems;
-import org.eclipse.agents.contexts.platform.resource.ResourceSchema.SEVERITY;
-import org.eclipse.agents.contexts.platform.resource.ResourceSchema.TYPE;
-import org.eclipse.agents.contexts.platform.resource.ResourceSchema.Tasks;
+import org.eclipse.agents.contexts.platform.resource.PlatformSchema.Marker;
+import org.eclipse.agents.contexts.platform.resource.PlatformSchema.PRIORITY;
+import org.eclipse.agents.contexts.platform.resource.PlatformSchema.Problems;
+import org.eclipse.agents.contexts.platform.resource.PlatformSchema.SEVERITY;
+import org.eclipse.agents.contexts.platform.resource.PlatformSchema.TYPE;
+import org.eclipse.agents.contexts.platform.resource.PlatformSchema.Tasks;
 import org.eclipse.agents.contexts.resource.adapters.IResourceAdapter;
 import org.eclipse.agents.contexts.resource.core.WorkspaceResourceAdapter;
 import org.eclipse.core.resources.IMarker;

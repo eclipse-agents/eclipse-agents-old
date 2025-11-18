@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.agents.contexts.platform.resource.EditorAdapter;
-import org.eclipse.agents.contexts.platform.resource.ResourceSchema.Editor;
+import org.eclipse.agents.contexts.platform.resource.PlatformSchema.Editor;
 import org.eclipse.jface.fieldassist.ContentProposal;
 import org.eclipse.jface.fieldassist.IContentProposal;
 import org.eclipse.jface.fieldassist.IContentProposalListener;

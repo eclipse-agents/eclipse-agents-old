@@ -14,17 +14,20 @@
  
 package org.eclipse.mcp.test;
 
-import org.eclipse.mcp.acp.protocol.AcpSchema.BlobResourceContents;
-import org.eclipse.mcp.acp.protocol.AcpSchema.ContentBlock;
-import org.eclipse.mcp.acp.protocol.AcpSchema.EmbeddedResourceBlock;
-import org.eclipse.mcp.acp.protocol.AcpSchema.PromptRequest;
-import org.eclipse.mcp.acp.protocol.AcpSchema.ResourceLinkBlock;
-import org.eclipse.mcp.acp.protocol.AcpSchema.SessionAgentMessageChunk;
-import org.eclipse.mcp.acp.protocol.AcpSchema.SessionAgentThoughtChunk;
-import org.eclipse.mcp.acp.protocol.AcpSchema.TextBlock;
-import org.eclipse.mcp.acp.protocol.AcpSchema.TextResourceContents;
+
+
+import org.eclipse.agents.services.acp.protocol.AcpSchema.BlobResourceContents;
+import org.eclipse.agents.services.acp.protocol.AcpSchema.ContentBlock;
+import org.eclipse.agents.services.acp.protocol.AcpSchema.EmbeddedResourceBlock;
+import org.eclipse.agents.services.acp.protocol.AcpSchema.PromptRequest;
+import org.eclipse.agents.services.acp.protocol.AcpSchema.ResourceLinkBlock;
+import org.eclipse.agents.services.acp.protocol.AcpSchema.SessionAgentMessageChunk;
+import org.eclipse.agents.services.acp.protocol.AcpSchema.SessionAgentThoughtChunk;
+import org.eclipse.agents.services.acp.protocol.AcpSchema.TextBlock;
+import org.eclipse.agents.services.acp.protocol.AcpSchema.TextResourceContents;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 
 public class AcpMessageGenerator {
 

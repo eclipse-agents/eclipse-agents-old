@@ -35,6 +35,8 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 
+import io.modelcontextprotocol.spec.McpSchema;
+
 public class AcpContexts extends Composite {
 
 	Map<String, ContentBlock> contexts;
@@ -53,7 +55,7 @@ public class AcpContexts extends Composite {
 		if (!contexts.containsKey(uri)) {
 			IResourceTemplate<?, ?> resourceTemplate = org.eclipse.agents.contexts.Activator.getDefault().getServerManager().getResourceTemplate(uri);
 			if (resourceTemplate != null) {
-				ResourceLink link = (ResourceLink)resourceTemplate.toResourceLink();
+				McpSchema.ResourceLink link = (McpSchema.ResourceLink)resourceTemplate.toResourceLink();
 				TextResourceContents contents = new TextResourceContents(
 						null, 
 						link.mimeType(),
@@ -79,7 +81,7 @@ public class AcpContexts extends Composite {
 		if (!contexts.containsKey(uri)) {
 			WorkspaceResourceAdapter resourceAdapter = new WorkspaceResourceAdapter(uri);
 			
-			ResourceLink link = resourceAdapter.toResourceLink();
+			McpSchema.ResourceLink link = resourceAdapter.toResourceLink();
 
 			List<Role> roles = new ArrayList<Role>();
 			Double priority = null;

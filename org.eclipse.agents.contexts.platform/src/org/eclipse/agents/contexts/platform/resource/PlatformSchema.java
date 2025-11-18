@@ -26,7 +26,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import io.modelcontextprotocol.spec.McpSchema;
 
-public class ResourceSchema {
+public class PlatformSchema {
 
 	public enum SEVERITY { ERROR, INFO, WARNING };
 	public enum PRIORITY { HIGH, LOW, NORMAL };

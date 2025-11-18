@@ -21,8 +21,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.agents.contexts.MCPException;
-import org.eclipse.agents.contexts.platform.resource.ResourceSchema.Console;
-import org.eclipse.agents.contexts.platform.resource.ResourceSchema.Consoles;
+import org.eclipse.agents.contexts.platform.resource.PlatformSchema.Console;
+import org.eclipse.agents.contexts.platform.resource.PlatformSchema.Consoles;
 import org.eclipse.agents.contexts.resource.adapters.IResourceTemplate;
 import org.eclipse.ui.console.ConsolePlugin;
 import org.eclipse.ui.console.IConsole;

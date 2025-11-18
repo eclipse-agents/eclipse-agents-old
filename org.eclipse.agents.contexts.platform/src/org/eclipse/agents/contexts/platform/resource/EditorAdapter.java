@@ -27,10 +27,10 @@ import java.util.stream.Collectors;
 
 import org.eclipse.agents.Tracer;
 import org.eclipse.agents.contexts.MCPException;
-import org.eclipse.agents.contexts.platform.resource.ResourceSchema.Editor;
-import org.eclipse.agents.contexts.platform.resource.ResourceSchema.Editors;
-import org.eclipse.agents.contexts.platform.resource.ResourceSchema.TextEditorSelection;
-import org.eclipse.agents.contexts.platform.resource.ResourceSchema.TextSelection;
+import org.eclipse.agents.contexts.platform.resource.PlatformSchema.Editor;
+import org.eclipse.agents.contexts.platform.resource.PlatformSchema.Editors;
+import org.eclipse.agents.contexts.platform.resource.PlatformSchema.TextEditorSelection;
+import org.eclipse.agents.contexts.platform.resource.PlatformSchema.TextSelection;
 import org.eclipse.agents.contexts.resource.adapters.IResourceTemplate;
 import org.eclipse.agents.contexts.resource.core.WorkspaceResourceAdapter;
 import org.eclipse.core.resources.IFile;

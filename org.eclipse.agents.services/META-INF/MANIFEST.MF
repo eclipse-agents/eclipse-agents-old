@@ -32,3 +32,4 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.agents.contexts,
  org.eclipse.ui.navigator,
  org.eclipse.agents.contexts.platform
+Import-Package: io.modelcontextprotocol.spec
