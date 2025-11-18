@@ -15,3 +15,9 @@
 div:focus {
 	outline: none;
 }
+ 
+img {
+	vertical-align: text-bottom;
+	column-gap: 2px;
+	max-width: 100%;
+}
