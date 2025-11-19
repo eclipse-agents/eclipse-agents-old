@@ -18,7 +18,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.agents.MCPException;
+import org.eclipse.agents.contexts.MCPException;
 import org.eclipse.agents.contexts.adapters.IResourceAdapter;
 import org.eclipse.agents.contexts.platform.resource.PlatformSchema.Marker;
 import org.eclipse.agents.contexts.platform.resource.PlatformSchema.PRIORITY;

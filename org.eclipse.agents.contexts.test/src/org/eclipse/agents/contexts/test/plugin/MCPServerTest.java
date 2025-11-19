@@ -21,7 +21,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.eclipse.agents.IFactoryProvider;
+import org.eclipse.agents.contexts.IFactoryProvider;
 import org.eclipse.agents.contexts.internal.MCPServer;
 import org.eclipse.agents.contexts.platform.FactoryProvider;
 import org.eclipse.core.resources.IFile;

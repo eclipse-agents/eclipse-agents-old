@@ -11,8 +11,9 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.agents;
+package org.eclipse.agents.contexts;
 
+import org.eclipse.agents.Tracer;
 import org.eclipse.osgi.service.debug.DebugTrace;
 
 import io.modelcontextprotocol.server.McpServerFeatures.SyncResourceSpecification;

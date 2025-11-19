@@ -19,8 +19,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.eclipse.agents.IMCPServices;
 import org.eclipse.agents.Tracer;
+import org.eclipse.agents.contexts.IMCPServices;
 import org.eclipse.agents.contexts.platform.resource.EditorAdapter;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorReference;

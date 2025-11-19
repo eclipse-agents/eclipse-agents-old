@@ -17,8 +17,8 @@ package org.eclipse.agents.contexts.platform;
 import java.util.Arrays;
 import java.util.Comparator;
 
-import org.eclipse.agents.MCPException;
 import org.eclipse.agents.contexts.Activator;
+import org.eclipse.agents.contexts.MCPException;
 import org.eclipse.agents.contexts.adapters.IResourceHierarchy;
 import org.eclipse.agents.contexts.adapters.IResourceTemplate;
 import org.eclipse.agents.contexts.adapters.ResourceSchema.Children;

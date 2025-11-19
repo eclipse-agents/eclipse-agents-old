@@ -13,8 +13,8 @@
  *******************************************************************************/
 package org.eclipse.agents.contexts.platform;
 
-import org.eclipse.agents.IFactoryProvider;
-import org.eclipse.agents.IMCPServices;
+import org.eclipse.agents.contexts.IFactoryProvider;
+import org.eclipse.agents.contexts.IMCPServices;
 import org.eclipse.agents.contexts.adapters.IResourceTemplate;
 import org.eclipse.agents.contexts.platform.resource.ConsoleAdapter;
 import org.eclipse.agents.contexts.platform.resource.EditorAdapter;

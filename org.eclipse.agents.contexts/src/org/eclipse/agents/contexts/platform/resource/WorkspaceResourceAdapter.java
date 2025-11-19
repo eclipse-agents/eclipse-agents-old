@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.eclipse.agents.MCPException;
+import org.eclipse.agents.contexts.MCPException;
 import org.eclipse.agents.contexts.adapters.IResourceHierarchy;
 import org.eclipse.agents.contexts.adapters.ResourceSchema.Children;
 import org.eclipse.agents.contexts.adapters.ResourceSchema.DEPTH;

@@ -25,9 +25,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.eclipse.agents.MCPException;
 import org.eclipse.agents.Tracer;
 import org.eclipse.agents.contexts.Activator;
+import org.eclipse.agents.contexts.MCPException;
 import org.eclipse.agents.contexts.adapters.IResourceTemplate;
 import org.eclipse.agents.contexts.platform.resource.PlatformSchema.Editor;
 import org.eclipse.agents.contexts.platform.resource.PlatformSchema.Editors;

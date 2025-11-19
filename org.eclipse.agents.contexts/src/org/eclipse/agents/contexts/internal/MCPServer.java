@@ -19,8 +19,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.eclipse.agents.IFactoryProvider;
 import org.eclipse.agents.Tracer;
+import org.eclipse.agents.contexts.IFactoryProvider;
 import org.eclipse.agents.contexts.adapters.IResourceTemplate;
 import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
 import org.eclipse.jetty.ee10.servlet.ServletHolder;

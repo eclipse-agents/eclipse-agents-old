@@ -13,8 +13,8 @@
  *******************************************************************************/
 package org.eclipse.agents.contexts.internal;
 
-import org.eclipse.agents.IMCPServices;
 import org.eclipse.agents.Tracer;
+import org.eclipse.agents.contexts.IMCPServices;
 import org.eclipse.osgi.service.debug.DebugTrace;
 
 import io.modelcontextprotocol.server.McpServerFeatures.SyncResourceSpecification;

@@ -19,11 +19,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.eclipse.agents.ExtensionManager;
-import org.eclipse.agents.ExtensionManager.Contributor;
-import org.eclipse.agents.IFactoryProvider;
 import org.eclipse.agents.Tracer;
 import org.eclipse.agents.contexts.Activator;
+import org.eclipse.agents.contexts.ExtensionManager;
+import org.eclipse.agents.contexts.IFactoryProvider;
+import org.eclipse.agents.contexts.ExtensionManager.Contributor;
 import org.eclipse.agents.contexts.adapters.IResourceTemplate;
 import org.eclipse.agents.contexts.internal.preferences.IPreferenceConstants;
 import org.eclipse.core.runtime.ListenerList;
