@@ -20,6 +20,7 @@ import java.util.List;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.action.IToolBarManager;
+import org.eclipse.jface.action.ToolBarManager;
 import org.eclipse.jface.fieldassist.IContentProposal;
 import org.eclipse.jface.fieldassist.IContentProposalListener;
 import org.eclipse.mcp.acp.AcpService;
@@ -33,19 +34,24 @@ import org.eclipse.mcp.acp.view.toolbar.ToolbarSessionSelector;
 import org.eclipse.mcp.acp.view.toolbar.ToolbarSessionStartStop;
 import org.eclipse.mcp.platform.resource.WorkspaceResourceAdapter;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.TraverseEvent;
 import org.eclipse.swt.events.TraverseListener;
+import org.eclipse.swt.events.VerifyEvent;
+import org.eclipse.swt.events.VerifyListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.ui.part.ViewPart;
 
-
-
-public class AcpView extends ViewPart implements TraverseListener, IContentProposalListener, ModifyListener  {
+public class AcpView extends ViewPart implements TraverseListener, IContentProposalListener, ModifyListener, VerifyListener, Listener  {
 
 	public static final String ID  = "org.eclipse.mcp.acp.view.AcpView"; //$NON-NLS-1$
 
@@ -83,6 +89,7 @@ public class AcpView extends ViewPart implements TraverseListener, IContentPropo
 		inputText.setLayoutData(gd);
 		inputText.addTraverseListener(this);
 		inputText.addModifyListener(this);
+		inputText.addVerifyListener(this);
 		
 		ContentAssistAdapter adapter = new ContentAssistAdapter(inputText);
 		adapter.addContentProposalListener(this);
@@ -100,12 +107,24 @@ public class AcpView extends ViewPart implements TraverseListener, IContentPropo
 
         // The toolbar will be updated automatically, but you can force an update if needed.
         getViewSite().getActionBars().updateActionBars();
-		
+        AcpView acpView = this;
+		parent.getDisplay().addFilter(SWT.Traverse, this);
+		parent.addDisposeListener(new DisposeListener() {
+			@Override
+			public void widgetDisposed(DisposeEvent e) {
+				parent.getDisplay().removeFilter(SWT.Traverse, acpView);
+			}
+		});
+		inputText.addDisposeListener(new DisposeListener() {
+			@Override
+			public void widgetDisposed(DisposeEvent e) {
+				inputText.removeTraverseListener(acpView);
+			}
+		});
 	}
 
 	@Override
 	public void setFocus() {
-
 	}
 	
 	public AcpBrowser getBrowser() {
@@ -122,6 +141,11 @@ public class AcpView extends ViewPart implements TraverseListener, IContentPropo
 	public void keyTraversed(TraverseEvent event) {
 		if (event.detail == SWT.TRAVERSE_RETURN && (event.stateMask & SWT.SHIFT) == 0) {
 			startPromptTurn();
+		}
+		
+		if (event.detail == SWT.TRAVERSE_TAB_PREVIOUS) {
+			event.doit = false;
+			browser.setFocus();
 		}
 	}
 
@@ -189,5 +213,28 @@ public class AcpView extends ViewPart implements TraverseListener, IContentPropo
 	public void prompTurnEnded() {
 		startStop.prompTurnEnded();
 		getViewSite().getActionBars().updateActionBars();
+	}
+
+	@Override
+	public void verifyText(VerifyEvent e) {
+	}
+
+	// Handle tabbing from the toolbar. 
+	@Override
+	public void handleEvent(Event event) {
+		if (event.detail == SWT.TRAVERSE_TAB_NEXT) {
+			if (event.widget instanceof ToolBar) {
+				IToolBarManager toolbarManager = getViewSite().getActionBars().getToolBarManager();
+				if (toolbarManager instanceof ToolBarManager) {
+					ToolBar detectedToolbar = (ToolBar) event.widget;
+					ToolBarManager manager = (ToolBarManager) toolbarManager;
+					ToolBar acpToolbar = manager.getControl();
+					if (detectedToolbar.equals(acpToolbar)) {
+						event.doit = false;
+						browser.setFocus();
+					}
+				}
+			}
+		}
 	}
 }

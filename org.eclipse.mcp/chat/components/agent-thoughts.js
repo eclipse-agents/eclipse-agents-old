@@ -31,9 +31,14 @@ class AgentThoughts extends DivTemplate {
 			let content = this.nextElementSibling;
 			if (content.style.maxHeight) {
 				content.style.maxHeight = null;
+				// prevent tabbing to content when it's collapsed
+				content.tabIndex = -1;
 			} else {
 				content.style.maxHeight = "100%";
 				content.style.display = "block";
+				content.tabIndex = 0;
+				// set focus so that screen readers will read the content when expanded
+				content.focus();
 			}
 		});
 	}

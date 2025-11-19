@@ -209,7 +209,9 @@ public class AcpBrowser {
 				
 				Activator.getDisplay().syncExec(()-> {
 					Object doit = browser.evaluate(String.format("keyTraversed(`%s`)", sanitize(o.toString())));
-					e.doit = Boolean.valueOf(doit.toString());
+					if (doit != null) {
+						e.doit = Boolean.valueOf(doit.toString());	
+					}
 				});
 			}
 			
@@ -361,4 +363,9 @@ public class AcpBrowser {
 			});
 		}
 	}
+	
+	public boolean setFocus() {
+		return browser.setFocus();
+	}
+	
 }

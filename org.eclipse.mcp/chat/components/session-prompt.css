@@ -24,6 +24,10 @@ chunked-markdown {
 	padding-right: 6px;	
 }
 
+chunked-markdown:focus {
+	outline: none;
+}
+
 span.resource-link {
 	width: max-content;
 	padding-left: 2px;

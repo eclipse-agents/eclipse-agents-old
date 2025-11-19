@@ -12,12 +12,6 @@
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 
-div:focus {
+chunked-markdown:focus {
 	outline: none;
-}
- 
-img {
-	vertical-align: text-bottom;
-	column-gap: 2px;
-	max-width: 100%;
 }

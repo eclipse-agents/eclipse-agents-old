@@ -39,9 +39,9 @@
 		</template>
 		
 		<template id="session-prompt">
-			<link href="prism-okaida.css" rel="stylesheet">
-			<link href="components/session-prompt.css" rel="stylesheet">
-			<chunked-markdown></chunked-markdown>
+			<link href="prism-okaida.css" rel="stylesheet" >
+			<link href="components/session-prompt.css" rel="stylesheet" >
+			<chunked-markdown tabindex="0"></chunked-markdown>
 		</template>
 		
 		<!-- SessionUpdate::SessionUserMessageChunk -->
@@ -54,12 +54,12 @@
 		<!-- SessionUpdate::SessionAgentThoughtChunk -->
 
 		<template id = "agent-thought-chunk">
-			<link href="prism-okaida.css" rel="stylesheet">
-			<link href="components/agent-thought-chunk.css" rel="stylesheet">
+			<link href="prism-okaida.css" rel="stylesheet" >
+			<link href="components/agent-thought-chunk.css" rel="stylesheet" >
 			<div>
 				<span>
 					<i class="fa fa-thin fa-gear"></i>
-					<button>Thought Process</button>
+					<button tabindex="0">Thought Process</button>
 					<chunked-markdown></chunked-markdown>
 				</span>
 			</div>
@@ -68,18 +68,19 @@
 		<!-- SessionUpdate::SessionAgentMessageChunk -->
 
 		<template id = "agent-message-chunk">
-			<link href="prism-okaida.css" rel="stylesheet"/>
-			<chunked-markdown/>
+			<link href="prism-okaida.css" rel="stylesheet" >
+			<link href="components/agent-message-chunk.css" rel="stylesheet" >
+			<chunked-markdown tabindex="0"/>
 		</template>
 
 		<!-- SessionUpdate::SessionToolCall -->
 
 		<template id = "tool-call">
 			<link href="components/tool-call.css" rel="stylesheet">
-			<div id="toolCallId">
-				<img id="kind"></img>
+			<div id="toolCallId" tabindex="0">
+				<img id="kind" alt=""></img>
 				<span id="title"></span>
-				<img id="status"></img>
+				<img id="status" alt=""></img>
 			</div>
 		</template>
 
