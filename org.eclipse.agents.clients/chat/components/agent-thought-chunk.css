@@ -1,0 +1,64 @@
+/*******************************************************************************
+ * Copyright (c) 2025 IBM Corporation and others.
+ *
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
+ * which accompanies this distribution, and is available at
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ * Contributors:
+ *     IBM Corporation - initial API and implementation
+ *******************************************************************************/
+ 
+div {
+	margin-top: 10px;
+}
+
+span button  {
+	background-color: #eee;
+	color: #444;
+	cursor: pointer;
+	width: 100%;
+	border: none;
+	padding: 12px;
+	text-align: left;
+	outline: none;
+}
+
+.active, span button:hover {
+	background-color: #ccc;
+}
+
+span chunked-markdown {
+	display: block;
+	padding: 0 18px;
+	background-color: var(--info_bg);
+	color:var(--info_fg);
+	max-height: 0;
+	overflow: hidden;
+	transition: max-height 0.2s ease-out;
+	border: none;
+	text-align: left;
+	outline: none;
+}
+
+a {
+	column-gap: 2px;
+	border-color: var(--link-color);
+	border-width: thin;
+	border-style: solid;
+	border-radius: 4px;
+	padding-left: 6px;
+	padding-right: 12px;	
+	max-width: 100%;
+	overflow-wrap: anywhere;
+	overflow-x: hidden;
+	overflow-y: hidden;
+	color: var(--link_fg);
+}
+
+a:hover {
+	color: var(--link_active_fg);
+}

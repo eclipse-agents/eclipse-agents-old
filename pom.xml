@@ -20,8 +20,7 @@
 	<!-- features and plugins -->
 	<modules>
 		<module>org.eclipse.mcp.feature</module>
-		<!--<module>io.modelcontextprotocol</module>-->
-		<module>org.eclipse.mcp</module>
+		<module>org.eclipse.agents.contexts</module>
 		<module>org.eclipse.mcp.test</module>
 
 		<module>org.eclipse.mcp.update</module>
