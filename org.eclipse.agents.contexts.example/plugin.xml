@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.mcp.modelContextProtocolServer">
+      <contributor
+            description="example MCP Provider"
+            id="org.eclipse.agents.contexts.example.contributor1"
+            name="example"
+            provider="IBM">
+         <factory
+               class="org.eclipse.agents.contexts.example.MCPFactory1">
+         </factory>
+      </contributor>
+   </extension>
+
+
+</plugin>
