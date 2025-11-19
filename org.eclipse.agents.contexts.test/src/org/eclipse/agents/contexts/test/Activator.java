@@ -12,7 +12,7 @@
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
  
-package org.eclipse.mcp.test;
+package org.eclipse.agents.contexts.test;
 
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
@@ -23,7 +23,7 @@ import org.osgi.framework.BundleContext;
 public class Activator extends AbstractUIPlugin {
 
 	// The plug-in ID
-	public static final String PLUGIN_ID = "org.eclipse.mcp.builtins.test"; //$NON-NLS-1$
+	public static final String PLUGIN_ID = "org.eclipse.agents.contexts.test"; //$NON-NLS-1$
 
 	// The shared instance
 	private static Activator plugin;

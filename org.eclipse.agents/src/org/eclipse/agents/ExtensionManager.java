@@ -34,11 +34,8 @@ public class ExtensionManager {
 	enum ELEMENT { factory }
 	
 	public ExtensionManager() {
-//		IExtensionRegistry extReg = Platform.getExtensionRegistry();
-//		IConfigurationElement[] extensionElements = extReg.getConfigurationElementsFor("org.eclipse.mcp.modelContextProtocolServer");
-		
 		IExtensionRegistry extReg = Platform.getExtensionRegistry();
-		IExtensionPoint point = extReg.getExtensionPoint("org.eclipse.mcp.modelContextProtocolServer"); //$NON-NLS-1$
+		IExtensionPoint point = extReg.getExtensionPoint("org.eclipse.agents.modelContextProtocolServer"); //$NON-NLS-1$
 		
 		for (IExtension extension : point.getExtensions()) {
 			for (IConfigurationElement extensionElement: extension.getConfigurationElements()) {

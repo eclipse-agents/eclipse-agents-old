@@ -128,7 +128,7 @@ public class McpGeneralPreferencePage extends PreferencePage
 		((GridData)messages.getLayoutData()).horizontalSpan = 4;
 		
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(parent,
-				"org.eclipse.mcp.internal.preferences.McpGeneralPreferencePage"); //$NON-NLS-1$
+				"org.eclipse.agents.contexts.internal.preferences.McpGeneralPreferencePage"); //$NON-NLS-1$
 
 		loadPreferences();
 		updateValidation();

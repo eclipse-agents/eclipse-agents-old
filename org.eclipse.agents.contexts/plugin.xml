@@ -3,29 +3,29 @@
 <plugin>
 	
 	<extension
-          point="org.eclipse.mcp.modelContextProtocolServer"
-          id="org.eclipse.mcp.platform"
+          point="org.eclipse.agents.modelContextProtocolServer"
+          id="org.eclipse.agents.mcp.platform"
           name="Eclipse Platform Services">
        <contributor
-             id="org.eclipse.mcp.platform.contributor"
+             id="org.eclipse.agents.platform.contributor"
              name="Eclipse Platform Services"
              description="Eclipse Platform Services for Files, Editors, Consoles and Markers"
              provider="Eclipse"
-             activityId="org.eclipse.mcp.platform">
-          <factory class="org.eclipse.mcp.platform.FactoryProvider"/>
+             activityId="org.eclipse.agents.mcp.platform">
+          <factory class="org.eclipse.agents.contexts.platform.FactoryProvider"/>
        </contributor>
     </extension>
     
      <extension point="org.eclipse.ui.activities">
    
-       <activity id="org.eclipse.mcp.platform" 
+       <activity id="org.eclipse.agents.mcp.platform" 
            description="Services for Editors, Files, Consoles, Problems and Tasks"
            name="Eclipse Platform Contexts" />
    
-       <categoryActivityBinding activityId="org.eclipse.mcp.platform"
-           categoryId="org.eclipse.mcp.activity" />
+       <categoryActivityBinding activityId="org.eclipse.agents.mcp.platform"
+           categoryId="org.eclipse.agents.activity" />
     
-       <defaultEnablement id="org.eclipse.mcp.platform" />
+       <defaultEnablement id="org.eclipse.agents.mcp.platform" />
      </extension>
 
 	<extension point="org.eclipse.ui.preferencePages">
@@ -43,7 +43,7 @@
 			<keywordReference id="org.eclipse.agents.keyword.coding" />
 		</page>
 		<page
-			id="org.eclipse.mcp.preferences.general"
+			id="org.eclipse.agents.mcp.preferences.general"
 			name="Agent Contexts"
 			category="org.eclipse.agents.preferences.general"
 			class="org.eclipse.agents.contexts.internal.preferences.McpGeneralPreferencePage">

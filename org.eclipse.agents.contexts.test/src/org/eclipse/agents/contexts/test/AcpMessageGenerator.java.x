@@ -12,7 +12,7 @@
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
  
-package org.eclipse.mcp.test;
+package org.eclipse.agents.contexts.test;
 
 import org.eclipse.mcp.acp.protocol.AcpSchema.BlobResourceContents;
 import org.eclipse.mcp.acp.protocol.AcpSchema.ContentBlock;

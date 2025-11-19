@@ -12,7 +12,7 @@
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
  
-package org.eclipse.mcp.test.plugin;
+package org.eclipse.agents.contexts.test.plugin;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -21,6 +21,16 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.agents.IFactoryProvider;
+import org.eclipse.agents.contexts.adapters.IResourceTemplate;
+import org.eclipse.agents.contexts.adapters.ResourceSchema.DEPTH;
+import org.eclipse.agents.contexts.internal.MCPServer;
+import org.eclipse.agents.contexts.platform.FactoryProvider;
+import org.eclipse.agents.contexts.platform.resource.ConsoleAdapter;
+import org.eclipse.agents.contexts.platform.resource.EditorAdapter;
+import org.eclipse.agents.contexts.platform.resource.MarkerAdapter;
+import org.eclipse.agents.contexts.platform.resource.PlatformSchema;
+import org.eclipse.agents.contexts.platform.resource.WorkspaceResourceAdapter;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
@@ -31,16 +41,6 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.mcp.IFactoryProvider;
-import org.eclipse.mcp.internal.MCPServer;
-import org.eclipse.mcp.platform.FactoryProvider;
-import org.eclipse.mcp.platform.resource.ConsoleAdapter;
-import org.eclipse.mcp.platform.resource.EditorAdapter;
-import org.eclipse.mcp.platform.resource.MarkerAdapter;
-import org.eclipse.mcp.platform.resource.ResourceSchema;
-import org.eclipse.mcp.platform.resource.ResourceSchema.DEPTH;
-import org.eclipse.mcp.platform.resource.WorkspaceResourceAdapter;
-import org.eclipse.mcp.resource.IResourceTemplate;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchPage;
@@ -237,7 +237,7 @@ public final class ResourceAdaptersTest {
 				server.getResourceTemplate(absoluteWorkspace1);
 		Assert.assertEquals(absoluteWorkspace1, adapter.toUri());
 		
-		ResourceSchema.Problems problems = MarkerAdapter.getProblems(adapter.getModel());
+		PlatformSchema.Problems problems = MarkerAdapter.getProblems(adapter.getModel());
 		Assert.assertEquals(2, problems.problems().length);
 	}
 	
@@ -256,7 +256,7 @@ public final class ResourceAdaptersTest {
 		Assert.assertEquals(adapter.toUri(), second.toUri());
 		Assert.assertEquals(adapter.toUri(), third.toUri());
 		
-		ResourceSchema.Problems problems = MarkerAdapter.getProblems(adapter.getModel());
+		PlatformSchema.Problems problems = MarkerAdapter.getProblems(adapter.getModel());
 		Assert.assertEquals(1, problems.problems().length);
 	}
 	
