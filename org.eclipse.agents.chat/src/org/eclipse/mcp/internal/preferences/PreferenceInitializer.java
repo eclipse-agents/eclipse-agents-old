@@ -13,9 +13,9 @@
  *******************************************************************************/
 package org.eclipse.mcp.internal.preferences;
 
+import org.eclipse.agents.Activator;
 import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
 import org.eclipse.jface.preference.IPreferenceStore;
-import org.eclipse.mcp.Activator;
 import org.eclipse.mcp.acp.AcpService;
 import org.eclipse.mcp.acp.agent.AbstractService;
 import org.eclipse.mcp.acp.agent.IAgentService;

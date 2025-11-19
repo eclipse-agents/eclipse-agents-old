@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.eclipse.agents.MCPException;
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileInfo;
 import org.eclipse.core.filesystem.IFileStore;
@@ -37,7 +38,6 @@ import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.mcp.MCPException;
 import org.eclipse.mcp.platform.resource.ResourceSchema.Children;
 import org.eclipse.mcp.platform.resource.ResourceSchema.DEPTH;
 import org.eclipse.mcp.platform.resource.ResourceSchema.File;

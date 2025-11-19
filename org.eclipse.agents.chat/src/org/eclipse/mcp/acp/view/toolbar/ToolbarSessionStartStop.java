@@ -13,8 +13,8 @@
  *******************************************************************************/
 package org.eclipse.mcp.acp.view.toolbar;
 
+import org.eclipse.agents.Activator;
 import org.eclipse.jface.action.Action;
-import org.eclipse.mcp.Activator;
 import org.eclipse.mcp.acp.view.AcpView;
 import org.eclipse.mcp.internal.Images;
 import org.eclipse.ui.ISharedImages;

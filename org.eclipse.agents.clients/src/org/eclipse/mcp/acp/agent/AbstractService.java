@@ -21,7 +21,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 
-import org.eclipse.mcp.Activator;
+import org.eclipse.agents.Activator;
 import org.eclipse.mcp.acp.protocol.AcpClient;
 import org.eclipse.mcp.acp.protocol.AcpClientLauncher;
 import org.eclipse.mcp.acp.protocol.AcpClientThread;

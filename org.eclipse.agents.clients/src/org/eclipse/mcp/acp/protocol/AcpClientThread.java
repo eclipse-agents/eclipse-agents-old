@@ -16,9 +16,9 @@ package org.eclipse.mcp.acp.protocol;
 import java.text.MessageFormat;
 import java.util.concurrent.ExecutionException;
 
+import org.eclipse.agents.Activator;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.mcp.Activator;
 import org.eclipse.mcp.internal.Tracer;
 
 

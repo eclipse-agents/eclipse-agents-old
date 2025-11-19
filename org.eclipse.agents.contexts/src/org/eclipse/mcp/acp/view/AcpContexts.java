@@ -21,7 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.mcp.Activator;
+import org.eclipse.agents.Activator;
 import org.eclipse.mcp.acp.protocol.AcpSchema.Annotations;
 import org.eclipse.mcp.acp.protocol.AcpSchema.ContentBlock;
 import org.eclipse.mcp.acp.protocol.AcpSchema.EmbeddedResourceBlock;

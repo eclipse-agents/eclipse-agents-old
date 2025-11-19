@@ -19,10 +19,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.eclipse.agents.Activator;
+import org.eclipse.agents.IFactoryProvider;
 import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.jface.preference.IPreferenceStore;
-import org.eclipse.mcp.Activator;
-import org.eclipse.mcp.IFactoryProvider;
 import org.eclipse.mcp.internal.ExtensionManager.Contributor;
 import org.eclipse.mcp.internal.preferences.IPreferenceConstants;
 import org.eclipse.mcp.resource.IResourceTemplate;

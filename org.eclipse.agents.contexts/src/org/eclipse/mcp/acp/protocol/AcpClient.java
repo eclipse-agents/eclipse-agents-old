@@ -20,6 +20,7 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.util.concurrent.CompletableFuture;
 
+import org.eclipse.agents.Activator;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
@@ -30,7 +31,6 @@ import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.lsp4j.jsonrpc.JsonRpcException;
-import org.eclipse.mcp.Activator;
 import org.eclipse.mcp.acp.AcpService;
 import org.eclipse.mcp.acp.agent.IAgentService;
 import org.eclipse.mcp.acp.protocol.AcpSchema.CreateTerminalRequest;

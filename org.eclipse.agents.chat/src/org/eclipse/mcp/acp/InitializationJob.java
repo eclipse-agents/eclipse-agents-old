@@ -16,13 +16,13 @@ package org.eclipse.mcp.acp;
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 
+import org.eclipse.agents.Activator;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.mcp.Activator;
 import org.eclipse.mcp.acp.agent.IAgentService;
 import org.eclipse.mcp.acp.protocol.AcpSchema.ClientCapabilities;
 import org.eclipse.mcp.acp.protocol.AcpSchema.FileSystemCapability;

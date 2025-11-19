@@ -15,7 +15,7 @@ package org.eclipse.mcp.internal;
 
 import java.util.Hashtable;
 
-import org.eclipse.mcp.Activator;
+import org.eclipse.agents.Activator;
 import org.eclipse.osgi.service.debug.DebugOptions;
 import org.eclipse.osgi.service.debug.DebugOptionsListener;
 import org.eclipse.osgi.service.debug.DebugTrace;

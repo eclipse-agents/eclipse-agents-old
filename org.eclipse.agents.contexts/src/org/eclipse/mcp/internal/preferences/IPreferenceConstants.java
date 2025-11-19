@@ -13,7 +13,7 @@
  *******************************************************************************/
 package org.eclipse.mcp.internal.preferences;
 
-import org.eclipse.mcp.Activator;
+import org.eclipse.agents.Activator;
 
 public interface IPreferenceConstants {
 

@@ -13,8 +13,8 @@
  *******************************************************************************/
 package org.eclipse.mcp.platform;
 
-import org.eclipse.mcp.IFactoryProvider;
-import org.eclipse.mcp.IMCPServices;
+import org.eclipse.agents.IFactoryProvider;
+import org.eclipse.agents.IMCPServices;
 import org.eclipse.mcp.platform.resource.ConsoleAdapter;
 import org.eclipse.mcp.platform.resource.EditorAdapter;
 import org.eclipse.mcp.platform.resource.WorkspaceResourceAdapter;

@@ -13,6 +13,7 @@
  *******************************************************************************/
 package org.eclipse.mcp;
 
+import org.eclipse.agents.IMCPServices;
 import org.eclipse.mcp.resource.IResourceTemplate;
 
 /**
