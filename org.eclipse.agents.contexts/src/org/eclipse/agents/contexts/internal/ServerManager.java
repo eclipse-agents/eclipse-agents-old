@@ -19,11 +19,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.eclipse.agents.Activator;
 import org.eclipse.agents.ExtensionManager;
 import org.eclipse.agents.ExtensionManager.Contributor;
 import org.eclipse.agents.IFactoryProvider;
 import org.eclipse.agents.Tracer;
+import org.eclipse.agents.contexts.Activator;
 import org.eclipse.agents.contexts.adapters.IResourceTemplate;
 import org.eclipse.agents.contexts.internal.preferences.IPreferenceConstants;
 import org.eclipse.core.runtime.ListenerList;
@@ -69,7 +69,8 @@ public class ServerManager implements IPreferenceConstants, IActivityManagerList
 			int port = store.getInt(P_SERVER_HTTP_PORT);
 			
 			Set<Contributor> contributors = new HashSet<Contributor>();
-			for (ExtensionManager.Contributor contributor: Activator.getDefault().getExtensionManager().getContributors()) {
+			ExtensionManager em = org.eclipse.agents.Activator.getDefault().getExtensionManager();
+			for (ExtensionManager.Contributor contributor: em.getContributors()) {
 				if (contributor.getActivityId() == null) {
 					contributors.add(contributor);
 				} else {

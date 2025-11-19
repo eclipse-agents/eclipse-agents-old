@@ -13,7 +13,7 @@
  *******************************************************************************/
 package org.eclipse.agents.contexts.internal.preferences;
 
-import org.eclipse.agents.Activator;
+import org.eclipse.agents.contexts.Activator;
 
 public interface IPreferenceConstants {
 
