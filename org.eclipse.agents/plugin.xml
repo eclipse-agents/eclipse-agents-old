@@ -34,7 +34,7 @@
 	</extension>
 	
 	<extension
-          point="org.eclipse.mcp.modelContextProtocolServer"
+          point="org.eclipse.agents.modelContextProtocolServer"
           id="org.eclipse.mcp.platform"
           name="Eclipse Platform Services">
        <contributor
