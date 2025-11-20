@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: ModelContextProtocol
-Bundle-SymbolicName: org.eclipse.mcp;singleton:=true
+Bundle-SymbolicName: org.eclipse.agents;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: org.eclipse.mcp.Activator
 Eclipse-BundleShape: dir
@@ -68,8 +68,8 @@ Export-Package: io.modelcontextprotocol.client,
  org.eclipse.mcp.acp.view,
  org.eclipse.mcp.acp.view.actions,
  org.eclipse.mcp.acp.view.toolbar,
- org.eclipse.mcp.internal;x-friends:="org.eclipse.mcp.builtins,org.eclipse.mcp.test,org.eclipse.mcp.test",
- org.eclipse.mcp.internal.preferences;x-friends:="org.eclipse.mcp.test",
+ org.eclipse.mcp.internal;x-friends:="org.eclipse.mcp.builtins,org.eclipse.agents.test",
+ org.eclipse.mcp.internal.preferences;x-friends:="org.eclipse.agents.test",
  org.eclipse.mcp.platform,
  org.eclipse.mcp.platform.resource,
  org.eclipse.mcp.resource,
