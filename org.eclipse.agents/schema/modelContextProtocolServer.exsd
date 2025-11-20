@@ -1,13 +1,13 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <!-- Schema file written by PDE -->
-<schema targetNamespace="org.eclipse.mcp" xmlns="http://www.w3.org/2001/XMLSchema">
+<schema targetNamespace="org.eclipse.agents" xmlns="http://www.w3.org/2001/XMLSchema">
 <annotation>
       <appinfo>
-         <meta.schema plugin="org.eclipse.mcp" id="modelContextProtocolServer" name="Model Context Protocol Server"/>
+         <meta.schema plugin="org.eclipse.agents" id="modelContextProtocolServer" name="Model Context Protocol Server"/>
       </appinfo>
       <documentation>
          &lt;p&gt;
-The &lt;code&gt;org.eclipse.mcp.modelContextProtocolServer&lt;/code&gt; extension point is used to declare and instantiate &lt;a href=&quot;https://modelcontextprotocol.io/docs/learn/server-concepts&quot;&gt;Model Context Protocol Servers, Tools and Resources&lt;/a&gt; that run within the IDE&apos;s Process and expose IDE functionality for interaction with Agents and/or Developers.
+The &lt;code&gt;org.eclipse.agents.modelContextProtocolServer&lt;/code&gt; extension point is used to declare and instantiate &lt;a href=&quot;https://modelcontextprotocol.io/docs/learn/server-concepts&quot;&gt;Model Context Protocol Servers, Tools and Resources&lt;/a&gt; that run within the IDE&apos;s Process and expose IDE functionality for interaction with Agents and/or Developers.
 &lt;/p&gt;&lt;p&gt;
 Behind the scenes, declared MCP Servers will be instantiated using the modelcontextprotocol/java-sdk API and may be configured to serve over HTTP using Jetty.
 &lt;/p&gt;&lt;p&gt;
@@ -17,9 +17,9 @@ A &quot;Platform MCP Servers&quot; preference page will let users:
   &lt;li&gt;Customize the HTTP port&lt;/li&gt;
 &lt;/ul&gt;
 Contributors may be associated with an Activity/Capability to toggle their contributions to the server
-You may bind your own activities to categoryId &quot;org.eclipse.mcp.activity&quot;
+You may bind your own activities to categoryId &quot;org.eclipse.agents.activity&quot;
 You may add your preference pages under parent 
-You may add your own preference pages under the page &quot;org.eclipse.mcp.preferences.general&quot;
+You may add your own preference pages under the page &quot;org.eclipse.agents.preferences.general&quot;
 You may use your own preferences to remove/add your tools to the server dynamically using &lt;code&gt;ToolFactory.setVisibility&lt;/code&gt;
 &lt;/p&gt;
       </documentation>
@@ -113,7 +113,7 @@ You may use your own preferences to remove/add your tools to the server dynamica
             <annotation>
                <documentation>
                   Contributors may be associated with an Activity/Capability to toggle the presence of their contributions on the server
-You may bind your own activities to categoryId &quot;org.eclipse.mcp.activity&quot;
+You may bind your own activities to categoryId &quot;org.eclipse.agents.activity&quot;
 Enabling / Disabling an activity that has contributors assocated with it will trigger the server to restart
                </documentation>
             </annotation>
@@ -131,10 +131,10 @@ Enabling / Disabling an activity that has contributors assocated with it will tr
          <attribute name="class" type="string" use="required">
             <annotation>
                <documentation>
-                  The fully qualified name of an IFactory implemention.  Must implement &lt;tt&gt;org.eclipse.mcp.factory.IFactory&lt;/tt&gt; and have an zero-parameter constructor.
+                  The fully qualified name of an IFactory implemention.  Must implement &lt;tt&gt;org.eclipse.agents.factory.IFactory&lt;/tt&gt; and have an zero-parameter constructor.
                </documentation>
                <appinfo>
-                  <meta.attribute kind="java" basedOn="org.eclipse.mcp.IMCPFactory"/>
+                  <meta.attribute kind="java" basedOn="org.eclipse.agents.IMCPFactory"/>
                </appinfo>
             </annotation>
          </attribute>
@@ -161,7 +161,7 @@ Enabling / Disabling an activity that has contributors assocated with it will tr
 &lt;p&gt;
 &lt;pre&gt;
   &lt;extension
-         point=&quot;org.eclipse.mcp.modelContextProtocolServer&quot;
+         point=&quot;org.eclipse.agents.modelContextProtocolServer&quot;
          id=&quot;foo.com.my.extension.id&quot;
          name=&quot;My MCP Extension&quot;&gt;
 
@@ -185,16 +185,16 @@ Enabling / Disabling an activity that has contributors assocated with it will tr
       </appinfo>
       <documentation>
          &lt;p&gt;
-See the java docs for &lt;code&gt;org.eclipse.mcp&lt;/code&gt; for java interface documentationm
+See the java docs for &lt;code&gt;org.eclipse.agents&lt;/code&gt; for java interface documentationm
 &lt;/p&gt;&lt;p&gt;
 Two tracing options are available on the General &gt; Tracing preference page
 &lt;ul&gt;
 &lt;li&gt;
 # Main Debug Trace switch
-&lt;ul&gt;&lt;li&gt;org.eclipse.mcp/debug&lt;/li&gt;&lt;/ul&gt;
+&lt;ul&gt;&lt;li&gt;org.eclipse.agents/debug&lt;/li&gt;&lt;/ul&gt;
 &lt;/li&gt;&lt;li&gt;
 # Trace location for implementations
-&lt;ul&gt;&lt;li&gt;org.eclipse.mcp/debug/implementations&lt;/li&gt;&lt;/ul&gt;
+&lt;ul&gt;&lt;li&gt;org.eclipse.agents/debug/implementations&lt;/li&gt;&lt;/ul&gt;
 &lt;/li&gt;
 &lt;/ul&gt;
 &lt;/p&gt;

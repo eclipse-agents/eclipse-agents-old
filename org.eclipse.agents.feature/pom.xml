@@ -8,7 +8,7 @@
 		<artifactId>org.eclipse.eclipse-agents</artifactId>
 		<version>1.0.0-SNAPSHOT</version>
 	</parent>
-	<artifactId>org.eclipse.mcp.feature</artifactId>
+	<artifactId>org.eclipse.agents.feature</artifactId>
 	<version>1.0.0-SNAPSHOT</version>
 	<packaging>eclipse-feature</packaging>
 </project>

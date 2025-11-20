@@ -19,12 +19,12 @@
 
 	<!-- features and plugins -->
 	<modules>
-		<module>org.eclipse.mcp.feature</module>
+		<module>org.eclipse.agents.feature</module>
 		<!--<module>io.modelcontextprotocol</module>-->
-		<module>org.eclipse.mcp</module>
-		<module>org.eclipse.mcp.test</module>
+		<module>org.eclipse.agents</module>
+		<module>org.eclipse.agents.test</module>
 
-		<module>org.eclipse.mcp.update</module>
+		<module>org.eclipse.agents.update</module>
 	</modules>
 	<build>
 		<plugins>

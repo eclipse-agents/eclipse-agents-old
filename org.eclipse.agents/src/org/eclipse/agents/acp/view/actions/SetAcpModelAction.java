@@ -1,0 +1,36 @@
+/*******************************************************************************
+ * Copyright (c) 2025 IBM Corporation and others.
+ *
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
+ * which accompanies this distribution, and is available at
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ * Contributors:
+ *     IBM Corporation - initial API and implementation
+ *******************************************************************************/
+package org.eclipse.agents.acp.view.actions;
+
+import org.eclipse.agents.acp.agent.IAgentService;
+import org.eclipse.jface.action.Action;
+
+public class SetAcpModelAction extends Action {
+
+	private IAgentService service;
+	
+	public SetAcpModelAction(IAgentService service) {
+		super(service.getName());
+		this.service = service;
+	}
+
+	@Override
+	public void run() {
+//		AcpService.instance().setAcpService(service);
+	}
+	
+	public IAgentService getAgentService() {
+		return service;
+	}
+}
