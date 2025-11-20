@@ -145,6 +145,6 @@
    </extension-->
 
    <extension point="org.eclipse.ui.bindings">
-      <key sequence="M1+M3+M 1" commandId="org.eclipse.mcp.acp.cmd.addToChat" schemeId="org.eclipse.ui.defaultAcceleratorConfiguration" contextId="org.eclipse.mcp.acp.AcpView"/>
+      <key sequence="M1+M3+M 1" commandId="org.eclipse.mcp.acp.cmd.addToChat" schemeId="org.eclipse.ui.defaultAcceleratorConfiguration" contextId="org.eclipse.mcp.acp.view.AcpView"/>
    </extension>
 </plugin>

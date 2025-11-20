@@ -53,7 +53,7 @@ import org.eclipse.ui.part.ViewPart;
 
 public class AcpView extends ViewPart implements TraverseListener, IContentProposalListener, ModifyListener, VerifyListener, Listener  {
 
-	public static final String ID  = "org.eclipse.agents.acp.view.AcpView"; //$NON-NLS-1$
+	public static final String ID  = "org.eclipse.mcp.acp.view.AcpView"; //$NON-NLS-1$
 
 	Text inputText;
 	boolean disposed = false;

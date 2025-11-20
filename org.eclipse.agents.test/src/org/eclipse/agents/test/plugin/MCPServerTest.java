@@ -12,7 +12,7 @@
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
  
-package org.eclipse.mcp.test.plugin;
+package org.eclipse.agents.test.plugin;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -72,6 +72,7 @@ import io.modelcontextprotocol.spec.McpSchema.ReadResourceResult;
 import io.modelcontextprotocol.spec.McpSchema.ResourceReference;
 import io.modelcontextprotocol.spec.McpSchema.ResourceTemplate;
 import io.modelcontextprotocol.spec.McpSchema.TextContent;
+import io.modelcontextprotocol.json.jackson.JacksonMcpJsonMapper;
 
 @TestInstance(Lifecycle.PER_CLASS)
 @TestMethodOrder(OrderAnnotation.class)
@@ -88,7 +89,11 @@ public class MCPServerTest {
 		});
 		
 		// Create a sync client with custom configuration
-		HttpClientSseClientTransport transport = HttpClientSseClientTransport.builder("http://localhost:3028/sse").build();
+		HttpClientSseClientTransport transport = HttpClientSseClientTransport
+				.builder("http://localhost:3028/sse")
+				.jsonMapper(new JacksonMcpJsonMapper(new ObjectMapper()))
+				.build();
+
 		client = McpClient.sync(transport)
 		    .requestTimeout(Duration.ofSeconds(10))
 		    .capabilities(ClientCapabilities.builder()

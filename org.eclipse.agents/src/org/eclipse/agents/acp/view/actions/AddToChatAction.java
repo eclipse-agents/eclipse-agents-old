@@ -39,7 +39,7 @@ public class AddToChatAction extends Action {
 		
 		IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
 		try {
-			AcpView view = (AcpView) page.showView("org.eclipse.agents.acp.view.AcpView", null, //$NON-NLS-1$
+			AcpView view = (AcpView) page.showView(AcpView.ID, null, //$NON-NLS-1$
 					IWorkbenchPage.VIEW_CREATE);
 
 			IStructuredSelection selection = HandlerUtil.getCurrentStructuredSelection(event);

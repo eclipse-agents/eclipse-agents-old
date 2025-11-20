@@ -12,7 +12,7 @@
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
  
-package org.eclipse.mcp.test.plugin;
+package org.eclipse.agents.test.plugin;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
