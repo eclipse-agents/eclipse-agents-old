@@ -8,23 +8,23 @@
 
 	<extension point="org.eclipse.ui.keywords">
 		<keyword label="MCP"
-			id="org.eclipse.mcp.keyword.mcp" />
+			id="org.eclipse.agents.keyword.mcp" />
 		<keyword label="ACP"
-			id="org.eclipse.mcp.keyword.acp" />
+			id="org.eclipse.agents.keyword.acp" />
 		<keyword label="MODEL"
-			id="org.eclipse.mcp.keyword.model" />
+			id="org.eclipse.agents.keyword.model" />
 		<keyword label="CONTEXT"
-			id="org.eclipse.mcp.keyword.agent" />
+			id="org.eclipse.agents.keyword.agent" />
 		<keyword label="AGENT"
-			id="org.eclipse.mcp.keyword.client" />
+			id="org.eclipse.agents.keyword.client" />
 		<keyword label="CLIENT"
-			id="org.eclipse.mcp.keyword.context" />
+			id="org.eclipse.agents.keyword.context" />
 		<keyword label="PROTOCOL"
-			id="org.eclipse.mcp.keyword.protocol" />
+			id="org.eclipse.agents.keyword.protocol" />
 		<keyword label="CODING"
-			id="org.eclipse.mcp.keyword.coding" />
+			id="org.eclipse.agents.keyword.coding" />
 		<keyword label="CLI"
-			id="org.eclipse.mcp.keyword.cli" />
+			id="org.eclipse.agents.keyword.cli" />
 	</extension>
 
 	<extension point="org.eclipse.ui.activities">
@@ -43,7 +43,7 @@
              description="Eclipse Platform Services for Files, Editors, Consoles and Markers"
              provider="Eclipse"
              activityId="org.eclipse.mcp.platform">
-          <factory class="org.eclipse.mcp.platform.FactoryProvider"/>
+          <factory class="org.eclipse.agents.platform.FactoryProvider"/>
        </contributor>
     </extension>
     
@@ -64,43 +64,43 @@
 			id="org.eclipse.agents.preferences.general"
 			class="org.eclipse.agents.internal.preferences.AgentGeneralPreferencePage"
 			name="Coding Agents">
-			<keywordReference id="org.eclipse.mcp.keyword.mcp" />
-			<keywordReference id="org.eclipse.mcp.keyword.acp" />
-			<keywordReference id="org.eclipse.mcp.keyword.model" />
-			<keywordReference id="org.eclipse.mcp.keyword.agent" />
-			<keywordReference id="org.eclipse.mcp.keyword.client" />
-			<keywordReference id="org.eclipse.mcp.keyword.context" />
-			<keywordReference id="org.eclipse.mcp.keyword.protocol" />
-			<keywordReference id="org.eclipse.mcp.keyword.coding" />
+			<keywordReference id="org.eclipse.agents.keyword.mcp" />
+			<keywordReference id="org.eclipse.agents.keyword.acp" />
+			<keywordReference id="org.eclipse.agents.keyword.model" />
+			<keywordReference id="org.eclipse.agents.keyword.agent" />
+			<keywordReference id="org.eclipse.agents.keyword.client" />
+			<keywordReference id="org.eclipse.agents.keyword.context" />
+			<keywordReference id="org.eclipse.agents.keyword.protocol" />
+			<keywordReference id="org.eclipse.agents.keyword.coding" />
 		</page>
 		<page
 			id="org.eclipse.mcp.preferences.general"
 			name="Agent Contexts"
 			category="org.eclipse.agents.preferences.general"
 			class="org.eclipse.agents.internal.preferences.McpGeneralPreferencePage">
-			<keywordReference id="org.eclipse.mcp.keyword.mcp" />
-			<keywordReference id="org.eclipse.mcp.keyword.acp" />
-			<keywordReference id="org.eclipse.mcp.keyword.model" />
-			<keywordReference id="org.eclipse.mcp.keyword.agent" />
-			<keywordReference id="org.eclipse.mcp.keyword.client" />
-			<keywordReference id="org.eclipse.mcp.keyword.context" />
-			<keywordReference id="org.eclipse.mcp.keyword.protocol" />
-			<keywordReference id="org.eclipse.mcp.keyword.coding" />
+			<keywordReference id="org.eclipse.agents.keyword.mcp" />
+			<keywordReference id="org.eclipse.agents.keyword.acp" />
+			<keywordReference id="org.eclipse.agents.keyword.model" />
+			<keywordReference id="org.eclipse.agents.keyword.agent" />
+			<keywordReference id="org.eclipse.agents.keyword.client" />
+			<keywordReference id="org.eclipse.agents.keyword.context" />
+			<keywordReference id="org.eclipse.agents.keyword.protocol" />
+			<keywordReference id="org.eclipse.agents.keyword.coding" />
 		</page>
 		<page
 			id="org.eclipse.acp.preferences.general"
 			name="Agent CLIs"
 			category="org.eclipse.agents.preferences.general"
 			class="org.eclipse.agents.internal.preferences.AcpGeneralPreferencePage">
-			<keywordReference id="org.eclipse.mcp.keyword.mcp" />
-			<keywordReference id="org.eclipse.mcp.keyword.acp" />
-			<keywordReference id="org.eclipse.mcp.keyword.model" />
-			<keywordReference id="org.eclipse.mcp.keyword.agent" />
-			<keywordReference id="org.eclipse.mcp.keyword.client" />
-			<keywordReference id="org.eclipse.mcp.keyword.context" />
-			<keywordReference id="org.eclipse.mcp.keyword.protocol" />
-			<keywordReference id="org.eclipse.mcp.keyword.coding" />
-			<keywordReference id="org.eclipse.mcp.keyword.cli" />
+			<keywordReference id="org.eclipse.agents.keyword.mcp" />
+			<keywordReference id="org.eclipse.agents.keyword.acp" />
+			<keywordReference id="org.eclipse.agents.keyword.model" />
+			<keywordReference id="org.eclipse.agents.keyword.agent" />
+			<keywordReference id="org.eclipse.agents.keyword.client" />
+			<keywordReference id="org.eclipse.agents.keyword.context" />
+			<keywordReference id="org.eclipse.agents.keyword.protocol" />
+			<keywordReference id="org.eclipse.agents.keyword.coding" />
+			<keywordReference id="org.eclipse.agents.keyword.cli" />
 		</page>
 	</extension>
 
@@ -115,10 +115,10 @@
 
 	<extension point="org.eclipse.ui.trace.traceComponents">
 		<component
-			id="org.eclipse.mcp.traceComponent"
+			id="org.eclipse.agents.traceComponent"
 			label="Coding Agent Services">
 			<bundle
-				name="org.eclipse.mcp">
+				name="org.eclipse.agents">
 			</bundle>
 		</component>
 	</extension>
