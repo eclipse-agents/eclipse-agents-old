@@ -6,7 +6,7 @@ Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: org.eclipse.agents.test.Activator
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
- org.eclipse.agents;bundle-version="1.0.0",
+ org.eclipse.agents,
  org.eclipse.ui.ide,
  org.junit,
  org.eclipse.core.resources,
