@@ -20,10 +20,9 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Optional;
 
-import org.eclipse.agents.internal.ExtensionManager;
-import org.eclipse.agents.internal.Images;
-import org.eclipse.agents.internal.ServerManager;
-import org.eclipse.agents.internal.Tracer;
+import org.eclipse.agents.contexts.ExtensionManager;
+import org.eclipse.agents.contexts.Images;
+import org.eclipse.agents.contexts.ServerManager;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.preferences.InstanceScope;

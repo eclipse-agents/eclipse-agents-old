@@ -25,44 +25,46 @@
 			id="org.eclipse.agents.keyword.coding" />
 		<keyword label="CLI"
 			id="org.eclipse.agents.keyword.cli" />
+		<keyword label="CHAT"
+			id="org.eclipse.agents.keyword.chat" />
 	</extension>
 
 	<extension point="org.eclipse.ui.activities">
-		<category id="org.eclipse.mcp.activity"
+		<category id="org.eclipse.agents.activity"
 			description="Connect Agentic clients to Model Context Protocol servers running within the workbench"
 			name="Agent Context Services" />
 	</extension>
 	
 	<extension
           point="org.eclipse.agents.modelContextProtocolServer"
-          id="org.eclipse.mcp.platform"
+          id="org.eclipse.agents.contexts.platform"
           name="Eclipse Platform Services">
        <contributor
-             id="org.eclipse.mcp.platform.contributor"
+             id="org.eclipse.agents.contexts.platform.contributor"
              name="Eclipse Platform Services"
              description="Eclipse Platform Services for Files, Editors, Consoles and Markers"
              provider="Eclipse"
-             activityId="org.eclipse.mcp.platform">
-          <factory class="org.eclipse.agents.platform.FactoryProvider"/>
+             activityId="org.eclipse.agents.contexts.platform.activity">
+          <factory class="org.eclipse.agents.contexts.platform.FactoryProvider"/>
        </contributor>
     </extension>
     
      <extension point="org.eclipse.ui.activities">
    
-       <activity id="org.eclipse.mcp.platform" 
+       <activity id="org.eclipse.agents.contexts.platform.activity" 
            description="Services for Editors, Files, Consoles, Problems and Tasks"
            name="Eclipse Platform Contexts" />
    
-       <categoryActivityBinding activityId="org.eclipse.mcp.platform"
-           categoryId="org.eclipse.mcp.activity" />
+       <categoryActivityBinding activityId="org.eclipse.agents.contexts.platform.activity"
+           categoryId="org.eclipse.agents.activity" />
     
-       <defaultEnablement id="org.eclipse.mcp.platform" />
+       <defaultEnablement id="org.eclipse.agents.contexts.platform.activity" />
      </extension>
 
 	<extension point="org.eclipse.ui.preferencePages">
 		<page
 			id="org.eclipse.agents.preferences.general"
-			class="org.eclipse.agents.internal.preferences.AgentGeneralPreferencePage"
+			class="org.eclipse.agents.preferences.AgentGeneralPreferencePage"
 			name="Coding Agents">
 			<keywordReference id="org.eclipse.agents.keyword.mcp" />
 			<keywordReference id="org.eclipse.agents.keyword.acp" />
@@ -72,12 +74,13 @@
 			<keywordReference id="org.eclipse.agents.keyword.context" />
 			<keywordReference id="org.eclipse.agents.keyword.protocol" />
 			<keywordReference id="org.eclipse.agents.keyword.coding" />
+			<keywordReference id="org.eclipse.agents.keyword.chat" />
 		</page>
 		<page
-			id="org.eclipse.mcp.preferences.general"
+			id="org.eclipse.agents.preferences.contexts"
 			name="Agent Contexts"
 			category="org.eclipse.agents.preferences.general"
-			class="org.eclipse.agents.internal.preferences.McpGeneralPreferencePage">
+			class="org.eclipse.agents.preferences.McpGeneralPreferencePage">
 			<keywordReference id="org.eclipse.agents.keyword.mcp" />
 			<keywordReference id="org.eclipse.agents.keyword.acp" />
 			<keywordReference id="org.eclipse.agents.keyword.model" />
@@ -86,12 +89,13 @@
 			<keywordReference id="org.eclipse.agents.keyword.context" />
 			<keywordReference id="org.eclipse.agents.keyword.protocol" />
 			<keywordReference id="org.eclipse.agents.keyword.coding" />
+			<keywordReference id="org.eclipse.agents.keyword.chat" />
 		</page>
 		<page
-			id="org.eclipse.acp.preferences.general"
+			id="org.eclipse.agents.preferences.services"
 			name="Agent CLIs"
 			category="org.eclipse.agents.preferences.general"
-			class="org.eclipse.agents.internal.preferences.AcpGeneralPreferencePage">
+			class="org.eclipse.agents.preferences.AcpGeneralPreferencePage">
 			<keywordReference id="org.eclipse.agents.keyword.mcp" />
 			<keywordReference id="org.eclipse.agents.keyword.acp" />
 			<keywordReference id="org.eclipse.agents.keyword.model" />
@@ -101,16 +105,17 @@
 			<keywordReference id="org.eclipse.agents.keyword.protocol" />
 			<keywordReference id="org.eclipse.agents.keyword.coding" />
 			<keywordReference id="org.eclipse.agents.keyword.cli" />
+			<keywordReference id="org.eclipse.agents.keyword.chat" />
 		</page>
 	</extension>
 
 	<extension point="org.eclipse.core.runtime.preferences">
 		<initializer
-			class="org.eclipse.agents.internal.preferences.PreferenceInitializer" />
+			class="org.eclipse.agents.preferences.PreferenceInitializer" />
 	</extension>
 
 	<extension point="org.eclipse.ui.startup">
-		<startup class="org.eclipse.agents.internal.Startup" />
+		<startup class="org.eclipse.agents.contexts.Startup" />
 	</extension>
 
 	<extension point="org.eclipse.ui.trace.traceComponents">
@@ -124,27 +129,27 @@
 	</extension>
 	
 	<extension point="org.eclipse.ui.views">
-      <view id="org.eclipse.mcp.acp.view.AcpView" name="Coding Agent" class="org.eclipse.agents.acp.view.AcpView" icon="icons/templates.png" />
+      <view id="org.eclipse.agents.chat.AcpView" name="Coding Agent" class="org.eclipse.agents.chat.AcpView" icon="icons/templates.png" />
    </extension>
 	
 	 <extension point="org.eclipse.ui.menus">
       <menuContribution locationURI="popup:org.eclipse.ui.navigator.ProjectExplorer#PopupMenu?after=additions">
-         <command commandId="org.eclipse.mcp.acp.cmd.addToChat" tooltip="Add to Chat"/>
+         <command commandId="org.eclipse.agents.chat.cmd.addToChat" tooltip="Add to Chat"/>
       </menuContribution>
    </extension>
    
 
    <extension point="org.eclipse.ui.commands">
-      <category description="Chat with coding agents" id="org.eclipse.mcp.acp.cmd.category" name="Coding Agents" />
-      <command name="Add to chat" description="Add to chat" categoryId="org.eclipse.mcp.acp.cmd.category" defaultHandler="org.eclipse.agents.acp.view.CommandHandler" id="org.eclipse.mcp.acp.cmd.addToChat" />
+      <category description="Chat with coding agents" id="org.eclipse.agents.chat.cmd.category" name="Coding Agents" />
+      <command name="Add to chat" description="Add to chat" categoryId="org.eclipse.agents.chat.cmd.category" defaultHandler="org.eclipse.agents.chat.CommandHandler" id="org.eclipse.agents.chat.cmd.addToChat" />
    </extension>
 
    <!--extension point="org.eclipse.ui.commandImages">
-      <image commandId="org.eclipse.mcp.acp.cmd.model" icon="icons/new_template.png"/>
-      <image commandId="org.eclipse.mcp.acp.cmd.mode" icon="icons/template_obj.png" />
+      <image commandId="org.eclipse.agents.chat.cmd.model" icon="icons/new_template.png"/>
+      <image commandId="org.eclipse.agents.chat.cmd.mode" icon="icons/template_obj.png" />
    </extension-->
 
    <extension point="org.eclipse.ui.bindings">
-      <key sequence="M1+M3+M 1" commandId="org.eclipse.mcp.acp.cmd.addToChat" schemeId="org.eclipse.ui.defaultAcceleratorConfiguration" contextId="org.eclipse.mcp.acp.view.AcpView"/>
+      <key sequence="M1+M3+M 1" commandId="org.eclipse.agents.chat.cmd.addToChat" schemeId="org.eclipse.ui.defaultAcceleratorConfiguration" contextId="org.eclipse.agents.chat.AcpView"/>
    </extension>
 </plugin>
