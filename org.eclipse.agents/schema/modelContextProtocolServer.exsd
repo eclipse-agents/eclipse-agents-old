@@ -1,0 +1,225 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Schema file written by PDE -->
+<schema targetNamespace="org.eclipse.agents" xmlns="http://www.w3.org/2001/XMLSchema">
+<annotation>
+      <appinfo>
+         <meta.schema plugin="org.eclipse.agents" id="modelContextProtocolServer" name="Model Context Protocol Server"/>
+      </appinfo>
+      <documentation>
+         &lt;p&gt;
+The &lt;code&gt;org.eclipse.agents.modelContextProtocolServer&lt;/code&gt; extension point is used to declare and instantiate &lt;a href=&quot;https://modelcontextprotocol.io/docs/learn/server-concepts&quot;&gt;Model Context Protocol Servers, Tools and Resources&lt;/a&gt; that run within the IDE&apos;s Process and expose IDE functionality for interaction with Agents and/or Developers.
+&lt;/p&gt;&lt;p&gt;
+Behind the scenes, declared MCP Servers will be instantiated using the modelcontextprotocol/java-sdk API and may be configured to serve over HTTP using Jetty.
+&lt;/p&gt;&lt;p&gt;
+A &quot;Platform MCP Servers&quot; preference page will let users:
+&lt;ul&gt;
+  &lt;li&gt;Enable/Disable the Server&lt;/li&gt;
+  &lt;li&gt;Customize the HTTP port&lt;/li&gt;
+&lt;/ul&gt;
+Contributors may be associated with an Activity/Capability to toggle their contributions to the server
+You may bind your own activities to categoryId &quot;org.eclipse.agents.activity&quot;
+You may add your preference pages under parent 
+You may add your own preference pages under the page &quot;org.eclipse.agents.preferences.general&quot;
+You may use your own preferences to remove/add your tools to the server dynamically using &lt;code&gt;ToolFactory.setVisibility&lt;/code&gt;
+&lt;/p&gt;
+      </documentation>
+   </annotation>
+
+   <element name="extension">
+      <annotation>
+         <appinfo>
+            <meta.element />
+         </appinfo>
+      </annotation>
+      <complexType>
+         <sequence minOccurs="1" maxOccurs="unbounded">
+            <element ref="contributor"/>
+         </sequence>
+         <attribute name="id" type="string">
+            <annotation>
+               <documentation>
+                  an optional identifier of the extension instance
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="name" type="string">
+            <annotation>
+               <documentation>
+                  an optional name of the extension instance
+               </documentation>
+               <appinfo>
+                  <meta.attribute translatable="true"/>
+               </appinfo>
+            </annotation>
+         </attribute>
+         <attribute name="point" type="string" use="required">
+            <annotation>
+               <documentation>
+                  a fully qualified identifier of the target extension point
+               </documentation>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <element name="contributor">
+      <annotation>
+         <documentation>
+            This element is used to define a &lt;a href=&quot;https://modelcontextprotocol.io/docs/learn/server-concepts#tools-ai-actions&quot;&gt;Model Context Protocol Tool&lt;/a&gt;
+         </documentation>
+      </annotation>
+      <complexType>
+         <sequence minOccurs="1" maxOccurs="unbounded">
+            <element ref="factory"/>
+         </sequence>
+         <attribute name="id" type="string" use="required">
+            <annotation>
+               <documentation>
+                  the unique identifier of this factory
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="name" type="string" use="required">
+            <annotation>
+               <documentation>
+                  The name of this MCP factory
+               </documentation>
+               <appinfo>
+                  <meta.attribute translatable="true"/>
+               </appinfo>
+            </annotation>
+         </attribute>
+         <attribute name="description" type="string" use="required">
+            <annotation>
+               <documentation>
+                  A description of the tools, resources and prompts this factory contributes
+               </documentation>
+               <appinfo>
+                  <meta.attribute translatable="true"/>
+               </appinfo>
+            </annotation>
+         </attribute>
+         <attribute name="provider" type="string" use="required">
+            <annotation>
+               <documentation>
+                  The name of product contributing this factory
+               </documentation>
+               <appinfo>
+                  <meta.attribute translatable="true"/>
+               </appinfo>
+            </annotation>
+         </attribute>
+         <attribute name="activityId" type="string">
+            <annotation>
+               <documentation>
+                  Contributors may be associated with an Activity/Capability to toggle the presence of their contributions on the server
+You may bind your own activities to categoryId &quot;org.eclipse.agents.activity&quot;
+Enabling / Disabling an activity that has contributors assocated with it will trigger the server to restart
+               </documentation>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <element name="factory">
+      <annotation>
+         <documentation>
+            Add one or more IFactories to this contributor.  There are different descendants of IFactory tailored for tool creation, annotated tool creation, dynamic resource addition/subtraction, and resource templating with substitution variables w/ content assist
+         </documentation>
+      </annotation>
+      <complexType>
+         <attribute name="class" type="string" use="required">
+            <annotation>
+               <documentation>
+                  The fully qualified name of an IFactory implemention.  Must implement &lt;tt&gt;org.eclipse.agents.factory.IFactory&lt;/tt&gt; and have an zero-parameter constructor.
+               </documentation>
+               <appinfo>
+                  <meta.attribute kind="java" basedOn="org.eclipse.agents.IMCPFactory"/>
+               </appinfo>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <annotation>
+      <appinfo>
+         <meta.section type="since"/>
+      </appinfo>
+      <documentation>
+         &lt;p&gt;
+3.0
+&lt;/p&gt;
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appinfo>
+         <meta.section type="examples"/>
+      </appinfo>
+      <documentation>
+         The following is an example of several activity and category definitions as well as associated bindings.
+&lt;p&gt;
+&lt;pre&gt;
+  &lt;extension
+         point=&quot;org.eclipse.agents.modelContextProtocolServer&quot;
+         id=&quot;foo.com.my.extension.id&quot;
+         name=&quot;My MCP Extension&quot;&gt;
+
+      &lt;contributor
+         id=&quot;foo.com.my.contributor.id&quot;
+         name=&quot;My MCP Contributor&quot;
+         description=&quot;My MCP Contributor Description&quot;
+         provider=&quot;My Product&quot;
+         activityId=&quot;foo.com.my.activity.id&quot;&gt;
+         &lt;factory class = &quot;foo.com.MyFactory&quot;/&gt;
+      &lt;/contributor&gt;
+   &lt;/extension&gt;
+&lt;/pre&gt;
+&lt;/p&gt;
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appinfo>
+         <meta.section type="apiInfo"/>
+      </appinfo>
+      <documentation>
+         &lt;p&gt;
+See the java docs for &lt;code&gt;org.eclipse.agents&lt;/code&gt; for java interface documentationm
+&lt;/p&gt;&lt;p&gt;
+Two tracing options are available on the General &gt; Tracing preference page
+&lt;ul&gt;
+&lt;li&gt;
+# Main Debug Trace switch
+&lt;ul&gt;&lt;li&gt;org.eclipse.agents/debug&lt;/li&gt;&lt;/ul&gt;
+&lt;/li&gt;&lt;li&gt;
+# Trace location for implementations
+&lt;ul&gt;&lt;li&gt;org.eclipse.agents/debug/implementations&lt;/li&gt;&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/p&gt;
+      </documentation>
+   </annotation>
+
+
+   <annotation>
+      <appinfo>
+         <meta.section type="copyright"/>
+      </appinfo>
+      <documentation>
+         Copyright (c) 2025 IBM Corporation and others.&lt;br&gt;
+
+This program and the accompanying materials are made
+available under the terms of the Eclipse Public License 2.0 which accompanies
+this distribution, and is available at &lt;a 
+href=&quot;https://www.eclipse.org/legal/epl-2.0&quot;&gt;https://www.eclipse.org/legal/epl-v20.html&lt;/a&gt;/
+
+SPDX-License-Identifier: EPL-2.0
+
+Contributors:
+  IBM Corporation - initial API and implementation
+
+      </documentation>
+   </annotation>
+
+</schema>

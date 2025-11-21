@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="org.eclipse.agents.feature"
+      label="Eclipse Coding Agents"
+      version="1.0.0.qualifier"
+      provider-name="IBM">
+
+   <description url="http://www.example.com/description">
+      Eclipse Coding Agents, MCP and ACP Services
+   </description>
+
+   <copyright url="http://www.example.com/copyright">
+      Copyright (c) 2025 IBM Corporation and others.
+ 
+ This program and the accompanying materials
+ are made available under the terms of the Eclipse Public License 2.0
+ which accompanies this distribution, and is available at
+  https://www.eclipse.org/legal/epl-2.0/
+  SPDX-License-Identifier: EPL-2.0
+  Contributors:
+     IBM Corporation - initial API and implementation
+   </copyright>
+
+   <license url="http://www.example.com/license">
+      [Enter License Description here.]
+   </license>
+
+   <requires>
+      <import plugin="com.fasterxml.jackson.core.jackson-annotations"/>
+      <import plugin="com.fasterxml.jackson.core.jackson-core"/>
+      <import plugin="com.fasterxml.jackson.core.jackson-databind"/>
+   </requires>
+
+   <plugin
+         id="org.eclipse.agents"
+         version="0.0.0"/>
+
+   <!--<plugin
+         id="io.modelcontextprotocol"
+         version="0.0.0"/>-->
+
+</feature>
