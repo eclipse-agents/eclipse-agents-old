@@ -234,10 +234,6 @@ public class ChatBrowser {
 			}
 			
 		});
-		// Cancel opening of new windows
-		browser.addOpenWindowListener(event -> {
-			event.required= true;
-		});
 
 		// Replace browser's built-in context menu with none
 		browser.setMenu(new Menu(browser.getShell(), SWT.NONE));
