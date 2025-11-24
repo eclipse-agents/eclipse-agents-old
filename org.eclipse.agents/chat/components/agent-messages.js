@@ -31,6 +31,8 @@ class AgentMessages extends DivTemplate {
 		this.anchorElements = this.markdown.querySelectorAll('a');
 		this.anchorElements.forEach(anchor => {
 			anchor.tabIndex = 0;
+			// Open link in a separate window to prevent leaving the Agent chat
+			anchor.target = "_blank";
 		});
 	}
 }
