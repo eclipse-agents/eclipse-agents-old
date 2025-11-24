@@ -81,46 +81,46 @@ public class AcpBrowser {
 		
 		new BrowserFunction(browser, "getProgramIcon") {
 			@Override
-	        public Object function(Object[] args) {
+			public Object function(Object[] args) {
 				Tracer.trace().trace(Tracer.BROWSER, "getProgramIcon:" + args[0]);
 				WorkspaceResourceAdapter adapter = new WorkspaceResourceAdapter(args[0].toString());
-	            IResource resource = adapter.getModel();
-	            final ImageDescriptor imageDescriptor;
-	            if (resource instanceof IFile) {
-	            	IEditorDescriptor editorDescriptor = IDE.getDefaultEditor((IFile)resource);
-	            	if (editorDescriptor != null) {
-	            		imageDescriptor = editorDescriptor.getImageDescriptor();
-	            	} else {
-	            		imageDescriptor = null;
-	            	}
-	            } else if (resource instanceof IFolder) {
-	            	imageDescriptor = PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_OBJ_FOLDER);
-	            } else if (resource instanceof IProject) {
-	            	imageDescriptor = PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_OBJ_PROJECT);
-	            } else {
-	            	imageDescriptor = null;
-	            }
-	            
-	            if (imageDescriptor != null) {
-	            	StringBuffer result = new StringBuffer();
+				IResource resource = adapter.getModel();
+				final ImageDescriptor imageDescriptor;
+				if (resource instanceof IFile) {
+					IEditorDescriptor editorDescriptor = IDE.getDefaultEditor((IFile)resource);
+					if (editorDescriptor != null) {
+						imageDescriptor = editorDescriptor.getImageDescriptor();
+					} else {
+						imageDescriptor = null;
+					}
+				} else if (resource instanceof IFolder) {
+					imageDescriptor = PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_OBJ_FOLDER);
+				} else if (resource instanceof IProject) {
+					imageDescriptor = PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_OBJ_PROJECT);
+				} else {
+					imageDescriptor = null;
+				}
+				
+				if (imageDescriptor != null) {
+					StringBuffer result = new StringBuffer();
 					
 					Activator.getDisplay().syncExec(()-> {
 						ByteArrayOutputStream bos = new ByteArrayOutputStream();
-				        Image image = imageDescriptor.createImage(Activator.getDisplay());
-				        ImageLoader loader = new ImageLoader();
-				        loader.data = new ImageData[] { image.getImageData() }; // Get current ImageData from Image
-				        result.append("data:image/jpg;base64,");
-				        loader.save(bos, SWT.IMAGE_PNG);
-				        image.dispose();
-				        
-				        byte[] imageBytes = bos.toByteArray();
-				        result.append(Base64.getEncoder().encodeToString(imageBytes));
+						Image image = imageDescriptor.createImage(Activator.getDisplay());
+						ImageLoader loader = new ImageLoader();
+						loader.data = new ImageData[] { image.getImageData() }; // Get current ImageData from Image
+						result.append("data:image/jpg;base64,");
+						loader.save(bos, SWT.IMAGE_PNG);
+						image.dispose();
+						
+						byte[] imageBytes = bos.toByteArray();
+						result.append(Base64.getEncoder().encodeToString(imageBytes));
 					});
 
 					Tracer.trace().trace(Tracer.BROWSER, result.toString());
 					return result.toString();
-	            }
-	            return null;
+				}
+				return null;
 			}
 		};
 		
@@ -174,19 +174,19 @@ public class AcpBrowser {
 					IResource resource = wra.getModel();
 					if (resource instanceof IFile) {
 						try {
-						    IDE.openEditor(page, (IFile)resource); 
+							IDE.openEditor(page, (IFile)resource); 
 						} catch (PartInitException e) {
-						    e.printStackTrace();
+							e.printStackTrace();
 						}
 					} else if (resource instanceof IFolder || resource instanceof IProject) {
 						try {
 							IViewPart view = page.showView("org.eclipse.ui.navigator.ProjectExplorer");
 							if (view instanceof CommonNavigator) {
-				                CommonNavigator projectExplorer = (CommonNavigator) view;
-				                if (resource.exists() && resource.getProject().exists() && resource.getProject().isOpen()) {
-					                projectExplorer.selectReveal(new StructuredSelection(resource));
-				                }
-				            }
+								CommonNavigator projectExplorer = (CommonNavigator) view;
+								if (resource.exists() && resource.getProject().exists() && resource.getProject().isOpen()) {
+									projectExplorer.selectReveal(new StructuredSelection(resource));
+								}
+							}
 						} catch (PartInitException e) {
 							e.printStackTrace();
 						}
@@ -349,7 +349,7 @@ public class AcpBrowser {
 	}
 
 
-	public void  acceptSessionToolCallUpdate(String toolCallId, String status) {
+	public void acceptSessionToolCallUpdate(String toolCallId, String status) {
 		if (!browser.isDisposed()) {
 			String fxn = String.format("acceptSessionToolCallUpdate(`%s`, `%s`);", 
 					toolCallId, status);
