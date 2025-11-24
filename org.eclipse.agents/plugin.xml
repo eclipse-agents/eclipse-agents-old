@@ -27,6 +27,10 @@
 			id="org.eclipse.agents.keyword.cli" />
 		<keyword label="CHAT"
 			id="org.eclipse.agents.keyword.chat" />
+		<keyword label="GOOGLE"
+			id="org.eclipse.agents.keyword.google" />
+		<keyword label="GEMINI"
+			id="org.eclipse.agents.keyword.gemini" />
 	</extension>
 
 	<extension point="org.eclipse.ui.activities">
@@ -93,7 +97,7 @@
 		</page>
 		<page
 			id="org.eclipse.agents.preferences.services"
-			name="Agent CLIs"
+			name="Agent Services"
 			category="org.eclipse.agents.preferences.general"
 			class="org.eclipse.agents.preferences.AcpGeneralPreferencePage">
 			<keywordReference id="org.eclipse.agents.keyword.mcp" />
@@ -106,6 +110,24 @@
 			<keywordReference id="org.eclipse.agents.keyword.coding" />
 			<keywordReference id="org.eclipse.agents.keyword.cli" />
 			<keywordReference id="org.eclipse.agents.keyword.chat" />
+		</page>
+		<page
+			id="org.eclipse.agents.preferences.services.gemini"
+			name="Google Gemini"
+			category="org.eclipse.agents.preferences.services"
+			class="org.eclipse.agents.preferences.AcpGeminiPreferencePage">
+			<keywordReference id="org.eclipse.agents.keyword.mcp" />
+			<keywordReference id="org.eclipse.agents.keyword.acp" />
+			<keywordReference id="org.eclipse.agents.keyword.model" />
+			<keywordReference id="org.eclipse.agents.keyword.agent" />
+			<keywordReference id="org.eclipse.agents.keyword.client" />
+			<keywordReference id="org.eclipse.agents.keyword.context" />
+			<keywordReference id="org.eclipse.agents.keyword.protocol" />
+			<keywordReference id="org.eclipse.agents.keyword.coding" />
+			<keywordReference id="org.eclipse.agents.keyword.cli" />
+			<keywordReference id="org.eclipse.agents.keyword.chat" />
+			<keywordReference id="org.eclipse.agents.keyword.google" />
+			<keywordReference id="org.eclipse.agents.keyword.gemini" />
 		</page>
 	</extension>
 
