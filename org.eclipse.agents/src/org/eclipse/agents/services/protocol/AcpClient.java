@@ -22,7 +22,7 @@ import java.util.concurrent.CompletableFuture;
 
 import org.eclipse.agents.Activator;
 import org.eclipse.agents.Tracer;
-import org.eclipse.agents.services.AcpService;
+import org.eclipse.agents.chat.controller.AgentController;
 import org.eclipse.agents.services.agent.IAgentService;
 import org.eclipse.agents.services.protocol.AcpSchema.CreateTerminalRequest;
 import org.eclipse.agents.services.protocol.AcpSchema.CreateTerminalResponse;
@@ -273,7 +273,7 @@ public class AcpClient implements IAcpClient {
 
 	@Override
 	public void update(SessionNotification notification) {
-		AcpService.instance().agentNotifies(notification);
+		AgentController.instance().agentNotifies(notification);
 	}
 	
 	private ITextEditor findFileEditor(Path absolutePath) {

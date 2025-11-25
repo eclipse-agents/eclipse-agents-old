@@ -14,7 +14,7 @@
 package org.eclipse.agents.chat.toolbar;
 
 import org.eclipse.agents.Activator;
-import org.eclipse.agents.chat.AcpView;
+import org.eclipse.agents.chat.ChatView;
 import org.eclipse.agents.contexts.Images;
 import org.eclipse.jface.action.Action;
 import org.eclipse.ui.ISharedImages;
@@ -22,10 +22,10 @@ import org.eclipse.ui.PlatformUI;
 
 public class ToolbarSessionStartStop extends Action {
 
-	AcpView view;
+	ChatView view;
 	boolean promptTurnInProgress = false;
 	
-	public ToolbarSessionStartStop(AcpView view) {
+	public ToolbarSessionStartStop(ChatView view) {
 		super("Send", Activator.getDefault().getImageRegistry().getDescriptor(Images.IMG_PLAY));
 		this.view = view;
 		setEnabled(false);

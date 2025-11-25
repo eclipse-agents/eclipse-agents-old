@@ -63,12 +63,12 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-public class AcpBrowser {
+public class ChatBrowser {
 
 	private ObjectMapper mapper;
 	private Browser browser;
 	
-	public AcpBrowser(Composite parent, int style) {
+	public ChatBrowser(Composite parent, int style) {
 		mapper = new ObjectMapper();
 		
 		browser = new Browser(parent, style);
