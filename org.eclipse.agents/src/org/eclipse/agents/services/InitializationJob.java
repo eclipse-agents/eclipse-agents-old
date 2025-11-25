@@ -121,10 +121,10 @@ public class InitializationJob extends Job {
 				if (supportsSseMcp) {
 					Tracer.trace().trace(Tracer.ACP, service.getName() + " supports SSE MCP");
 					
-					boolean eclipseMcpEnabled = Activator.getDefault().getPreferenceStore().getBoolean(IPreferenceConstants.P_SERVER_ENABLED);
+					boolean eclipseMcpEnabled = Activator.getDefault().getPreferenceStore().getBoolean(IPreferenceConstants.P_MCP_SERVER_ENABLED);
 					
 					if (eclipseMcpEnabled) {
-						String httpPort = Activator.getDefault().getPreferenceStore().getString(IPreferenceConstants.P_SERVER_HTTP_PORT);
+						String httpPort = Activator.getDefault().getPreferenceStore().getString(IPreferenceConstants.P_MCP_SERVER_HTTP_PORT);
 						Tracer.trace().trace(Tracer.ACP, "Eclipse MCP is running on port " + httpPort);
 						
 						this.mcpServers = new McpServer[] { new SseTransport(
@@ -140,8 +140,7 @@ public class InitializationJob extends Job {
 				}
 				
 				
-				IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-				this.cwd = root.getRawLocation().toOSString();
+				this.cwd = Activator.getDefault().getPreferenceStore().getString(IPreferenceConstants.P_ACP_WORKING_DIR);
 				
 				NewSessionRequest newSessionRequest = new NewSessionRequest(
 						null,

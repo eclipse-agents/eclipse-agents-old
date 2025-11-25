@@ -160,23 +160,23 @@ public class McpGeneralPreferencePage extends PreferencePage
 
 	private void loadPreferences() {
 		IPreferenceStore store = getPreferenceStore();
-		serverEnable.setSelection(store.getBoolean(P_SERVER_ENABLED));
-		serverPort.setText("" + store.getInt(P_SERVER_HTTP_PORT));
+		serverEnable.setSelection(store.getBoolean(P_MCP_SERVER_ENABLED));
+		serverPort.setText("" + store.getInt(P_MCP_SERVER_HTTP_PORT));
 	}
 
 	private void savePreferences() {
 		IPreferenceStore store = getPreferenceStore();
 
 		boolean restartServer = false;
-		if (store.getBoolean(P_SERVER_ENABLED) != serverEnable.getSelection()) {
+		if (store.getBoolean(P_MCP_SERVER_ENABLED) != serverEnable.getSelection()) {
 			restartServer = true;
 		} else if (serverEnable.getSelection() && 
-				!serverPort.getText().equals("" + store.getInt(P_SERVER_HTTP_PORT))) {
+				!serverPort.getText().equals("" + store.getInt(P_MCP_SERVER_HTTP_PORT))) {
 			restartServer = true;
 		}
 				
-		store.setValue(P_SERVER_ENABLED, serverEnable.getSelection());
-		store.setValue(P_SERVER_HTTP_PORT, Integer.parseInt(serverPort.getText()));;
+		store.setValue(P_MCP_SERVER_ENABLED, serverEnable.getSelection());
+		store.setValue(P_MCP_SERVER_HTTP_PORT, Integer.parseInt(serverPort.getText()));;
 
 		if (restartServer) {
 			Activator.getDefault().requestServerRestart();
@@ -198,8 +198,8 @@ public class McpGeneralPreferencePage extends PreferencePage
 	protected void performDefaults() {
 		IPreferenceStore store = getPreferenceStore();
 
-		serverEnable.setSelection(store.getDefaultBoolean(P_SERVER_ENABLED));
-		serverPort.setText("" + store.getDefaultInt(P_SERVER_HTTP_PORT));
+		serverEnable.setSelection(store.getDefaultBoolean(P_MCP_SERVER_ENABLED));
+		serverPort.setText("" + store.getDefaultInt(P_MCP_SERVER_HTTP_PORT));
 		
 		updateValidation();
 	}

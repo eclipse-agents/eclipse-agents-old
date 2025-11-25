@@ -13,14 +13,16 @@
  *******************************************************************************/
 package org.eclipse.agents.preferences;
 
-import java.io.File;
-
 import org.eclipse.agents.Activator;
+import org.eclipse.agents.services.agent.GeminiService;
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.preference.PreferenceManager;
 import org.eclipse.jface.preference.PreferencePage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.events.VerifyEvent;
 import org.eclipse.swt.events.VerifyListener;
 import org.eclipse.swt.layout.GridData;
@@ -34,13 +36,16 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.eclipse.ui.PlatformUI;
 
 
-public class AcpGeneralPreferencePage extends PreferencePage
-		implements IPreferenceConstants, IWorkbenchPreferencePage, ModifyListener {
+public class AcpGeminiPreferencePage extends PreferencePage
+		implements IPreferenceConstants, IWorkbenchPreferencePage, SelectionListener, ModifyListener {
 
 	VerifyListener integerListener;
-	Text cwd;
+	PreferenceManager preferenceManager;
+	final String geminiPreferenceId = new GeminiService().getStartupCommandPreferenceId();
 	
-	public AcpGeneralPreferencePage() {
+	Text gemini;
+	
+	public AcpGeminiPreferencePage() {
 		super();
 
 		integerListener = (VerifyEvent e) -> {
@@ -62,7 +67,7 @@ public class AcpGeneralPreferencePage extends PreferencePage
 
 		
 		Label instructions = new Label(parent, SWT.WRAP);
-		instructions.setText("Chat with CLI agents like Gemini and Claude Code");
+		instructions.setText("ACP lets you chat with CLI agents like Gemini and Claude Code");
 		GridData gd = new GridData(GridData.GRAB_HORIZONTAL);
 		gd.widthHint = convertWidthInCharsToPixels(80);
 		gd.horizontalSpan = 4;
@@ -70,14 +75,13 @@ public class AcpGeneralPreferencePage extends PreferencePage
 		
 
 		Label label = new Label(parent, SWT.NONE);
-		label.setText("Working Directory");
-		label.setToolTipText("Directory under which agents may read and write to the file system");
+		label.setText("Gemini CLI:");
 		label.setLayoutData(new GridData());
 		
-		cwd = new Text(parent, SWT.SINGLE | SWT.BORDER);
-		cwd.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		((GridData)cwd.getLayoutData()).horizontalSpan = 3;
-		cwd.addModifyListener(this);
+		gemini = new Text(parent, SWT.MULTI | SWT.BORDER);
+		gemini.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		((GridData)gemini.getLayoutData()).minimumHeight = 30;
+		((GridData)gemini.getLayoutData()).horizontalSpan = 3;
 		
 		
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(parent,
@@ -95,15 +99,7 @@ public class AcpGeneralPreferencePage extends PreferencePage
 	}
 
 	private void updateValidation() {
-		String errorMessage = cwd.getText().length() == 0 ? "Enter working directory" : null;
-		
-		if (errorMessage == null) {
-			File file = new File(cwd.getText());
-			if (!file.exists() || !file.isDirectory()) {
-				errorMessage = "Enter valid directory path";
-			}
-		}
-		
+		String errorMessage = null;
 		setValid(errorMessage == null);
 		setErrorMessage(errorMessage);
 
@@ -111,12 +107,17 @@ public class AcpGeneralPreferencePage extends PreferencePage
 
 	private void loadPreferences() {
 		IPreferenceStore store = getPreferenceStore();
-		cwd.setText(store.getString(P_ACP_WORKING_DIR));
+		gemini.setText(store.getString(geminiPreferenceId));
 	}
 
 	private void savePreferences() {
 		IPreferenceStore store = getPreferenceStore();
-		store.setValue(P_ACP_WORKING_DIR, cwd.getText());
+
+		String preference = gemini.getText();
+		// Handle when line delimiters contain a carriage return character
+		preference = preference.replaceAll("\r\n", "\n");
+		
+		store.setValue(geminiPreferenceId, preference);
 	}
 
 	@Override
@@ -134,8 +135,18 @@ public class AcpGeneralPreferencePage extends PreferencePage
 	protected void performDefaults() {
 		IPreferenceStore store = getPreferenceStore();
 
-		cwd.setText(store.getDefaultString(P_ACP_WORKING_DIR));
+		gemini.setText(store.getDefaultString(geminiPreferenceId));
 		
+		updateValidation();
+	}
+
+	@Override
+	public void widgetDefaultSelected(SelectionEvent event) {
+		widgetSelected(event);
+	}
+
+	@Override
+	public void widgetSelected(SelectionEvent event) {
 		updateValidation();
 	}
 

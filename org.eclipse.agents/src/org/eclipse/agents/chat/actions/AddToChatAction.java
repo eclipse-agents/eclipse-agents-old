@@ -25,7 +25,7 @@ import org.eclipse.ui.handlers.HandlerUtil;
 
 public class AddToChatAction extends Action {
 
-	public static final String ID = "org.eclipse.agents.services.cmd.addToChat";
+	public static final String ID = "org.eclipse.agents.chat.cmd.addToChat";
 
 	ExecutionEvent event;
 	public AddToChatAction(ExecutionEvent event) {

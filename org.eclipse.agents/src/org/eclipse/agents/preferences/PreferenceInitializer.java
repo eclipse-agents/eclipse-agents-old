@@ -17,6 +17,7 @@ import org.eclipse.agents.Activator;
 import org.eclipse.agents.services.AcpService;
 import org.eclipse.agents.services.agent.AbstractService;
 import org.eclipse.agents.services.agent.IAgentService;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
 import org.eclipse.jface.preference.IPreferenceStore;
 
@@ -26,8 +27,9 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer impleme
 	public void initializeDefaultPreferences() {
 		IPreferenceStore store = Activator.getDefault().getPreferenceStore();
 
-		store.setDefault(P_SERVER_ENABLED, false);
-		store.setDefault(P_SERVER_HTTP_PORT, 8673);
+		store.setDefault(P_MCP_SERVER_ENABLED, false);
+		store.setDefault(P_MCP_SERVER_HTTP_PORT, 8673);
+		store.setDefault(P_ACP_WORKING_DIR, ResourcesPlugin.getWorkspace().getRoot().getRawLocation().toOSString());
 		
 		for (IAgentService service: AcpService.instance().getAgents()) {
 			if (service instanceof AbstractService) {

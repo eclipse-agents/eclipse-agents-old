@@ -17,8 +17,10 @@ import org.eclipse.agents.Activator;
 
 public interface IPreferenceConstants {
 
-	public static final String P_SERVER_ENABLED = Activator.PLUGIN_ID + ".default.server.enabled"; //$NON-NLS-1$
+	public static final String P_MCP_SERVER_ENABLED = Activator.PLUGIN_ID + ".default.mcp.enabled"; //$NON-NLS-1$
 
-	public static final String P_SERVER_HTTP_PORT = Activator.PLUGIN_ID + ".default.server.http.port"; //$NON-NLS-1$
+	public static final String P_MCP_SERVER_HTTP_PORT = Activator.PLUGIN_ID + ".default.mcp.http.port"; //$NON-NLS-1$
+	
+	public static final String P_ACP_WORKING_DIR = Activator.PLUGIN_ID + ".default.acp.cwd"; //$NON-NLS-1$
 
 }
