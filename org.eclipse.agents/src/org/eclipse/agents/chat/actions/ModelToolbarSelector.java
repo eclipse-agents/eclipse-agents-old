@@ -16,7 +16,7 @@ package org.eclipse.agents.chat.actions;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.eclipse.agents.services.AcpService;
+import org.eclipse.agents.chat.controller.AgentController;
 import org.eclipse.agents.services.agent.IAgentService;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
@@ -74,7 +74,7 @@ public class ModelToolbarSelector extends WorkbenchWindowControlContribution imp
 
 		try {
 
-			IAgentService[] services = AcpService.instance().getAgents();
+			IAgentService[] services = AgentController.instance().getAgents();
 			String[] items = new String[services.length];
 			for (int i = 0; i < services.length; i++) {
 				items[i] = services[i].getName();
@@ -88,7 +88,7 @@ public class ModelToolbarSelector extends WorkbenchWindowControlContribution imp
 						selector.combo.setItems(items);
 						selector.combo.setText(NO_SELECTION);
 					
-						IAgentService service = AcpService.instance().getAgentService();
+						IAgentService service = AgentController.instance().getAgentService();
 						if (service != null) {
 							for (int i = 0; i < services.length; i++) {
 								if (services[i] == service) {

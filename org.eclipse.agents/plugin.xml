@@ -151,7 +151,7 @@
 	</extension>
 	
 	<extension point="org.eclipse.ui.views">
-      <view id="org.eclipse.agents.chat.AcpView" name="Coding Agent" class="org.eclipse.agents.chat.AcpView" icon="icons/templates.png" />
+      <view id="org.eclipse.agents.chat.ChatView" name="Coding Agent Chat" class="org.eclipse.agents.chat.ChatView" icon="icons/templates.png" />
    </extension>
 	
 	 <extension point="org.eclipse.ui.menus">
@@ -172,6 +172,6 @@
    </extension-->
 
    <extension point="org.eclipse.ui.bindings">
-      <key sequence="M1+M3+M 1" commandId="org.eclipse.agents.chat.cmd.addToChat" schemeId="org.eclipse.ui.defaultAcceleratorConfiguration" contextId="org.eclipse.agents.chat.AcpView"/>
+      <key sequence="M1+M3+M 1" commandId="org.eclipse.agents.chat.cmd.addToChat" schemeId="org.eclipse.ui.defaultAcceleratorConfiguration" contextId="org.eclipse.agents.chat.ChatView"/>
    </extension>
 </plugin>

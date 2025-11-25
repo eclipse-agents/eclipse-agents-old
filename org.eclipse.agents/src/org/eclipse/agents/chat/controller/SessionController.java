@@ -11,14 +11,14 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.agents.chat;
+package org.eclipse.agents.chat.controller;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.agents.Tracer;
-import org.eclipse.agents.services.AcpService;
-import org.eclipse.agents.services.IAcpSessionListener;
+import org.eclipse.agents.chat.ChatBrowser;
+import org.eclipse.agents.chat.ChatView;
 import org.eclipse.agents.services.agent.IAgentService;
 import org.eclipse.agents.services.protocol.AcpSchema.CancelNotification;
 import org.eclipse.agents.services.protocol.AcpSchema.CreateTerminalRequest;
@@ -56,7 +56,7 @@ import org.eclipse.agents.services.protocol.AcpSchema.WaitForTerminalExitRespons
 import org.eclipse.agents.services.protocol.AcpSchema.WriteTextFileRequest;
 import org.eclipse.agents.services.protocol.AcpSchema.WriteTextFileResponse;
 
-public class AcpSessionModel implements IAcpSessionListener {
+public class SessionController implements ISessionListener {
 
 	// Initialization
 	IAgentService agent;
@@ -69,20 +69,20 @@ public class AcpSessionModel implements IAcpSessionListener {
 //	int promptId = 0;
 	List<Object> session = new ArrayList<Object>();
 	
-	AcpView view;
-	AcpBrowser browser;
+	ChatView view;
+	ChatBrowser browser;
 	
 	enum MessageType { session_prompt, user_message_chunk, agent_thought_chunk, agent_message_chunk, resource_link };
 
 	
-	public AcpSessionModel(IAgentService agent, String sessionId, String cwd, McpServer[] mcpServers, SessionModeState modes) {
+	public SessionController(IAgentService agent, String sessionId, String cwd, McpServer[] mcpServers, SessionModeState modes) {
 		this.agent = agent;
 		this.sessionId = sessionId;
 		this.cwd = cwd;
 		this.mcpServers = mcpServers;  
 		this.modes = modes;
 		
-		AcpService.instance().addAcpListener(this);
+		AgentController.instance().addAcpListener(this);
 	}
 	
 	@Override
@@ -90,7 +90,7 @@ public class AcpSessionModel implements IAcpSessionListener {
 		return sessionId;
 	}
 	
-	public void setView(AcpView view) {
+	public void setView(ChatView view) {
 		this.view = view;
 		this.browser = view.getBrowser();
 	}

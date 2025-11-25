@@ -14,7 +14,7 @@
 package org.eclipse.agents.chat;
 
 import org.eclipse.agents.chat.actions.SetAcpModelAction;
-import org.eclipse.agents.services.AcpService;
+import org.eclipse.agents.chat.controller.AgentController;
 import org.eclipse.agents.services.agent.IAgentService;
 import org.eclipse.jface.action.ContributionItem;
 import org.eclipse.jface.action.MenuManager;
@@ -41,7 +41,7 @@ public class ToolbarButtonContributor extends ContributionItem {
 		
 		if ("org.eclipse.agents.services.cmd.model".equals(manager.getId())) {
 			if (menu.getItemCount() == 0) {
-				for (IAgentService agent: AcpService.instance().getAgents()) {
+				for (IAgentService agent: AgentController.instance().getAgents()) {
 					MenuItem menuItem = new MenuItem(menu, SWT.PUSH, index++);
 		            menuItem.setText(agent.getName());
 		            menuItem.setData(new SetAcpModelAction(agent));
@@ -51,7 +51,7 @@ public class ToolbarButtonContributor extends ContributionItem {
 
 						@Override
 						public void widgetSelected(SelectionEvent e) {
-//							AcpService.instance().setAcpService(agent);
+//							AgentController.instance().setAcpService(agent);
 						}
 		            });
 				}

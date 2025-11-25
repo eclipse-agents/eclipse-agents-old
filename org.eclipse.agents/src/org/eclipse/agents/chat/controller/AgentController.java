@@ -11,14 +11,13 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.agents.services;
+package org.eclipse.agents.chat.controller;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.agents.Tracer;
-import org.eclipse.agents.chat.AcpSessionModel;
-import org.eclipse.agents.chat.AcpView;
+import org.eclipse.agents.chat.ChatView;
 import org.eclipse.agents.services.agent.GeminiService;
 import org.eclipse.agents.services.agent.IAgentService;
 import org.eclipse.agents.services.protocol.AcpSchema.AgentNotification;
@@ -54,33 +53,33 @@ import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 
-public class AcpService {
+public class AgentController {
 
-	private static AcpService instance;
+	private static AgentController instance;
 	
 	private IAgentService activeAgent = null;
 	private String activeSessionId = null;
 	
-	private static Map<String, AcpSessionModel> sessions = new HashMap<String, AcpSessionModel>();
+	private static Map<String, SessionController> sessions = new HashMap<String, SessionController>();
 	
-	private ListenerList<IAcpSessionListener> listenerList;
+	private ListenerList<ISessionListener> listenerList;
 
 	private InitializationJob initializationJob;
 
 	static {
-		instance = new AcpService();
+		instance = new AgentController();
 	}
 	
 	IAgentService[] agentServices;
-	private AcpService() {
+	private AgentController() {
 		agentServices = new IAgentService[] { 
 			new GeminiService()
 //			new GooseService()
 		};
-		listenerList = new  ListenerList<IAcpSessionListener>();
+		listenerList = new  ListenerList<ISessionListener>();
 	}
 	
-	public static AcpService instance() {
+	public static AgentController instance() {
 		return instance;
 	}
 	
@@ -88,7 +87,7 @@ public class AcpService {
 		return agentServices;
 	}
 
-	public void setAcpService(AcpView view, IAgentService agent) {
+	public void setAcpService(ChatView view, IAgentService agent) {
 		Tracer.trace().trace(Tracer.CHAT, "setAcpService: " + agent.getName()); //$NON-NLS-1$
 		view.agentDisconnected();
 		activeSessionId = null;
@@ -112,7 +111,7 @@ public class AcpService {
 							
 							activeSessionId = sessionId;
 
-							AcpSessionModel model = new AcpSessionModel(
+							SessionController model = new SessionController(
 								agent,
 								sessionId,
 								job.getCwd(),
@@ -153,20 +152,20 @@ public class AcpService {
 		return activeSessionId;
 	}
 	
-	public AcpSessionModel getActiveSession() {
+	public SessionController getActiveSession() {
 		return sessions.get(activeSessionId);
 	}
 	
-	public void addAcpListener(IAcpSessionListener listener) {
+	public void addAcpListener(ISessionListener listener) {
 		listenerList.add(listener);
 	}
 	
-	public void removeAcpListener(IAcpSessionListener listener) {
+	public void removeAcpListener(ISessionListener listener) {
 		listenerList.remove(listener);
 	}
 	
 	public void clientRequests(ClientRequest req) {
-		for (IAcpSessionListener listener: listenerList) {
+		for (ISessionListener listener: listenerList) {
 //			if (req instanceof InitializeRequest) {
 //				listener.accept((InitializeRequest)req);	
 //			} else if (req instanceof AuthenticateRequest) {
@@ -184,7 +183,7 @@ public class AcpService {
 	}
 	
 	public void clientResponds(ClientResponse resp) {
-		for (IAcpSessionListener listener: listenerList) {
+		for (ISessionListener listener: listenerList) {
 			if (resp instanceof WriteTextFileResponse) {
 				listener.accept((WriteTextFileResponse)resp);
 			} else if (resp instanceof ReadTextFileResponse) {
@@ -206,7 +205,7 @@ public class AcpService {
 	}
 	
 	public void clientNotifies(ClientNotification notification) {
-		for (IAcpSessionListener listener: listenerList) {
+		for (ISessionListener listener: listenerList) {
 			if (notification instanceof CancelNotification) {
 				listener.accept((CancelNotification)notification);
 			}
@@ -214,7 +213,7 @@ public class AcpService {
 	}
 	
 	public void agentRequests(AgentRequest req) {
-		for (IAcpSessionListener listener : listenerList) {
+		for (ISessionListener listener : listenerList) {
 			if (req instanceof ReadTextFileRequest) {
 				listener.accept((ReadTextFileRequest)req);
 			} else if (req instanceof RequestPermissionRequest) {
@@ -234,7 +233,7 @@ public class AcpService {
 	}
 	
 	public void agentResponds(AgentResponse resp) {
-		for (IAcpSessionListener listener: listenerList) {
+		for (ISessionListener listener: listenerList) {
 //			if (resp instanceof AuthenticateResponse) {
 //				listener.accept((AuthenticateResponse)resp);
 //			} else if (resp instanceof NewSessionResponse) {
@@ -250,7 +249,7 @@ public class AcpService {
 	}
 	
 	public void agentNotifies(AgentNotification notification) {
-		for (IAcpSessionListener listener: listenerList) {
+		for (ISessionListener listener: listenerList) {
 			if (notification instanceof SessionNotification) {
 				listener.accept((SessionNotification)notification);
 			}

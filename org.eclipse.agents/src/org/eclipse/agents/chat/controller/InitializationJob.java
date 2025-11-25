@@ -11,7 +11,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.agents.services;
+package org.eclipse.agents.chat.controller;
 
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
@@ -30,8 +30,6 @@ import org.eclipse.agents.services.protocol.AcpSchema.NewSessionRequest;
 import org.eclipse.agents.services.protocol.AcpSchema.NewSessionResponse;
 import org.eclipse.agents.services.protocol.AcpSchema.SessionModeState;
 import org.eclipse.agents.services.protocol.AcpSchema.SseTransport;
-import org.eclipse.core.resources.IWorkspaceRoot;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;

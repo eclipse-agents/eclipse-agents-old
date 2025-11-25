@@ -37,12 +37,12 @@ import org.eclipse.swt.widgets.Composite;
 
 import io.modelcontextprotocol.spec.McpSchema.ResourceLink;
 
-public class AcpContexts extends Composite {
+public class ChatResourceAdditions extends Composite {
 
 	Map<String, ContentBlock> contexts;
 	Map<String, Chips> chips;
 	
-	public AcpContexts(Composite parent, int style) {
+	public ChatResourceAdditions(Composite parent, int style) {
 		super(parent, style);
 		setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		setLayout(new GridLayout(3, false));

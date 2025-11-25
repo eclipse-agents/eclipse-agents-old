@@ -11,7 +11,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.agents.services;
+package org.eclipse.agents.chat.controller;
 
 import org.eclipse.agents.services.protocol.AcpSchema.CancelNotification;
 import org.eclipse.agents.services.protocol.AcpSchema.CreateTerminalRequest;
@@ -36,7 +36,7 @@ import org.eclipse.agents.services.protocol.AcpSchema.WaitForTerminalExitRespons
 import org.eclipse.agents.services.protocol.AcpSchema.WriteTextFileRequest;
 import org.eclipse.agents.services.protocol.AcpSchema.WriteTextFileResponse;
 
-public interface IAcpSessionListener {
+public interface ISessionListener {
 
 	public String getSessionId();
 
