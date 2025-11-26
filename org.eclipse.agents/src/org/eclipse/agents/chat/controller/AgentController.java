@@ -88,6 +88,10 @@ public class AgentController {
 		return sessions.get(sessionId);
 	}
 	
+	public static int getSessionCount() {
+		return sessions.size();
+	}
+	
 	public void addAcpListener(ISessionListener listener) {
 		listenerList.add(listener);
 	}

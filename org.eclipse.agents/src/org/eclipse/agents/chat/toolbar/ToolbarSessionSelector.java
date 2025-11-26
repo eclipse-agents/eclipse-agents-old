@@ -23,7 +23,7 @@ public class ToolbarSessionSelector extends AbstractDynamicToolbarDropdown {
 	
 	public ToolbarSessionSelector(ChatView view) {
 		super("Session", "Load or create a session", view);
-		newSessionAction = new NewSessionAction(view, this);
+		newSessionAction = new NewSessionAction(view);
 		setEnabled(false);
 	}
 

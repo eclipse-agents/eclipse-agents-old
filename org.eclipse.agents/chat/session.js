@@ -115,6 +115,19 @@ function addChild(parent, kind) {
 	return child;
 }
 
+function clearContents() {
+	
+	const body = document.body;
+	const children = Array.from(body.children);
+	const tagsToKeep = ['script', 'template'];
+	children.forEach(element => {
+		const tagName = element.tagName.toLowerCase();
+    	if (!tagsToKeep.includes(tagName)) {
+    		element.remove();
+    	}
+  	});
+}
+
 function scrollToBottom() {
 	window.scrollTo(0, document.body.scrollHeight);
 }

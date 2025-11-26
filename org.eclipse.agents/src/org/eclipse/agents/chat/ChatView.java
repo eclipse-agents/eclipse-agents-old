@@ -17,6 +17,7 @@ package org.eclipse.agents.chat;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.agents.Activator;
 import org.eclipse.agents.chat.ContentAssistProvider.ResourceProposal;
 import org.eclipse.agents.chat.controller.AgentController;
 import org.eclipse.agents.chat.controller.SessionController;
@@ -69,6 +70,10 @@ public class ChatView extends ViewPart implements TraverseListener, IContentProp
 	Composite topMiddle;
 	boolean listening = true;
 	
+	ToolbarAgentSelector agentSelector;
+    ToolbarModelSelector modelSelector;
+    ToolbarModeSelector modeSelector;
+    ToolbarSessionSelector sessionSelector;
 	ToolbarSessionStartStop startStop;
 	
 	private IAgentService activeAgent = null;
@@ -103,12 +108,16 @@ public class ChatView extends ViewPart implements TraverseListener, IContentProp
 		IToolBarManager toolbarManager = getViewSite().getActionBars().getToolBarManager();
 
         // Add your action to the toolbar.
-        toolbarManager.add(new ToolbarAgentSelector(this));
-        toolbarManager.add(new ToolbarModelSelector(this));
-        toolbarManager.add(new ToolbarModeSelector(this));
-        toolbarManager.add(new ToolbarSessionSelector(this));
-        
-        startStop = new ToolbarSessionStartStop(this);
+		agentSelector = new ToolbarAgentSelector(this);
+	    modelSelector = new ToolbarModelSelector(this);
+	    modeSelector = new ToolbarModeSelector(this);
+	    sessionSelector = new ToolbarSessionSelector(this);
+	    startStop = new ToolbarSessionStartStop(this);
+	    
+	    toolbarManager.add(agentSelector);
+        toolbarManager.add(modelSelector);
+        toolbarManager.add(modeSelector);
+        toolbarManager.add(sessionSelector);
         toolbarManager.add(startStop);
 
         // The toolbar will be updated automatically, but you can force an update if needed.
@@ -275,11 +284,19 @@ public class ChatView extends ViewPart implements TraverseListener, IContentProp
 	}
 	
 	public void setActiveSessionId(String sessionId) {
-		if (sessionId == null || !sessionId.equals(activeSessionId)) {
+		if (activeSessionId == null || !sessionId.equals(activeSessionId)) {
 			browser.clearContent();
 		}
-		
+
 		this.activeSessionId = sessionId;
+
+		Activator.getDisplay().asyncExec(new Thread() {
+			public void run() {
+				sessionSelector.setEnabled(true);
+				sessionSelector.updateText("Session " + AgentController.getSessionCount());
+			}
+		});
+		
 	}
 	
 	public String getActiveSessionId() {

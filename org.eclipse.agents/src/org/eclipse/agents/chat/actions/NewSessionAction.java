@@ -16,11 +16,10 @@ public class NewSessionAction extends Action {
 	ChatView view;
 	ToolbarSessionSelector selector;
 	
-	public NewSessionAction(ChatView view, ToolbarSessionSelector selector) {
+	public NewSessionAction(ChatView view) {
 
 		super("New Session...");
 		this.view = view;
-		this.selector = selector;
 	}
 
 	@Override
@@ -38,17 +37,13 @@ public class NewSessionAction extends Action {
 					@Override
 					public void done(IJobChangeEvent event) {
 						if (event.getJob().getResult().isOK()) {
-							Activator.getDisplay().asyncExec(new Thread() {
-								public void run() {
-									view.setActiveSessionId(fJob.getSessionId());
-									selector.updateText(fJob.getSessionId());
-								}
-							});
+							view.setActiveSessionId(fJob.getSessionId());
 						} else {
 							Tracer.trace().trace(Tracer.CHAT, "StartSessionJob failed", fJob.getResult().getException());
 						}
 					}
 				});
+				fJob.schedule();
 			} else {
 				Tracer.trace().trace(Tracer.CHAT, "New Session: Agent is not running");
 			}

@@ -16,7 +16,10 @@ package org.eclipse.agents.chat;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.Base64;
 
 import org.eclipse.agents.Activator;
@@ -67,6 +70,7 @@ public class ChatBrowser {
 
 	private ObjectMapper mapper;
 	private Browser browser;
+	private File source;
 	
 	public ChatBrowser(Composite parent, int style) {
 		mapper = new ObjectMapper();
@@ -228,8 +232,8 @@ public class ChatBrowser {
 	public void initialize() {
 
 		try {
-			File file = Activator.getDefault().getBundleFile("chat/session.html");
-			browser.setUrl(file.toURI().toURL().toString());
+			source = Activator.getDefault().getBundleFile("chat/session.html");
+			browser.setUrl(source.toURI().toURL().toString());
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (URISyntaxException e) {
@@ -364,12 +368,18 @@ public class ChatBrowser {
 		}
 	}
 	
-	public boolean setFocus() {
-		return browser.setFocus();
+	public void clearContent() {
+		if (!browser.isDisposed()) {
+			String fxn = "clearContents();";
+			Tracer.trace().trace(Tracer.BROWSER, fxn);
+			Activator.getDisplay().syncExec(()-> {
+				Tracer.trace().trace(Tracer.BROWSER, "" + browser.evaluate(fxn));
+			});
+		}
 	}
 	
-	public void clearContent() {
-		browser.refresh();
+	public boolean setFocus() {
+		return browser.setFocus();
 	}
 	
 }

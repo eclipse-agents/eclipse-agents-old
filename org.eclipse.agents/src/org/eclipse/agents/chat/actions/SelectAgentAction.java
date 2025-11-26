@@ -58,7 +58,9 @@ public class SelectAgentAction extends Action {
 						view.agentConnected(agent);
 						AgentController.instance().clientRequests(agent.getInitializeRequest());
 						AgentController.instance().agentResponds(agent.getInitializeResponse());
-							
+						
+						new NewSessionAction(view).run();
+						
 					} else {
 						Tracer.trace().trace(Tracer.CHAT, "initialization job has an error");
 						Tracer.trace().trace(Tracer.CHAT, event.getJob().getResult().getMessage(), event.getJob().getResult().getException());
