@@ -35,7 +35,7 @@ public class InitializeAgentJob extends Job {
 	
 	// Outputs
 	
-	public InitializeAgentJob(IAgentService service, String oldSessionId) {
+	public InitializeAgentJob(IAgentService service) {
 		super(service.getName());
 		this.service = service;
 	}

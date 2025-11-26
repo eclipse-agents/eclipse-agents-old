@@ -13,22 +13,17 @@
  *******************************************************************************/
 package org.eclipse.agents.chat.toolbar;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.eclipse.agents.chat.ChatView;
-import org.eclipse.agents.chat.controller.AgentController;
-import org.eclipse.agents.services.agent.IAgentService;
-import org.eclipse.jface.action.Action;
+import org.eclipse.agents.chat.actions.NewSessionAction;
 import org.eclipse.jface.action.MenuManager;
 
 public class ToolbarSessionSelector extends AbstractDynamicToolbarDropdown {
 
-	NewSessionAction newSessionAction = new NewSessionAction();
+	NewSessionAction newSessionAction;
 	
 	public ToolbarSessionSelector(ChatView view) {
 		super("Session", "Load or create a session", view);
-		
+		newSessionAction = new NewSessionAction(view, this);
 		setEnabled(false);
 	}
 
@@ -39,23 +34,5 @@ public class ToolbarSessionSelector extends AbstractDynamicToolbarDropdown {
 		//TODO add load session actions, if supported
 		
 		menuManager.add(newSessionAction);
-	}
-
-	class NewSessionAction extends Action {
-		
-		public NewSessionAction() {
-			super("New Session");
-		}
-
-		@Override
-		public void run() {
-			AgentController.instance();
-//			AgentController.instance().setAcpService(getView(), agent);
-//			ToolbarSessionSelector.this.updateText(agent.getName());
-		}
-		
-		public IAgentService getAgent() {
-			return agent;
-		}
 	}
 }

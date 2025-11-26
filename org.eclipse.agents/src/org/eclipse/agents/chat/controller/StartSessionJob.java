@@ -113,6 +113,22 @@ public class StartSessionJob extends Job {
 				this.modes = newSessionResponse.modes();
 				this.models = newSessionResponse.models();
 				this.sessionId = newSessionResponse.sessionId();
+				
+				if (AgentController.getSession(this.sessionId) == null) {
+					SessionController model = new SessionController(
+							service,
+							sessionId,
+							this.getCwd(),
+							this.getMcpServers(),
+							this.getModes(),
+							this.getModels());
+						
+					AgentController.putSession(sessionId, model);	
+					
+						
+				} else {
+					Tracer.trace().trace(Tracer.CHAT, "prompt: found a pre-existing matching session id");
+				}
 			}
 		} catch (InterruptedException e) {
 			return new Status(IStatus.ERROR, Activator.PLUGIN_ID, e.getLocalizedMessage(), e);

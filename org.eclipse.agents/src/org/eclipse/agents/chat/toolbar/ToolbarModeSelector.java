@@ -38,7 +38,7 @@ public class ToolbarModeSelector extends AbstractDynamicToolbarDropdown {
 
 	@Override
 	protected void fillMenu(MenuManager menuManager) {
-//		for (ModelAction action: actions) {
+//		for (SelectAgentAction action: actions) {
 //			menuManager.add(action);
 //			action.setChecked(action.getAgent() ==  AgentController.instance().getAgentService());
 //		}
@@ -54,7 +54,6 @@ public class ToolbarModeSelector extends AbstractDynamicToolbarDropdown {
 
 		@Override
 		public void run() {
-			AgentController.instance().setAcpService(getView(), agent);
 			ToolbarModeSelector.this.updateText(agent.getName());
 		}
 		

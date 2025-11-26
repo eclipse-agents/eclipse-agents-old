@@ -19,16 +19,21 @@ import java.util.List;
 
 import org.eclipse.agents.chat.ContentAssistProvider.ResourceProposal;
 import org.eclipse.agents.chat.controller.AgentController;
+import org.eclipse.agents.chat.controller.SessionController;
+import org.eclipse.agents.chat.controller.StartSessionJob;
 import org.eclipse.agents.chat.toolbar.ToolbarAgentSelector;
 import org.eclipse.agents.chat.toolbar.ToolbarModeSelector;
 import org.eclipse.agents.chat.toolbar.ToolbarModelSelector;
 import org.eclipse.agents.chat.toolbar.ToolbarSessionSelector;
 import org.eclipse.agents.chat.toolbar.ToolbarSessionStartStop;
 import org.eclipse.agents.contexts.platform.resource.WorkspaceResourceAdapter;
+import org.eclipse.agents.services.agent.IAgentService;
 import org.eclipse.agents.services.protocol.AcpSchema.ContentBlock;
 import org.eclipse.agents.services.protocol.AcpSchema.TextBlock;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.core.runtime.jobs.IJobChangeEvent;
+import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.ToolBarManager;
 import org.eclipse.jface.fieldassist.IContentProposal;
@@ -59,14 +64,15 @@ public class ChatView extends ViewPart implements TraverseListener, IContentProp
 	boolean disposed = false;
 	ChatResourceAdditions contexts;
 	ChatBrowser browser;
-	String activeSessionId = null;
 
 	Composite middle;
 	Composite topMiddle;
 	boolean listening = true;
-	boolean agentConnected = false;
 	
 	ToolbarSessionStartStop startStop;
+	
+	private IAgentService activeAgent = null;
+	private String activeSessionId = null;
 
 	@Override
 	public void createPartControl(Composite parent) {
@@ -121,6 +127,8 @@ public class ChatView extends ViewPart implements TraverseListener, IContentProp
 				inputText.removeTraverseListener(acpView);
 			}
 		});
+		
+		SessionController.addChatView(this);
 	}
 
 	@Override
@@ -135,6 +143,7 @@ public class ChatView extends ViewPart implements TraverseListener, IContentProp
 	public void dispose() {
 		super.dispose();
 		this.disposed = true;
+		SessionController.removeChatView(this);
 	}
 
 	@Override
@@ -169,13 +178,13 @@ public class ChatView extends ViewPart implements TraverseListener, IContentProp
 		}
 	}
 
-	public void agentConnected() {
-		agentConnected = true;
+	public void agentConnected(IAgentService agent) {
+		this.activeAgent = agent;
 		startStop.setEnabled(true);
 	}
 
 	public void agentDisconnected() {
-		agentConnected = false;
+		this.activeAgent = null;
 		startStop.setEnabled(false);
 	}
 
@@ -185,7 +194,7 @@ public class ChatView extends ViewPart implements TraverseListener, IContentProp
 	}
 	
 	public void startPromptTurn() {
-		if (agentConnected) {
+		if (this.activeAgent != null) {
 			
 			String prompt = inputText.getText();
 			inputText.setText("");
@@ -195,14 +204,34 @@ public class ChatView extends ViewPart implements TraverseListener, IContentProp
 			content.addAll(contexts.getContextBlocks());
 			content.add(new TextBlock(null, null, prompt, "text"));
 			
-			AgentController.instance().prompt(activeSessionId, content.toArray(ContentBlock[]::new));
+			if (activeSessionId != null) {
+				AgentController.getSession(activeSessionId).prompt(content.toArray(ContentBlock[]::new));
+			} else {
+				StartSessionJob job = new StartSessionJob(
+						activeAgent,
+						activeAgent.getInitializeResponse(),
+						null);
+				job.schedule();
+				job.addJobChangeListener(new JobChangeAdapter() {
+					@Override
+					public void done(IJobChangeEvent event) {
+						super.done(event);
+						if (event.getResult().isOK()) {
+							AgentController.getSession(job.getSessionId()).prompt(content.toArray(ContentBlock[]::new));
+						}
+					}
+					
+				});
+			}
 			
 			contexts.clearAcpContexts();
 		}
 	}
 	
 	public void stopPromptTurn() {
-		AgentController.instance().stopPromptTurn(activeSessionId);
+		if (activeSessionId != null) {
+			AgentController.getSession(activeSessionId).stopPromptTurn(activeSessionId);
+		}
 	}
 
 	public void prompTurnStarted() {
@@ -236,5 +265,28 @@ public class ChatView extends ViewPart implements TraverseListener, IContentProp
 				}
 			}
 		}
+	}
+
+	public void setActiveAgent(IAgentService agent) {
+		if (this.activeAgent != agent) {
+			this.activeAgent = agent;
+			this.activeSessionId = null;
+		}
+	}
+	
+	public void setActiveSessionId(String sessionId) {
+		if (sessionId == null || !sessionId.equals(activeSessionId)) {
+			browser.clearContent();
+		}
+		
+		this.activeSessionId = sessionId;
+	}
+	
+	public String getActiveSessionId() {
+		return activeSessionId;
+	}
+
+	public IAgentService getActiveAgent() {
+		return activeAgent;
 	}
 }

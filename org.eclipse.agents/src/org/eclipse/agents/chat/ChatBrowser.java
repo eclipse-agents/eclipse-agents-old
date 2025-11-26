@@ -368,4 +368,8 @@ public class ChatBrowser {
 		return browser.setFocus();
 	}
 	
+	public void clearContent() {
+		browser.refresh();
+	}
+	
 }
