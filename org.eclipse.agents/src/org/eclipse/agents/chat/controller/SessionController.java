@@ -21,11 +21,16 @@ import org.eclipse.agents.chat.ChatBrowser;
 import org.eclipse.agents.chat.ChatView;
 import org.eclipse.agents.services.agent.IAgentService;
 import org.eclipse.agents.services.protocol.AcpSchema.CancelNotification;
+import org.eclipse.agents.services.protocol.AcpSchema.ContentBlock;
 import org.eclipse.agents.services.protocol.AcpSchema.CreateTerminalRequest;
 import org.eclipse.agents.services.protocol.AcpSchema.CreateTerminalResponse;
+import org.eclipse.agents.services.protocol.AcpSchema.InitializeRequest;
+import org.eclipse.agents.services.protocol.AcpSchema.InitializeResponse;
 import org.eclipse.agents.services.protocol.AcpSchema.KillTerminalCommandRequest;
 import org.eclipse.agents.services.protocol.AcpSchema.KillTerminalCommandResponse;
 import org.eclipse.agents.services.protocol.AcpSchema.McpServer;
+import org.eclipse.agents.services.protocol.AcpSchema.NewSessionRequest;
+import org.eclipse.agents.services.protocol.AcpSchema.NewSessionResponse;
 import org.eclipse.agents.services.protocol.AcpSchema.PlanEntry;
 import org.eclipse.agents.services.protocol.AcpSchema.PlanEntryStatus;
 import org.eclipse.agents.services.protocol.AcpSchema.PromptRequest;
@@ -41,6 +46,7 @@ import org.eclipse.agents.services.protocol.AcpSchema.SessionAgentThoughtChunk;
 import org.eclipse.agents.services.protocol.AcpSchema.SessionAvailableCommandsUpdate;
 import org.eclipse.agents.services.protocol.AcpSchema.SessionModeState;
 import org.eclipse.agents.services.protocol.AcpSchema.SessionModeUpdate;
+import org.eclipse.agents.services.protocol.AcpSchema.SessionModelState;
 import org.eclipse.agents.services.protocol.AcpSchema.SessionNotification;
 import org.eclipse.agents.services.protocol.AcpSchema.SessionPlan;
 import org.eclipse.agents.services.protocol.AcpSchema.SessionToolCall;
@@ -48,6 +54,7 @@ import org.eclipse.agents.services.protocol.AcpSchema.SessionToolCallUpdate;
 import org.eclipse.agents.services.protocol.AcpSchema.SessionUserMessageChunk;
 import org.eclipse.agents.services.protocol.AcpSchema.SetSessionModeRequest;
 import org.eclipse.agents.services.protocol.AcpSchema.SetSessionModeResponse;
+import org.eclipse.agents.services.protocol.AcpSchema.StopReason;
 import org.eclipse.agents.services.protocol.AcpSchema.TerminalOutputRequest;
 import org.eclipse.agents.services.protocol.AcpSchema.TerminalOutputResponse;
 import org.eclipse.agents.services.protocol.AcpSchema.TextBlock;
@@ -55,32 +62,35 @@ import org.eclipse.agents.services.protocol.AcpSchema.WaitForTerminalExitRequest
 import org.eclipse.agents.services.protocol.AcpSchema.WaitForTerminalExitResponse;
 import org.eclipse.agents.services.protocol.AcpSchema.WriteTextFileRequest;
 import org.eclipse.agents.services.protocol.AcpSchema.WriteTextFileResponse;
+import org.eclipse.core.runtime.ListenerList;
 
 public class SessionController implements ISessionListener {
 
 	// Initialization
-	IAgentService agent;
-	String sessionId; 
-	String cwd;
-	McpServer[] mcpServers; 
-	SessionModeState modes;
+	private IAgentService agent;
+	private String sessionId; 
+	private String cwd;
+	private McpServer[] mcpServers; 
+	private SessionModeState modes;
+	private SessionModelState models;
 	
 	// State
 //	int promptId = 0;
-	List<Object> session = new ArrayList<Object>();
-	
-	ChatView view;
-	ChatBrowser browser;
+	private List<Object> session = new ArrayList<Object>();
+	private static ListenerList<ChatView> chatViews = new ListenerList<ChatView>();
 	
 	enum MessageType { session_prompt, user_message_chunk, agent_thought_chunk, agent_message_chunk, resource_link };
 
 	
-	public SessionController(IAgentService agent, String sessionId, String cwd, McpServer[] mcpServers, SessionModeState modes) {
+	public SessionController(IAgentService agent, String sessionId, String cwd, 
+			McpServer[] mcpServers, SessionModeState modes, SessionModelState models) {
+
 		this.agent = agent;
 		this.sessionId = sessionId;
 		this.cwd = cwd;
 		this.mcpServers = mcpServers;  
 		this.modes = modes;
+		this.models = models;
 		
 		AgentController.instance().addAcpListener(this);
 	}
@@ -90,13 +100,49 @@ public class SessionController implements ISessionListener {
 		return sessionId;
 	}
 	
-	public void setView(ChatView view) {
-		this.view = view;
-		this.browser = view.getBrowser();
+	public static void addChatView(ChatView view) {
+		chatViews.add(view);
+	}
+	
+	public static ChatView[] getChatViews(String sessionId) {
+		 return chatViews.stream().filter(cv -> {
+			 return sessionId.equals(cv.getActiveSessionId());
+		 }).toArray(ChatView[]::new);
+	}
+	
+	public static void removeChatView(ChatView view) {
+		chatViews.remove(view);
 	}
 	
 	public IAgentService getAgent() {
 		return agent;
+	}
+		
+	public void prompt(ContentBlock[] contentBlocks) {
+		PromptRequest request = new PromptRequest(null, contentBlocks, sessionId);
+		AgentController.instance().clientRequests(request);
+		agent.getAgent().prompt(request).whenComplete((result, ex) -> {
+	        if (ex != null) {
+	        	Tracer.trace().trace(Tracer.CHAT, "prompt error", ex); //$NON-NLS-1$
+	            ex.printStackTrace();
+	            
+	            // Gemini CLI: cancel before first thought throws JSONRPC error
+	            AgentController.instance().agentResponds(new PromptResponse(null, StopReason.refusal));
+	        } else {
+	        	AgentController.instance().agentResponds(result);
+	        }
+	    });
+	}
+	
+	public void stopPromptTurn(String sessionId) {
+		CancelNotification notification = new CancelNotification(null, sessionId);
+		AgentController.instance().clientNotifies(notification);
+		try {
+			agent.getAgent().cancel(notification);
+		} catch (Exception ex) {
+			Tracer.trace().trace(Tracer.CHAT, "stop prompt error", ex); //$NON-NLS-1$
+			ex.printStackTrace();
+		}
 	}
 
 	//------------------------
@@ -111,43 +157,46 @@ public class SessionController implements ISessionListener {
 
 		session.add(notification);
 		
-		
-		if (notification.update() instanceof SessionUserMessageChunk) {
-			browser.acceptSessionUserMessageChunk(
-					((SessionUserMessageChunk)notification.update()).content());
-		} else if (notification.update() instanceof SessionAgentThoughtChunk) {
-			browser.acceptSessionAgentThoughtChunk(
-					((SessionAgentThoughtChunk)notification.update()).content());
-		} else if (notification.update() instanceof SessionAgentMessageChunk) {
-			browser.acceptSessionAgentMessageChunk(
-					((SessionAgentMessageChunk)notification.update()).content());
-		} else if (notification.update() instanceof SessionToolCall) {
-			SessionToolCall toolCall = (SessionToolCall)notification.update();
-			browser.acceptSessionToolCall(
-					toolCall.toolCallId(), 
-					toolCall.title(), 
-					toolCall.kind().toString(), 
-					toolCall.status().toString());
+		for (ChatView view: getChatViews(notification.sessionId())) {
+			ChatBrowser browser = view.getBrowser();
 
-		} else if (notification.update() instanceof SessionToolCallUpdate) {
-			SessionToolCallUpdate toolCall = (SessionToolCallUpdate)notification.update();
-			browser.acceptSessionToolCallUpdate(
-					toolCall.toolCallId(), 
-					toolCall.status().toString());
-		}
-		else if (notification.update() instanceof SessionPlan) {
-			PlanEntry[] entries = ((SessionPlan)notification.update()).entries();
-			for (int i = 1; i <= entries.length; i++) {
-				if (entries[i].status() == PlanEntryStatus.in_progress) {
-					Tracer.trace().trace(Tracer.ACP, "Step " + i + " of " + (entries.length + 1) + ": " + entries[i].content());
+			if (notification.update() instanceof SessionUserMessageChunk) {
+				browser.acceptSessionUserMessageChunk(
+						((SessionUserMessageChunk)notification.update()).content());
+			} else if (notification.update() instanceof SessionAgentThoughtChunk) {
+				browser.acceptSessionAgentThoughtChunk(
+						((SessionAgentThoughtChunk)notification.update()).content());
+			} else if (notification.update() instanceof SessionAgentMessageChunk) {
+				browser.acceptSessionAgentMessageChunk(
+						((SessionAgentMessageChunk)notification.update()).content());
+			} else if (notification.update() instanceof SessionToolCall) {
+				SessionToolCall toolCall = (SessionToolCall)notification.update();
+				browser.acceptSessionToolCall(
+						toolCall.toolCallId(), 
+						toolCall.title(), 
+						toolCall.kind().toString(), 
+						toolCall.status().toString());
+	
+			} else if (notification.update() instanceof SessionToolCallUpdate) {
+				SessionToolCallUpdate toolCall = (SessionToolCallUpdate)notification.update();
+				browser.acceptSessionToolCallUpdate(
+						toolCall.toolCallId(), 
+						toolCall.status().toString());
+			}
+			else if (notification.update() instanceof SessionPlan) {
+				PlanEntry[] entries = ((SessionPlan)notification.update()).entries();
+				for (int i = 1; i <= entries.length; i++) {
+					if (entries[i].status() == PlanEntryStatus.in_progress) {
+						Tracer.trace().trace(Tracer.ACP, "Step " + i + " of " + (entries.length + 1) + ": " + entries[i].content());
+					}
 				}
 			}
-		}
-		else if (notification.update() instanceof SessionAvailableCommandsUpdate) {
-			Tracer.trace().trace(Tracer.ACP, SessionAvailableCommandsUpdate.class.getCanonicalName());
-		}
-		else if (notification.update() instanceof SessionModeUpdate ) {
-			Tracer.trace().trace(Tracer.ACP, SessionModeUpdate.class.getCanonicalName());
+			else if (notification.update() instanceof SessionAvailableCommandsUpdate) {
+				Tracer.trace().trace(Tracer.ACP, SessionAvailableCommandsUpdate.class.getCanonicalName());
+			}
+			else if (notification.update() instanceof SessionModeUpdate ) {
+				Tracer.trace().trace(Tracer.ACP, SessionModeUpdate.class.getCanonicalName());
+			}
 		}
 	}
 
@@ -260,11 +309,15 @@ public class SessionController implements ISessionListener {
 		
 		}
 		
-		if (error != null) {
-			browser.acceptSessionAgentMessageChunk(error);
+		for (ChatView view: getChatViews(sessionId)) {
+			if (error != null) {
+				view.getBrowser().acceptSessionAgentMessageChunk(error);
+			}
+			
+			view.prompTurnEnded();
 		}
 		
-		view.prompTurnEnded();
+		
 	}
 
 	//------------------------
@@ -310,8 +363,11 @@ public class SessionController implements ISessionListener {
 
 	@Override
 	public void accept(PromptRequest request) {
-		browser.acceptPromptRequest(request);
-		view.prompTurnStarted();
+		for (ChatView view: getChatViews(sessionId)) {
+			view.getBrowser().acceptPromptRequest(request);
+			view.prompTurnStarted();
+		}
+		
 	}
 
 	//------------------------
@@ -364,4 +420,30 @@ public class SessionController implements ISessionListener {
 		// TODO Auto-generated method stub
 		
 	}
+
+	@Override
+	public void accept(InitializeResponse response) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void accept(NewSessionResponse response) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void accept(InitializeRequest request) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void accept(NewSessionRequest request) {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	
 }

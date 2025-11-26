@@ -55,25 +55,25 @@ This feature runs a Model Context Protocol server within the Eclipse IDE VM enab
   - Embedded and referenced resources
   - / # @ commands
 
-![MCP Contexts](org.eclipse.agent.docs/images/protocol.png)
+![MCP Contexts](org.eclipse.agents.docs/images/protocol.png)
 
 ## Screenshots
 
 ### Enable the internal MCP Server to run on an HTTP port
 
-![MCP Contexts](org.eclipse.agent.docs/images/mcpPrefs.png)
+![MCP Contexts](org.eclipse.agents.docs/images/mcpPrefs.png)
 
 ### Prompt the Coding Agent to write code and run tools
 
-![acp prompt](org.eclipse.agent.docs/images/acp.png)
+![acp prompt](org.eclipse.agents.docs/images/acp.png)
 
 ### Prompt for sample code
 
-![acp code blocks](org.eclipse.agent.docs/images/acpCodeBlock.png)
+![acp code blocks](org.eclipse.agents.docs/images/acpCodeBlock.png)
 
 ### Prompt for explanations
 
-![acp code blocks](org.eclipse.agent.docs/images/acpExplain.png)
+![acp code blocks](org.eclipse.agents.docs/images/acpExplain.png)
 
 ## Demonstrations
 

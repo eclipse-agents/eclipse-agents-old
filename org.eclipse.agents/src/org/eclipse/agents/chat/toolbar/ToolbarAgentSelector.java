@@ -17,48 +17,29 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.agents.chat.ChatView;
+import org.eclipse.agents.chat.actions.SelectAgentAction;
 import org.eclipse.agents.chat.controller.AgentController;
 import org.eclipse.agents.services.agent.IAgentService;
-import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.MenuManager;
 
 public class ToolbarAgentSelector extends AbstractDynamicToolbarDropdown {
 
-	List<ModelAction> actions;
+	List<SelectAgentAction> actions;
 	
 	public ToolbarAgentSelector(ChatView view) {
 		super("Coding Agent...", "Select a coding agent", view);
 		
-		actions = new ArrayList<ModelAction>();
+		actions = new ArrayList<SelectAgentAction>();
 		for (IAgentService agent: AgentController.instance().getAgents()) {
-			actions.add(new ModelAction(agent));
+			actions.add(new SelectAgentAction(view, agent, this));
 		}
 	}
 
 	@Override
 	protected void fillMenu(MenuManager menuManager) {
-		for (ModelAction action: actions) {
+		for (SelectAgentAction action: actions) {
 			menuManager.add(action);
-			action.setChecked(action.getAgent() ==  AgentController.instance().getAgentService());
-		}
-	}
-
-	class ModelAction extends Action {
-		IAgentService agent;
-		
-		public ModelAction(IAgentService agent) {
-			super(agent.getName());
-			this.agent = agent;
-		}
-
-		@Override
-		public void run() {
-			AgentController.instance().setAcpService(getView(), agent);
-			ToolbarAgentSelector.this.updateText(agent.getName());
-		}
-		
-		public IAgentService getAgent() {
-			return agent;
+			action.setChecked(action.getAgent() ==  getView().getActiveAgent());
 		}
 	}
 }

@@ -13,22 +13,19 @@
  *******************************************************************************/
 package org.eclipse.agents.chat.controller;
 
-import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 
 import org.eclipse.agents.Activator;
 import org.eclipse.agents.Tracer;
 import org.eclipse.agents.preferences.IPreferenceConstants;
 import org.eclipse.agents.services.agent.IAgentService;
-import org.eclipse.agents.services.protocol.AcpSchema.ClientCapabilities;
-import org.eclipse.agents.services.protocol.AcpSchema.FileSystemCapability;
 import org.eclipse.agents.services.protocol.AcpSchema.HttpHeader;
-import org.eclipse.agents.services.protocol.AcpSchema.InitializeRequest;
 import org.eclipse.agents.services.protocol.AcpSchema.InitializeResponse;
 import org.eclipse.agents.services.protocol.AcpSchema.McpServer;
 import org.eclipse.agents.services.protocol.AcpSchema.NewSessionRequest;
 import org.eclipse.agents.services.protocol.AcpSchema.NewSessionResponse;
 import org.eclipse.agents.services.protocol.AcpSchema.SessionModeState;
+import org.eclipse.agents.services.protocol.AcpSchema.SessionModelState;
 import org.eclipse.agents.services.protocol.AcpSchema.SseTransport;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -36,10 +33,11 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 
 
-public class InitializationJob extends Job {
+public class StartSessionJob extends Job {
 
 	// Inputs
 	IAgentService service;
+	InitializeResponse initializeResponse;
 	String oldSessionId;
 	
 	// Outputs
@@ -47,11 +45,13 @@ public class InitializationJob extends Job {
     McpServer[] mcpServers = null;
     String sessionId = null;
     SessionModeState modes = null;
+	SessionModelState models = null;
 
 
-	public InitializationJob(IAgentService service, String oldSessionId) {
+	public StartSessionJob(IAgentService service, InitializeResponse initializeResponse, String oldSessionId) {
 		super("Coding Agent");
 		this.service = service;
+		this.initializeResponse = initializeResponse; 
 		this.oldSessionId = oldSessionId;
 	}
 
@@ -60,47 +60,6 @@ public class InitializationJob extends Job {
 		
 		try {
 			
-			monitor.beginTask(service.getName(), 5);
-			monitor.subTask("Stopping");
-			service.stop();
-			
-			if (monitor.isCanceled()) {
-				return Status.CANCEL_STATUS;
-			}
-
-			monitor.worked(1);
-			monitor.subTask("Checking for updates");
-			service.checkForUpdates();
-			
-			if (monitor.isCanceled()) {
-				return Status.CANCEL_STATUS;
-			}
-			
-			monitor.worked(1);
-			monitor.subTask("Starting");
-			service.start();
-			
-			if (monitor.isCanceled()) {
-				return Status.CANCEL_STATUS;
-			}
-			
-			
-			monitor.worked(1);
-			monitor.subTask("Connecting");
-			
-			FileSystemCapability fsc = new FileSystemCapability(null, true, true);
-			ClientCapabilities capabilities = new ClientCapabilities(null, fsc, true);
-			InitializeRequest initializeRequest = new InitializeRequest(null, capabilities, 1);
-			
-			InitializeResponse initializeResponse = this.service.getAgent().initialize(initializeRequest).get();
-			this.service.setInitializeRequest(initializeRequest);
-			this.service.setInitializeResponse(initializeResponse);
-
-			if (monitor.isCanceled()) {
-				return Status.CANCEL_STATUS;
-			} 
-
-			monitor.worked(1);
 			monitor.subTask("Starting session");
 			
 			boolean supportsSseMcp = initializeResponse.agentCapabilities() != null &&
@@ -152,13 +111,28 @@ public class InitializationJob extends Job {
 				
 				NewSessionResponse newSessionResponse = this.service.getAgent()._new(newSessionRequest).get();
 				this.modes = newSessionResponse.modes();
+				this.models = newSessionResponse.models();
 				this.sessionId = newSessionResponse.sessionId();
+				
+				if (AgentController.getSession(this.sessionId) == null) {
+					SessionController model = new SessionController(
+							service,
+							sessionId,
+							this.getCwd(),
+							this.getMcpServers(),
+							this.getModes(),
+							this.getModels());
+						
+					AgentController.putSession(sessionId, model);	
+					
+						
+				} else {
+					Tracer.trace().trace(Tracer.CHAT, "prompt: found a pre-existing matching session id");
+				}
 			}
 		} catch (InterruptedException e) {
 			return new Status(IStatus.ERROR, Activator.PLUGIN_ID, e.getLocalizedMessage(), e);
 		} catch (ExecutionException e) {
-			return new Status(IStatus.ERROR, Activator.PLUGIN_ID, e.getLocalizedMessage(), e);
-		} catch (IOException e) {
 			return new Status(IStatus.ERROR, Activator.PLUGIN_ID, e.getLocalizedMessage(), e);
 		}
 		
@@ -179,5 +153,9 @@ public class InitializationJob extends Job {
 
 	public SessionModeState getModes() {
 		return modes;
+	}
+	
+	public SessionModelState getModels() {
+		return models;
 	}
 }
