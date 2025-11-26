@@ -59,7 +59,7 @@ public class ChatView extends ViewPart implements TraverseListener, IContentProp
 	boolean disposed = false;
 	ChatResourceAdditions contexts;
 	ChatBrowser browser;
-	String activeSessionId;
+	String activeSessionId = null;
 
 	Composite middle;
 	Composite topMiddle;
@@ -185,8 +185,8 @@ public class ChatView extends ViewPart implements TraverseListener, IContentProp
 	}
 	
 	public void startPromptTurn() {
-		activeSessionId = AgentController.instance().getActiveSessionId();
-		if (agentConnected && activeSessionId != null) {
+		if (agentConnected) {
+			
 			String prompt = inputText.getText();
 			inputText.setText("");
 			inputText.clearSelection();

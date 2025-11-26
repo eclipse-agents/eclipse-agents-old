@@ -16,8 +16,12 @@ package org.eclipse.agents.chat.controller;
 import org.eclipse.agents.services.protocol.AcpSchema.CancelNotification;
 import org.eclipse.agents.services.protocol.AcpSchema.CreateTerminalRequest;
 import org.eclipse.agents.services.protocol.AcpSchema.CreateTerminalResponse;
+import org.eclipse.agents.services.protocol.AcpSchema.InitializeRequest;
+import org.eclipse.agents.services.protocol.AcpSchema.InitializeResponse;
 import org.eclipse.agents.services.protocol.AcpSchema.KillTerminalCommandRequest;
 import org.eclipse.agents.services.protocol.AcpSchema.KillTerminalCommandResponse;
+import org.eclipse.agents.services.protocol.AcpSchema.NewSessionRequest;
+import org.eclipse.agents.services.protocol.AcpSchema.NewSessionResponse;
 import org.eclipse.agents.services.protocol.AcpSchema.PromptRequest;
 import org.eclipse.agents.services.protocol.AcpSchema.PromptResponse;
 import org.eclipse.agents.services.protocol.AcpSchema.ReadTextFileRequest;
@@ -54,9 +58,9 @@ public interface ISessionListener {
 	public void accept(KillTerminalCommandRequest request);
 	
 	//AgentResponse
-//	public void accept(InitializeResponse response);
+	public void accept(InitializeResponse response);
 //	public void accept(AuthenticateResponse response);
-//	public void accept(NewSessionResponse response);
+	public void accept(NewSessionResponse response);
 //	public void accept(LoadSessionResponse response);
 	public void accept(SetSessionModeResponse response);
 	public void accept(PromptResponse response);
@@ -65,9 +69,9 @@ public interface ISessionListener {
 	public void accept(CancelNotification notification);
 	
 	//ClientRequest
-//	public void accept(InitializeRequest request);
+	public void accept(InitializeRequest request);
 //	public void accept(AuthenticateRequest request);
-//	public void accept(NewSessionRequest request);
+	public void accept(NewSessionRequest request);
 //	public void accept(LoadSessionRequest request);
 	public void accept(SetSessionModeRequest request);
 	public void accept(PromptRequest request);

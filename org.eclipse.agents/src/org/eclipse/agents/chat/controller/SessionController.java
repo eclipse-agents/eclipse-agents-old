@@ -23,9 +23,13 @@ import org.eclipse.agents.services.agent.IAgentService;
 import org.eclipse.agents.services.protocol.AcpSchema.CancelNotification;
 import org.eclipse.agents.services.protocol.AcpSchema.CreateTerminalRequest;
 import org.eclipse.agents.services.protocol.AcpSchema.CreateTerminalResponse;
+import org.eclipse.agents.services.protocol.AcpSchema.InitializeRequest;
+import org.eclipse.agents.services.protocol.AcpSchema.InitializeResponse;
 import org.eclipse.agents.services.protocol.AcpSchema.KillTerminalCommandRequest;
 import org.eclipse.agents.services.protocol.AcpSchema.KillTerminalCommandResponse;
 import org.eclipse.agents.services.protocol.AcpSchema.McpServer;
+import org.eclipse.agents.services.protocol.AcpSchema.NewSessionRequest;
+import org.eclipse.agents.services.protocol.AcpSchema.NewSessionResponse;
 import org.eclipse.agents.services.protocol.AcpSchema.PlanEntry;
 import org.eclipse.agents.services.protocol.AcpSchema.PlanEntryStatus;
 import org.eclipse.agents.services.protocol.AcpSchema.PromptRequest;
@@ -41,6 +45,7 @@ import org.eclipse.agents.services.protocol.AcpSchema.SessionAgentThoughtChunk;
 import org.eclipse.agents.services.protocol.AcpSchema.SessionAvailableCommandsUpdate;
 import org.eclipse.agents.services.protocol.AcpSchema.SessionModeState;
 import org.eclipse.agents.services.protocol.AcpSchema.SessionModeUpdate;
+import org.eclipse.agents.services.protocol.AcpSchema.SessionModelState;
 import org.eclipse.agents.services.protocol.AcpSchema.SessionNotification;
 import org.eclipse.agents.services.protocol.AcpSchema.SessionPlan;
 import org.eclipse.agents.services.protocol.AcpSchema.SessionToolCall;
@@ -64,6 +69,7 @@ public class SessionController implements ISessionListener {
 	String cwd;
 	McpServer[] mcpServers; 
 	SessionModeState modes;
+	SessionModelState models;
 	
 	// State
 //	int promptId = 0;
@@ -75,12 +81,15 @@ public class SessionController implements ISessionListener {
 	enum MessageType { session_prompt, user_message_chunk, agent_thought_chunk, agent_message_chunk, resource_link };
 
 	
-	public SessionController(IAgentService agent, String sessionId, String cwd, McpServer[] mcpServers, SessionModeState modes) {
+	public SessionController(IAgentService agent, String sessionId, String cwd, 
+			McpServer[] mcpServers, SessionModeState modes, SessionModelState models) {
+
 		this.agent = agent;
 		this.sessionId = sessionId;
 		this.cwd = cwd;
 		this.mcpServers = mcpServers;  
 		this.modes = modes;
+		this.models = models;
 		
 		AgentController.instance().addAcpListener(this);
 	}
@@ -361,6 +370,30 @@ public class SessionController implements ISessionListener {
 
 	@Override
 	public void accept(KillTerminalCommandResponse response) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void accept(InitializeResponse response) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void accept(NewSessionResponse response) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void accept(InitializeRequest request) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void accept(NewSessionRequest request) {
 		// TODO Auto-generated method stub
 		
 	}

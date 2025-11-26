@@ -24,38 +24,34 @@ import org.eclipse.jface.action.MenuManager;
 
 public class ToolbarSessionSelector extends AbstractDynamicToolbarDropdown {
 
-	List<ModelAction> actions;
+	NewSessionAction newSessionAction = new NewSessionAction();
 	
 	public ToolbarSessionSelector(ChatView view) {
-		super("Session", "Select a session", view);
+		super("Session", "Load or create a session", view);
 		
-		actions = new ArrayList<ModelAction>();
-		for (IAgentService agent: AgentController.instance().getAgents()) {
-			actions.add(new ModelAction(agent));
-		}
 		setEnabled(false);
 	}
 
 	@Override
 	protected void fillMenu(MenuManager menuManager) {
-//		for (ModelAction action: actions) {
-//			menuManager.add(action);
-//			action.setChecked(action.getAgent() ==  AgentController.instance().getAgentService());
-//		}
+		
+//		List<Action> actions = new ArrayList<Action>();
+		//TODO add load session actions, if supported
+		
+		menuManager.add(newSessionAction);
 	}
 
-	class ModelAction extends Action {
-		IAgentService agent;
+	class NewSessionAction extends Action {
 		
-		public ModelAction(IAgentService agent) {
-			super(agent.getName());
-			this.agent = agent;
+		public NewSessionAction() {
+			super("New Session");
 		}
 
 		@Override
 		public void run() {
-			AgentController.instance().setAcpService(getView(), agent);
-			ToolbarSessionSelector.this.updateText(agent.getName());
+			AgentController.instance();
+//			AgentController.instance().setAcpService(getView(), agent);
+//			ToolbarSessionSelector.this.updateText(agent.getName());
 		}
 		
 		public IAgentService getAgent() {

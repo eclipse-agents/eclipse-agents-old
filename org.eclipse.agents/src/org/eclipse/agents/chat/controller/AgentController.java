@@ -30,8 +30,12 @@ import org.eclipse.agents.services.protocol.AcpSchema.ClientResponse;
 import org.eclipse.agents.services.protocol.AcpSchema.ContentBlock;
 import org.eclipse.agents.services.protocol.AcpSchema.CreateTerminalRequest;
 import org.eclipse.agents.services.protocol.AcpSchema.CreateTerminalResponse;
+import org.eclipse.agents.services.protocol.AcpSchema.InitializeRequest;
+import org.eclipse.agents.services.protocol.AcpSchema.InitializeResponse;
 import org.eclipse.agents.services.protocol.AcpSchema.KillTerminalCommandRequest;
 import org.eclipse.agents.services.protocol.AcpSchema.KillTerminalCommandResponse;
+import org.eclipse.agents.services.protocol.AcpSchema.NewSessionRequest;
+import org.eclipse.agents.services.protocol.AcpSchema.NewSessionResponse;
 import org.eclipse.agents.services.protocol.AcpSchema.PromptRequest;
 import org.eclipse.agents.services.protocol.AcpSchema.PromptResponse;
 import org.eclipse.agents.services.protocol.AcpSchema.ReadTextFileRequest;
@@ -64,7 +68,7 @@ public class AgentController {
 	
 	private ListenerList<ISessionListener> listenerList;
 
-	private InitializationJob initializationJob;
+	private InitializeAgentJob initializationJob;
 
 	static {
 		instance = new AgentController();
@@ -89,36 +93,25 @@ public class AgentController {
 
 	public void setAcpService(ChatView view, IAgentService agent) {
 		Tracer.trace().trace(Tracer.CHAT, "setAcpService: " + agent.getName()); //$NON-NLS-1$
-		view.agentDisconnected();
-		activeSessionId = null;
 		this.activeAgent = agent;
 		if (!agent.isRunning()) {
+		
+			view.agentDisconnected();
+			activeSessionId = null;
 			agent.stop();
 			
            if (initializationJob != null) {
                initializationJob.cancel();
            }
                        
-			initializationJob = new InitializationJob(activeAgent, null);
+			initializationJob = new InitializeAgentJob(activeAgent, null);
 			initializationJob.addJobChangeListener(new JobChangeAdapter() {
 				@Override
 				public void done(IJobChangeEvent event) {
 					if (event.getJob().getResult().isOK()) {
-						InitializationJob job = (InitializationJob) event.getJob();
+						InitializeAgentJob job = (InitializeAgentJob) event.getJob();
 
-						String sessionId = job.getSessionId();
-						if (sessionId != null && !sessions.containsKey(sessionId)) {
-							
-							activeSessionId = sessionId;
-
-							SessionController model = new SessionController(
-								agent,
-								sessionId,
-								job.getCwd(),
-								job.getMcpServers(),
-								job.getModes());
-							
-							sessions.put(sessionId, model);
+						
 							
 							model.setView(view);
 							view.agentConnected();
@@ -127,10 +120,7 @@ public class AgentController {
 							agentResponds(agent.getInitializeResponse());
 							
 							
-						} else {
-							//TODO
-							Tracer.trace().trace(Tracer.CHAT, "setAcpService: found a pre-existing matching session id");
-						}
+						
 					} else {
 						Tracer.trace().trace(Tracer.CHAT, "initialization job has an error");
 						Tracer.trace().trace(Tracer.CHAT, event.getJob().getResult().getMessage(), event.getJob().getResult().getException());
@@ -166,15 +156,15 @@ public class AgentController {
 	
 	public void clientRequests(ClientRequest req) {
 		for (ISessionListener listener: listenerList) {
-//			if (req instanceof InitializeRequest) {
-//				listener.accept((InitializeRequest)req);	
+			if (req instanceof InitializeRequest) {
+				listener.accept((InitializeRequest)req);	
 //			} else if (req instanceof AuthenticateRequest) {
 //				listener.accept((AuthenticateRequest)req);
-//			} else if (req instanceof NewSessionRequest) {
-//				listener.accept((NewSessionRequest)req);
+			} else if (req instanceof NewSessionRequest) {
+				listener.accept((NewSessionRequest)req);
 //			} else if (req instanceof LoadSessionRequest) {
 //				listener.accept((LoadSessionRequest)req);
-			if (req instanceof SetSessionModeRequest) {
+			} else if (req instanceof SetSessionModeRequest) {
 				listener.accept((SetSessionModeRequest)req);
 			} else if (req instanceof PromptRequest) {
 				listener.accept((PromptRequest)req);
@@ -234,13 +224,15 @@ public class AgentController {
 	
 	public void agentResponds(AgentResponse resp) {
 		for (ISessionListener listener: listenerList) {
+			if (resp instanceof InitializeResponse) {
+				listener.accept((InitializeResponse)resp);
 //			if (resp instanceof AuthenticateResponse) {
 //				listener.accept((AuthenticateResponse)resp);
-//			} else if (resp instanceof NewSessionResponse) {
-//				listener.accept((NewSessionResponse)resp);
+			} else if (resp instanceof NewSessionResponse) {
+				listener.accept((NewSessionResponse)resp);
 //			} else if (resp instanceof LoadSessionResponse) {
 //				listener.accept((LoadSessionResponse)resp);
-			if (resp instanceof SetSessionModeResponse) {
+			} else if (resp instanceof SetSessionModeResponse) {
 				listener.accept((SetSessionModeResponse)resp);
 			} else if (resp instanceof PromptResponse) {
 				listener.accept((PromptResponse)resp);
@@ -256,7 +248,53 @@ public class AgentController {
 		}
 	}
 
-	public void prompt(String sessionId, ContentBlock[] contentBlocks) {
+	public void prompt(ContentBlock[] contentBlocks) {
+		activeSessionId = getActiveSessionId();
+		if (activeSessionId == null) {
+			
+			final IAgentService fService = getAgentService();
+
+			StartSessionJob job = new StartSessionJob(
+					fService,
+					fService.getInitializeResponse(),
+					null);
+			
+			job.schedule();
+			job.addJobChangeListener(new JobChangeAdapter() {
+				@Override
+				public void done(IJobChangeEvent event) {
+					super.done(event);
+					if (event.getResult().isOK()) {
+						String sessionId = job.getSessionId();
+						if (sessionId != null && !sessions.containsKey(sessionId)) {
+							
+							AgentController.this.activeSessionId = sessionId;
+
+							SessionController model = new SessionController(
+								fService,
+								sessionId,
+								job.getCwd(),
+								job.getMcpServers(),
+								job.getModes(),
+								job.getModels());
+							
+							sessions.put(sessionId, model);
+							
+							prompt(contentBlocks, activeSessionId);
+						} else {
+							//TODO
+							Tracer.trace().trace(Tracer.CHAT, "prompt: found a pre-existing matching session id");
+						}
+					}
+				}
+				
+			});
+		} else {
+			prompt(contentBlocks, activeSessionId);
+		}
+	}
+		
+	private void prompt(ContentBlock[] contentBlocks, String sessionId) {
 		PromptRequest request = new PromptRequest(null, contentBlocks, sessionId);
 		clientRequests(request);
 		getAgentService().getAgent().prompt(request).whenComplete((result, ex) -> {
