@@ -58,7 +58,7 @@ public class GooseService extends AbstractService {
 	}
 
 	@Override
-	public void checkForUpdates() throws IOException {
+	public void checkForUpdates(IProgressMonitor monitor) throws IOException {
 		
 	}
 }

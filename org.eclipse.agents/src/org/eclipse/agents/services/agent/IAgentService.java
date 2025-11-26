@@ -17,10 +17,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import org.eclipse.agents.services.protocol.IAcpAgent;
 import org.eclipse.agents.services.protocol.AcpSchema.AuthenticateResponse;
 import org.eclipse.agents.services.protocol.AcpSchema.InitializeRequest;
 import org.eclipse.agents.services.protocol.AcpSchema.InitializeResponse;
+import org.eclipse.agents.services.protocol.IAcpAgent;
+import org.eclipse.core.runtime.IProgressMonitor;
 
 public interface IAgentService {
 
@@ -30,7 +31,11 @@ public interface IAgentService {
 	
 	public String[] getDefaultStartupCommand();
 
-	public void checkForUpdates() throws IOException;
+	/**
+	 * @param monitor use to update subtasks
+	 * @throws IOException
+	 */
+	public void checkForUpdates(IProgressMonitor monitor) throws IOException;
 	
 	public void start();
 	

@@ -55,7 +55,7 @@ public class InitializeAgentJob extends Job {
 
 			monitor.worked(1);
 			monitor.subTask("Checking for updates");
-			service.checkForUpdates();
+			service.checkForUpdates(monitor);
 			
 			if (monitor.isCanceled()) {
 				return Status.CANCEL_STATUS;

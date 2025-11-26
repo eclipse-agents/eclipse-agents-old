@@ -22,5 +22,7 @@ public interface IPreferenceConstants {
 	public static final String P_MCP_SERVER_HTTP_PORT = Activator.PLUGIN_ID + ".default.mcp.http.port"; //$NON-NLS-1$
 	
 	public static final String P_ACP_WORKING_DIR = Activator.PLUGIN_ID + ".default.acp.cwd"; //$NON-NLS-1$
+	
+	public static final String P_ACP_PROMPT4MCP = Activator.PLUGIN_ID + ".default.acp.prompt4mcp"; //$NON-NLS-1$
 
 }

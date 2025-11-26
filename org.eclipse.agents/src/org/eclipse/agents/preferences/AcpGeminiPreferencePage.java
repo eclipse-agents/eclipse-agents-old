@@ -72,7 +72,6 @@ public class AcpGeminiPreferencePage extends PreferencePage
 		gd.widthHint = convertWidthInCharsToPixels(80);
 		gd.horizontalSpan = 4;
 		instructions.setLayoutData(gd);
-		
 
 		Label label = new Label(parent, SWT.NONE);
 		label.setText("Gemini CLI:");
@@ -83,9 +82,8 @@ public class AcpGeminiPreferencePage extends PreferencePage
 		((GridData)gemini.getLayoutData()).minimumHeight = 30;
 		((GridData)gemini.getLayoutData()).horizontalSpan = 3;
 		
-		
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(parent,
-				"org.eclipse.agent.acp.preferences.AcpGeneralPreferencePage"); //$NON-NLS-1$
+				"org.eclipse.agents.preferences.AcpGeminiPreferencePage"); //$NON-NLS-1$
 
 		loadPreferences();
 		updateValidation();

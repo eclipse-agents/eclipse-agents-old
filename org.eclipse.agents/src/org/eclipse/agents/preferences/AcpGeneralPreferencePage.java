@@ -25,6 +25,7 @@ import org.eclipse.swt.events.VerifyEvent;
 import org.eclipse.swt.events.VerifyListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
@@ -39,6 +40,7 @@ public class AcpGeneralPreferencePage extends PreferencePage
 
 	VerifyListener integerListener;
 	Text cwd;
+	Button prompt4MCP;
 	
 	public AcpGeneralPreferencePage() {
 		super();
@@ -79,6 +81,10 @@ public class AcpGeneralPreferencePage extends PreferencePage
 		((GridData)cwd.getLayoutData()).horizontalSpan = 3;
 		cwd.addModifyListener(this);
 		
+		prompt4MCP = new Button(parent, SWT.CHECK);
+		prompt4MCP.setText("Prompt to add 'Agent Contexts (MCP)' to chat sessions when not configured");
+		prompt4MCP.setLayoutData(new GridData());
+		
 		
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(parent,
 				"org.eclipse.agent.acp.preferences.AcpGeneralPreferencePage"); //$NON-NLS-1$
@@ -112,11 +118,13 @@ public class AcpGeneralPreferencePage extends PreferencePage
 	private void loadPreferences() {
 		IPreferenceStore store = getPreferenceStore();
 		cwd.setText(store.getString(P_ACP_WORKING_DIR));
+		prompt4MCP.setSelection(store.getBoolean(P_ACP_PROMPT4MCP));
 	}
 
 	private void savePreferences() {
 		IPreferenceStore store = getPreferenceStore();
 		store.setValue(P_ACP_WORKING_DIR, cwd.getText());
+		store.setValue(P_ACP_PROMPT4MCP, prompt4MCP.getSelection());
 	}
 
 	@Override
@@ -135,6 +143,7 @@ public class AcpGeneralPreferencePage extends PreferencePage
 		IPreferenceStore store = getPreferenceStore();
 
 		cwd.setText(store.getDefaultString(P_ACP_WORKING_DIR));
+		prompt4MCP.setSelection(store.getDefaultBoolean(P_ACP_PROMPT4MCP));
 		
 		updateValidation();
 	}

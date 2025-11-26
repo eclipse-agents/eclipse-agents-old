@@ -20,16 +20,18 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.eclipse.agents.Activator;
 import org.eclipse.agents.Tracer;
 import org.eclipse.agents.services.protocol.AcpClient;
 import org.eclipse.agents.services.protocol.AcpClientLauncher;
 import org.eclipse.agents.services.protocol.AcpClientThread;
-import org.eclipse.agents.services.protocol.IAcpAgent;
 import org.eclipse.agents.services.protocol.AcpSchema.AuthenticateResponse;
 import org.eclipse.agents.services.protocol.AcpSchema.InitializeRequest;
 import org.eclipse.agents.services.protocol.AcpSchema.InitializeResponse;
+import org.eclipse.agents.services.protocol.IAcpAgent;
 
 public abstract class AbstractService implements IAgentService {
 
@@ -216,6 +218,65 @@ public abstract class AbstractService implements IAgentService {
 	@Override
 	public void setAuthenticateResponse(AuthenticateResponse authenticateResponse) {
 		this.authenticateResponse = authenticateResponse;
+	}
+	
+	public class ProcessResult {
+		int result;
+		List<String> errorLines = new ArrayList<String>();
+		List<String> inputLines = new ArrayList<String>();
+		Throwable ex;
+	}
+	
+	protected ProcessResult runProcess(String[] command) {
+	
+		ProcessResult result = new ProcessResult();
+		
+		Tracer.trace().trace(Tracer.ACP, String.join(", ", command));
+	    
+		try {
+		
+			ProcessBuilder pb = new ProcessBuilder(command);
+			Process process = pb.start();
+	   
+			result.result = process.waitFor();
+			Tracer.trace().trace(Tracer.ACP, "Result:" + result);
+		
+			inputStream = process.getInputStream();
+			errorStream = process.getErrorStream();
+
+			if (!process.isAlive()) {
+				BufferedReader br = new BufferedReader(new InputStreamReader(errorStream, "UTF-8"));
+				String line = br.readLine();
+				while (line != null) {
+					Tracer.trace().trace(Tracer.ACP, line);
+					result.errorLines.add(line);
+					line = br.readLine();
+				}
+				br.close();
+				
+				br = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
+				line = br.readLine();
+				while (line != null) {
+					Tracer.trace().trace(Tracer.ACP, line);
+					result.inputLines.add(line);
+					line = br.readLine();
+				}
+				br.close();
+			}
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+			Tracer.trace().trace(Tracer.ACP, "", e);
+			result.ex = e;
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+			Tracer.trace().trace(Tracer.ACP, "", e);
+			result.ex = e;
+		} catch (IOException e) {
+			Tracer.trace().trace(Tracer.ACP, "", e);
+			e.printStackTrace();
+			result.ex = e;
+		}
+		return result;
 	}
 
 }

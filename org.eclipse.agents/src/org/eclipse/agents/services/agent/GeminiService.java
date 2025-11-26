@@ -20,10 +20,14 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Arrays;
 
+import org.eclipse.agents.Activator;
 import org.eclipse.agents.Tracer;
+import org.eclipse.agents.chat.EnableMCPDialog;
+import org.eclipse.agents.preferences.IPreferenceConstants;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.wildwebdeveloper.embedder.node.NodeJSManager;
 
-public class GeminiService extends AbstractService {
+public class GeminiService extends AbstractService implements IPreferenceConstants {
 
 	public static final String ECLIPSEAGENTS = ".eclipseagents";
 	public static final String ECLIPSEAGENTSNODE = "node";
@@ -44,7 +48,7 @@ public class GeminiService extends AbstractService {
 	}
 
 	@Override
-	public void checkForUpdates() throws IOException {
+	public void checkForUpdates(IProgressMonitor monitor) throws IOException {
 		String startupDefault[] = getDefaultStartupCommand();
 		String startup[] = getStartupCommand();
 
@@ -69,6 +73,7 @@ public class GeminiService extends AbstractService {
 			
 			pb.environment().put("PATH", path);
 			
+			monitor.subTask("Installing / Updating");
 			Process process = pb.start();
 			
 			try {
@@ -99,6 +104,77 @@ public class GeminiService extends AbstractService {
 				br.close();
 			}
 			
+			if (Activator.getDefault().getPreferenceStore().getBoolean(P_ACP_PROMPT4MCP)) {
+				if (!Activator.getDefault().getPreferenceStore().getBoolean(P_MCP_SERVER_ENABLED)) {
+					Activator.getDisplay().syncExec(new Runnable() {
+						@Override
+						public void run() {
+							// TODO Auto-generated method stub
+							EnableMCPDialog dialog = new EnableMCPDialog(Activator.getDisplay().getActiveShell());
+							dialog.open();
+						}
+						
+					});
+				}
+			}
+			
+			if (Activator.getDefault().getPreferenceStore().getBoolean(P_MCP_SERVER_ENABLED)) {
+
+				String url = getMCPUrl();
+				String name = getMCPName();
+				
+				boolean foundUrl = false;
+				boolean foundName = false;
+				
+				monitor.subTask("Listing MCPs");
+
+				ProcessResult listMCP = super.runProcess(listMCPCommand());
+				String mcpLine = null;
+				
+				for (String line: listMCP.inputLines) {
+					if (line.contains(name)) {
+						foundName = true;
+					}
+					if (line.contains(url) ) {
+						foundUrl = true;
+						mcpLine = line;
+					}
+				}
+
+				if (!foundUrl && foundName) {
+					monitor.subTask("Removing 'eclipse-ide MCP");
+					// found eclipse-ide MCP on wrong path/port, so remove it
+					super.runProcess(removeMCPCommand());
+					
+				}
+				
+				if (!foundUrl) {
+					// found eclipse-ide MCP on wrong path/port, so remove it
+					monitor.subTask("Adding 'eclipse-ide MCP");
+					super.runProcess(addMCPCommand());
+					
+					monitor.subTask("Validating 'eclipse-ide' MCP");
+					listMCP = super.runProcess(listMCPCommand());
+					
+					for (String line: listMCP.inputLines) {
+						if (line.contains(name)) {
+							foundName = true;
+						}
+						if (line.contains(url) ) {
+							foundUrl = true;
+							mcpLine = line;
+						}
+					}
+					
+					if (!foundName && !foundUrl) {
+						System.err.println("Failed to configure Gemini CLI to use Eclipse IDE MCP");
+					}
+				}
+				
+				if (mcpLine != null && mcpLine.contains("✗")) {
+					System.err.println(mcpLine);
+				}
+			}
 		}
 	}
 
@@ -114,17 +190,64 @@ public class GeminiService extends AbstractService {
 	    return process;
 	}
 	
+	@Override
 	public String[] getDefaultStartupCommand() {
-		
 		return new String[] {
-				NodeJSManager.getNodeJsLocation().getAbsolutePath(),
-				getAgentsNodeDirectory().getAbsolutePath() + 
+				getNodeCommand(),
+				getGeminiCommand(),
+				"--experimental-acp"};
+	}
+	
+	private String getNodeCommand() {
+		return NodeJSManager.getNodeJsLocation().getAbsolutePath();
+	}
+	
+	private String getGeminiCommand() {
+		return getAgentsNodeDirectory().getAbsolutePath() + 
 					File.separator + "node_modules" +
 					File.separator + "@google" + 
 					File.separator + "gemini-cli" + 
 					File.separator + "dist" + 
-					File.separator + "index.js",
-				"--experimental-acp"};
+					File.separator + "index.js";
 	}
-
+	
+	private String[] listMCPCommand() {
+		return new String[] {
+				getNodeCommand(),
+				getGeminiCommand(),
+				"mcp",
+				"list"};
+	}
+	
+	private String[] addMCPCommand() {
+		return new String[] {
+				getNodeCommand(),
+				getGeminiCommand(),
+				"mcp",
+				"add",
+				"--transport", 
+				"sse",
+				getMCPName(),
+				getMCPUrl()
+				};
+	}
+	
+	private String[] removeMCPCommand() {
+		return new String[] {
+				getNodeCommand(),
+				getGeminiCommand(),
+				"mcp",
+				"remove",
+				getMCPName()};
+	}
+	
+	private String getMCPName() {
+		return "eclipse-ide";
+	}
+	
+	private String getMCPUrl() {
+		return "http://localhost:"
+				+ Activator.getDefault().getPreferenceStore().getString(P_MCP_SERVER_HTTP_PORT)
+				+ "/sse";
+	}
 }
