@@ -24,5 +24,7 @@ public interface IPreferenceConstants {
 	public static final String P_ACP_WORKING_DIR = Activator.PLUGIN_ID + ".default.acp.cwd"; //$NON-NLS-1$
 	
 	public static final String P_ACP_PROMPT4MCP = Activator.PLUGIN_ID + ".default.acp.prompt4mcp"; //$NON-NLS-1$
+	
+	public static final String P_ACP_GEMINI_VERSION= Activator.PLUGIN_ID + ".default.acp.gemini.version"; //$NON-NLS-1$
 
 }

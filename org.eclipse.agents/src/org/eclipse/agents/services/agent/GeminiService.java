@@ -63,8 +63,9 @@ public class GeminiService extends AbstractService implements IPreferenceConstan
 			}
 			
 			File agentsNodeDir = getAgentsNodeDirectory();
+			String geminiVersion = Activator.getDefault().getPreferenceStore().getString(P_ACP_GEMINI_VERSION);
 			
-			ProcessBuilder pb = NodeJSManager.prepareNPMProcessBuilder("i", "@google/gemini-cli", "--prefix", agentsNodeDir.getAbsolutePath());
+			ProcessBuilder pb = NodeJSManager.prepareNPMProcessBuilder("i", "@google/gemini-cli@" + geminiVersion, "--prefix", agentsNodeDir.getAbsolutePath());
 			pb.directory(agentsNodeDir);
 			String path = pb.environment().get("PATH");
 			path = NodeJSManager.getNodeJsLocation().getParentFile().getAbsolutePath() + 

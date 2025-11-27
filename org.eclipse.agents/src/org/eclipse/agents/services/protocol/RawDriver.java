@@ -40,24 +40,28 @@ public class RawDriver {
 	
 	public static void main(String[] args) throws IOException, InterruptedException, ExecutionException {
 	
-		String gemini = "/usr/local/bin/gemini";
-		String node = "/usr/local/bin/node";
+		String gemini = "/Users/jflicke/.eclipseagents/node/node_modules/@google/gemini-cli/dist/index.js";
+		String node = "/Applications/2025-09J2EE.app/Contents/Eclipse/.node/node-v22.13.1-darwin-x64/bin/node";
 	
-		String x = "`hello`\n```boy```".replaceAll("`", "\\\\`");
-		
+		// {"jsonrpc":"2.0","method":"initialize","id":"0","params":{"clientCapabilities":{"fs":{"readTextFile":true,"writeTextFile":true},"terminal":true},"protocolVersion":1}}
 		
 		List<String> commandAndArgs = new ArrayList<String>();
 //		commandAndArgs.add("gemini");
 		commandAndArgs.add(node);
+		commandAndArgs.add("--inspect-brk");
 		commandAndArgs.add(gemini);
 		commandAndArgs.add("--experimental-acp");
 //		commandAndArgs.add("--debug");
 		
 		ProcessBuilder pb = new ProcessBuilder(commandAndArgs);
+//		pb.environment().put("GEMINI_CLI_NO_RELAUNCH", "true");
+//		pb.directory(new File("/Users/jflicke/.eclipseagents/node"));
+	
 		Process agentProcess = pb.start();
 		InputStream in = agentProcess.getInputStream();
 		OutputStream out = agentProcess.getOutputStream();
 		InputStream err = agentProcess.getErrorStream();
+	
 		
 		if (!agentProcess.isAlive()) {
 			BufferedReader br = new BufferedReader(new InputStreamReader(err, "UTF-8"));
@@ -68,7 +72,21 @@ public class RawDriver {
 			}
 		}
 		
+		agentProcess.onExit().thenRun(new Runnable() {
+			@Override
+			public void run() {
+				int exitValue = agentProcess.exitValue();
+				String output = null;
+				String errorString = null;
+
+				System.out.println("Gemini Exit:" + exitValue);
+			}
+		});;
+		
 		BufferedReader br = new BufferedReader(new InputStreamReader(in, "UTF-8"));
+//		String line = br.readLine();
+//		System.err.println(line);
+
 //		String line = br.readLine();
 //		while (line != null) {
 //			System.err.println(line);
@@ -137,18 +155,6 @@ public class RawDriver {
 		line = br.readLine();
 		System.err.println(line);
 
-		
-		
-		agentProcess.onExit().thenRun(new Runnable() {
-			@Override
-			public void run() {
-				int exitValue = agentProcess.exitValue();
-				String output = null;
-				String errorString = null;
-
-				System.out.println("Gemini Exit:" + exitValue);
-			}
-		});;
 	}
 
 }
