@@ -92,7 +92,7 @@ public class SessionController implements ISessionListener {
 		this.modes = modes;
 		this.models = models;
 		
-		AgentController.instance().addAcpListener(this);
+		AgentController.instance().addSessionListener(this);
 	}
 	
 	@Override

@@ -37,11 +37,15 @@ public interface IAgentService {
 	 */
 	public void checkForUpdates(IProgressMonitor monitor) throws IOException;
 	
+	public void schedule();
+
 	public void start();
 	
 	public void stop();
 	
 	public boolean isRunning();
+	
+	public boolean isScheduled();
 	
 	public IAcpAgent getAgent();
 	
@@ -62,5 +66,6 @@ public interface IAgentService {
 	public AuthenticateResponse getAuthenticateResponse();
 
 	public void setAuthenticateResponse(AuthenticateResponse authenticateResponse);
+
 	
 }

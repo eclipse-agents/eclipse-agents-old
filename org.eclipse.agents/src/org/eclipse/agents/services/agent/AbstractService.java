@@ -25,12 +25,17 @@ import java.util.List;
 
 import org.eclipse.agents.Activator;
 import org.eclipse.agents.Tracer;
+import org.eclipse.agents.chat.actions.NewSessionAction;
+import org.eclipse.agents.chat.controller.AgentController;
+import org.eclipse.agents.chat.controller.InitializeAgentJob;
 import org.eclipse.agents.services.protocol.AcpClient;
 import org.eclipse.agents.services.protocol.AcpClientLauncher;
 import org.eclipse.agents.services.protocol.AcpClientThread;
 import org.eclipse.agents.services.protocol.AcpSchema.AuthenticateResponse;
 import org.eclipse.agents.services.protocol.AcpSchema.InitializeRequest;
 import org.eclipse.agents.services.protocol.AcpSchema.InitializeResponse;
+import org.eclipse.core.runtime.jobs.IJobChangeEvent;
+import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.agents.services.protocol.IAcpAgent;
 
 public abstract class AbstractService implements IAgentService {
@@ -38,6 +43,8 @@ public abstract class AbstractService implements IAgentService {
 	public static final String ECLIPSEAGENTS = ".eclipseagents";
 	public static final String ECLIPSEAGENTSNODE = "node";
 
+	InitializeAgentJob initializeJob = null;
+	
 	private AcpClientThread thread;
 	private Process agentProcess;
 	private InputStream inputStream;
@@ -89,6 +96,29 @@ public abstract class AbstractService implements IAgentService {
 
 	public abstract Process createProcess() throws IOException;
 	
+	@Override 
+	public void schedule() {
+		if (!isRunning() && initializeJob == null) {
+			
+			this.initializeJob = new InitializeAgentJob(this);
+			this.initializeJob.addJobChangeListener(new JobChangeAdapter() {
+				@Override
+				public void done(IJobChangeEvent event) {
+					if (event.getJob().getResult().isOK()) {
+						AgentController.instance().agentStarted(AbstractService.this);
+					} else {
+						Tracer.trace().trace(Tracer.CHAT, "initialization job has an error");
+						Tracer.trace().trace(Tracer.CHAT, event.getJob().getResult().getMessage(), event.getJob().getResult().getException());
+						if (event.getJob().getResult().getException() != null) {
+							event.getJob().getResult().getException().printStackTrace();
+						}
+						AgentController.instance().agentFailed(AbstractService.this, event.getJob().getResult());
+					}
+				}
+			});
+			this.initializeJob.schedule();
+		}
+	}
 	@Override
 	public void start() {
 				
@@ -165,6 +195,11 @@ public abstract class AbstractService implements IAgentService {
 	@Override
 	public boolean isRunning() {
 		return agentProcess != null && agentProcess.isAlive();
+	}
+	
+	@Override
+	public boolean isScheduled() {
+		return initializeJob != null && initializeJob.getResult() == null;
 	}
 
 	@Override

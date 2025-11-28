@@ -40,13 +40,13 @@ public class RawDriver {
 	
 	public static void main(String[] args) throws IOException, InterruptedException, ExecutionException {
 	
-		String gemini = "/Users/jflicke/.eclipseagents/node/node_modules/@google/gemini-cli/dist/index.js";
+		String gemini = "/Users/jflicke/.eclipseagents/node/node_modules/@google/input-cli/dist/index.js";
 		String node = "/Applications/2025-09J2EE.app/Contents/Eclipse/.node/node-v22.13.1-darwin-x64/bin/node";
 	
 		// {"jsonrpc":"2.0","method":"initialize","id":"0","params":{"clientCapabilities":{"fs":{"readTextFile":true,"writeTextFile":true},"terminal":true},"protocolVersion":1}}
 		
 		List<String> commandAndArgs = new ArrayList<String>();
-//		commandAndArgs.add("gemini");
+//		commandAndArgs.add("input");
 		commandAndArgs.add(node);
 		commandAndArgs.add("--inspect-brk");
 		commandAndArgs.add(gemini);

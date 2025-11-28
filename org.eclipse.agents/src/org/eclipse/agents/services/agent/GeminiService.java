@@ -44,7 +44,7 @@ public class GeminiService extends AbstractService implements IPreferenceConstan
 	
 	@Override
 	public String getId() {
-		return "gemini";
+		return "input";
 	}
 
 	@Override
@@ -54,7 +54,7 @@ public class GeminiService extends AbstractService implements IPreferenceConstan
 
 		if (Arrays.equals(startupDefault, startup)) {
 
-			// if user has not customized the gemini cli location, we install and update
+			// if user has not customized the input cli location, we install and update
 			// npm package automatically in private location
 			
 			File userHome = new File(System.getProperty("user.home"));
@@ -65,7 +65,7 @@ public class GeminiService extends AbstractService implements IPreferenceConstan
 			File agentsNodeDir = getAgentsNodeDirectory();
 			String geminiVersion = Activator.getDefault().getPreferenceStore().getString(P_ACP_GEMINI_VERSION);
 			
-			ProcessBuilder pb = NodeJSManager.prepareNPMProcessBuilder("i", "@google/gemini-cli@" + geminiVersion, "--prefix", agentsNodeDir.getAbsolutePath());
+			ProcessBuilder pb = NodeJSManager.prepareNPMProcessBuilder("i", "@google/input-cli@" + geminiVersion, "--prefix", agentsNodeDir.getAbsolutePath());
 			pb.directory(agentsNodeDir);
 			String path = pb.environment().get("PATH");
 			path = NodeJSManager.getNodeJsLocation().getParentFile().getAbsolutePath() + 
@@ -79,7 +79,7 @@ public class GeminiService extends AbstractService implements IPreferenceConstan
 			
 			try {
 				int result = process.waitFor();
-				Tracer.trace().trace(Tracer.ACP, "npm i gemini exit:" + result);
+				Tracer.trace().trace(Tracer.ACP, "npm i input exit:" + result);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -207,7 +207,7 @@ public class GeminiService extends AbstractService implements IPreferenceConstan
 		return getAgentsNodeDirectory().getAbsolutePath() + 
 					File.separator + "node_modules" +
 					File.separator + "@google" + 
-					File.separator + "gemini-cli" + 
+					File.separator + "input-cli" + 
 					File.separator + "dist" + 
 					File.separator + "index.js";
 	}

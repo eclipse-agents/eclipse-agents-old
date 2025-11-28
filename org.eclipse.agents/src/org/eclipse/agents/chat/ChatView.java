@@ -19,7 +19,9 @@ import java.util.List;
 
 import org.eclipse.agents.Activator;
 import org.eclipse.agents.chat.ContentAssistProvider.ResourceProposal;
+import org.eclipse.agents.chat.actions.NewSessionAction;
 import org.eclipse.agents.chat.controller.AgentController;
+import org.eclipse.agents.chat.controller.IAgentServiceListener;
 import org.eclipse.agents.chat.controller.SessionController;
 import org.eclipse.agents.chat.controller.StartSessionJob;
 import org.eclipse.agents.chat.toolbar.ToolbarAgentSelector;
@@ -33,6 +35,7 @@ import org.eclipse.agents.services.protocol.AcpSchema.ContentBlock;
 import org.eclipse.agents.services.protocol.AcpSchema.TextBlock;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.jface.action.IToolBarManager;
@@ -57,7 +60,7 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.ui.part.ViewPart;
 
-public class ChatView extends ViewPart implements TraverseListener, IContentProposalListener, ModifyListener, VerifyListener, Listener  {
+public class ChatView extends ViewPart implements IAgentServiceListener, TraverseListener, IContentProposalListener, ModifyListener, VerifyListener, Listener  {
 
 	public static final String ID  = "org.eclipse.agents.chat.ChatView"; //$NON-NLS-1$
 
@@ -305,5 +308,30 @@ public class ChatView extends ViewPart implements TraverseListener, IContentProp
 
 	public IAgentService getActiveAgent() {
 		return activeAgent;
+	}
+
+	@Override
+	public void agentStopped(IAgentService service) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void agentScheduled(IAgentService service) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void agentStarted(IAgentService service) {
+		if (activeAgent == service) {
+			new NewSessionAction(this).run();
+		}
+	}
+
+	@Override
+	public void agentFailed(IAgentService service, IStatus status) {
+		// TODO Auto-generated method stub
+		
 	}
 }
