@@ -217,9 +217,9 @@ public class AgentController {
 		}
 	}
 	
-	public void agentFailed(IAgentService service, IStatus status) {
+	public void agentFailed(IAgentService service) {
 		for (IAgentServiceListener listener: agentListeners) {
-			listener.agentFailed(service, status);
+			listener.agentFailed(service);
 		}
 	}
 	

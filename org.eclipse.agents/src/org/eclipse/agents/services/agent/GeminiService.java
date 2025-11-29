@@ -49,143 +49,144 @@ public class GeminiService extends AbstractService implements IPreferenceConstan
 
 	@Override
 	public void checkForUpdates(IProgressMonitor monitor) throws IOException {
-		String startupDefault[] = getDefaultStartupCommand();
-		String startup[] = getStartupCommand();
-
-		if (Arrays.equals(startupDefault, startup)) {
-
-			// if user has not customized the input cli location, we install and update
-			// npm package automatically in private location
-			
-			File userHome = new File(System.getProperty("user.home"));
-			if (!userHome.exists() || !userHome.isDirectory()) {
-				throw new RuntimeException("user home not found");
-			}
-			
-			File agentsNodeDir = getAgentsNodeDirectory();
-			String geminiVersion = Activator.getDefault().getPreferenceStore().getString(P_ACP_GEMINI_VERSION);
-			
-			ProcessBuilder pb = NodeJSManager.prepareNPMProcessBuilder("i", "@google/input-cli@" + geminiVersion, "--prefix", agentsNodeDir.getAbsolutePath());
-			pb.directory(agentsNodeDir);
-			String path = pb.environment().get("PATH");
-			path = NodeJSManager.getNodeJsLocation().getParentFile().getAbsolutePath() + 
-					System.getProperty("path.separator") +
-					path;
-			
-			pb.environment().put("PATH", path);
-			
-			monitor.subTask("Installing / Updating");
-			Process process = pb.start();
-			
-			int result = 0;
-			StringBuffer errorBuffer = new StringBuffer();
-
-			try {
-				result = process.waitFor();
-				Tracer.trace().trace(Tracer.ACP, "npm i input exit:" + result);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-			
-			InputStream inputStream = process.getInputStream();
-			InputStream errorStream = process.getErrorStream();
-			
-			if (!process.isAlive()) {
-				
-				BufferedReader br = new BufferedReader(new InputStreamReader(errorStream, "UTF-8"));
-				String line = br.readLine();
-				while (line != null) {
-					Tracer.trace().trace(Tracer.ACP, line);
-					errorBuffer.append(line + System.lineSeparator());
-					line = br.readLine();
-				}
-				br.close();
-				
-				br = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
-				line = br.readLine();
-				while (line != null) {
-					Tracer.trace().trace(Tracer.ACP, line);
-					line = br.readLine();
-				}
-				br.close();
-			}
-			
-			if (result != 0) {
-				throw new RuntimeException(errorBuffer.toString());
-			}
-			
-			if (Activator.getDefault().getPreferenceStore().getBoolean(P_ACP_PROMPT4MCP)) {
-				if (!Activator.getDefault().getPreferenceStore().getBoolean(P_MCP_SERVER_ENABLED)) {
-					Activator.getDisplay().syncExec(new Runnable() {
-						@Override
-						public void run() {
-							// TODO Auto-generated method stub
-							EnableMCPDialog dialog = new EnableMCPDialog(Activator.getDisplay().getActiveShell());
-							dialog.open();
-						}
-						
-					});
-				}
-			}
-			
-			if (Activator.getDefault().getPreferenceStore().getBoolean(P_MCP_SERVER_ENABLED)) {
-
-				String url = getMCPUrl();
-				String name = getMCPName();
-				
-				boolean foundUrl = false;
-				boolean foundName = false;
-				
-				monitor.subTask("Listing MCPs");
-
-				ProcessResult listMCP = super.runProcess(listMCPCommand());
-				String mcpLine = null;
-				
-				for (String line: listMCP.inputLines) {
-					if (line.contains(name)) {
-						foundName = true;
-					}
-					if (line.contains(url) ) {
-						foundUrl = true;
-						mcpLine = line;
-					}
-				}
-
-				if (!foundUrl && foundName) {
-					monitor.subTask("Removing 'eclipse-ide MCP");
-					// found eclipse-ide MCP on wrong path/port, so remove it
-					super.runProcess(removeMCPCommand());
-					
-				}
-				
-				if (!foundUrl) {
-					// found eclipse-ide MCP on wrong path/port, so remove it
-					monitor.subTask("Adding 'eclipse-ide MCP");
-					super.runProcess(addMCPCommand());
-					
-					monitor.subTask("Validating 'eclipse-ide' MCP");
-					listMCP = super.runProcess(listMCPCommand());
-					
-					for (String line: listMCP.inputLines) {
-						if (line.contains(name)) {
-							foundName = true;
-						}
-						if (line.contains(url) ) {
-							foundUrl = true;
-							mcpLine = line;
-						}
-					}
-					
-					if (!foundName && !foundUrl) {
-						System.err.println("Failed to configure Gemini CLI to use Eclipse IDE MCP");
-					}
-				}
-				
-				if (mcpLine != null && mcpLine.contains("✗")) {
-					System.err.println(mcpLine);
-				}
-			}
-		}
+		return;
+//		String startupDefault[] = getDefaultStartupCommand();
+//		String startup[] = getStartupCommand();
+//
+//		if (Arrays.equals(startupDefault, startup)) {
+//
+//			// if user has not customized the input cli location, we install and update
+//			// npm package automatically in private location
+//			
+//			File userHome = new File(System.getProperty("user.home"));
+//			if (!userHome.exists() || !userHome.isDirectory()) {
+//				throw new RuntimeException("user home not found");
+//			}
+//			
+//			File agentsNodeDir = getAgentsNodeDirectory();
+//			String geminiVersion = Activator.getDefault().getPreferenceStore().getString(P_ACP_GEMINI_VERSION);
+//			
+//			ProcessBuilder pb = NodeJSManager.prepareNPMProcessBuilder("i", "@google/input-cli@" + geminiVersion, "--prefix", agentsNodeDir.getAbsolutePath());
+//			pb.directory(agentsNodeDir);
+//			String path = pb.environment().get("PATH");
+//			path = NodeJSManager.getNodeJsLocation().getParentFile().getAbsolutePath() + 
+//					System.getProperty("path.separator") +
+//					path;
+//			
+//			pb.environment().put("PATH", path);
+//			
+//			monitor.subTask("Installing / Updating");
+//			Process process = pb.start();
+//			
+//			int result = 0;
+//			StringBuffer errorBuffer = new StringBuffer();
+//
+//			try {
+//				result = process.waitFor();
+//				Tracer.trace().trace(Tracer.ACP, "npm i input exit:" + result);
+//			} catch (InterruptedException e) {
+//				e.printStackTrace();
+//			}
+//			
+//			InputStream inputStream = process.getInputStream();
+//			InputStream errorStream = process.getErrorStream();
+//			
+//			if (!process.isAlive()) {
+//				
+//				BufferedReader br = new BufferedReader(new InputStreamReader(errorStream, "UTF-8"));
+//				String line = br.readLine();
+//				while (line != null) {
+//					Tracer.trace().trace(Tracer.ACP, line);
+//					errorBuffer.append(line + System.lineSeparator());
+//					line = br.readLine();
+//				}
+//				br.close();
+//				
+//				br = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
+//				line = br.readLine();
+//				while (line != null) {
+//					Tracer.trace().trace(Tracer.ACP, line);
+//					line = br.readLine();
+//				}
+//				br.close();
+//			}
+//			
+//			if (result != 0) {
+//				throw new RuntimeException(errorBuffer.toString());
+//			}
+//			
+//			if (Activator.getDefault().getPreferenceStore().getBoolean(P_ACP_PROMPT4MCP)) {
+//				if (!Activator.getDefault().getPreferenceStore().getBoolean(P_MCP_SERVER_ENABLED)) {
+//					Activator.getDisplay().syncExec(new Runnable() {
+//						@Override
+//						public void run() {
+//							// TODO Auto-generated method stub
+//							EnableMCPDialog dialog = new EnableMCPDialog(Activator.getDisplay().getActiveShell());
+//							dialog.open();
+//						}
+//						
+//					});
+//				}
+//			}
+//			
+//			if (Activator.getDefault().getPreferenceStore().getBoolean(P_MCP_SERVER_ENABLED)) {
+//
+//				String url = getMCPUrl();
+//				String name = getMCPName();
+//				
+//				boolean foundUrl = false;
+//				boolean foundName = false;
+//				
+//				monitor.subTask("Listing MCPs");
+//
+//				ProcessResult listMCP = super.runProcess(listMCPCommand());
+//				String mcpLine = null;
+//				
+//				for (String line: listMCP.inputLines) {
+//					if (line.contains(name)) {
+//						foundName = true;
+//					}
+//					if (line.contains(url) ) {
+//						foundUrl = true;
+//						mcpLine = line;
+//					}
+//				}
+//
+//				if (!foundUrl && foundName) {
+//					monitor.subTask("Removing 'eclipse-ide MCP");
+//					// found eclipse-ide MCP on wrong path/port, so remove it
+//					super.runProcess(removeMCPCommand());
+//					
+//				}
+//				
+//				if (!foundUrl) {
+//					// found eclipse-ide MCP on wrong path/port, so remove it
+//					monitor.subTask("Adding 'eclipse-ide MCP");
+//					super.runProcess(addMCPCommand());
+//					
+//					monitor.subTask("Validating 'eclipse-ide' MCP");
+//					listMCP = super.runProcess(listMCPCommand());
+//					
+//					for (String line: listMCP.inputLines) {
+//						if (line.contains(name)) {
+//							foundName = true;
+//						}
+//						if (line.contains(url) ) {
+//							foundUrl = true;
+//							mcpLine = line;
+//						}
+//					}
+//					
+//					if (!foundName && !foundUrl) {
+//						System.err.println("Failed to configure Gemini CLI to use Eclipse IDE MCP");
+//					}
+//				}
+//				
+//				if (mcpLine != null && mcpLine.contains("✗")) {
+//					System.err.println(mcpLine);
+//				}
+//			}
+//		}
 	}
 
 	@Override
@@ -216,7 +217,7 @@ public class GeminiService extends AbstractService implements IPreferenceConstan
 		return getAgentsNodeDirectory().getAbsolutePath() + 
 					File.separator + "node_modules" +
 					File.separator + "@google" + 
-					File.separator + "input-cli" + 
+					File.separator + "gemini-cli" + 
 					File.separator + "dist" + 
 					File.separator + "index.js";
 	}

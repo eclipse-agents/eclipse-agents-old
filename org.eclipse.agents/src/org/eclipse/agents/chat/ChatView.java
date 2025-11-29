@@ -326,7 +326,7 @@ public class ChatView extends ViewPart implements IAgentServiceListener, Travers
 	}
 
 	@Override
-	public void agentFailed(IAgentService service, IStatus status) {
+	public void agentFailed(IAgentService service) {
 		if (this.activeAgent == service) {
 			this.activeSessionId = null;
 			updateEnablement();

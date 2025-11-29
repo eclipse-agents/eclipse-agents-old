@@ -25,7 +25,6 @@ import java.util.List;
 
 import org.eclipse.agents.Activator;
 import org.eclipse.agents.Tracer;
-import org.eclipse.agents.chat.actions.NewSessionAction;
 import org.eclipse.agents.chat.controller.AgentController;
 import org.eclipse.agents.chat.controller.InitializeAgentJob;
 import org.eclipse.agents.services.protocol.AcpClient;
@@ -34,9 +33,11 @@ import org.eclipse.agents.services.protocol.AcpClientThread;
 import org.eclipse.agents.services.protocol.AcpSchema.AuthenticateResponse;
 import org.eclipse.agents.services.protocol.AcpSchema.InitializeRequest;
 import org.eclipse.agents.services.protocol.AcpSchema.InitializeResponse;
+import org.eclipse.agents.services.protocol.IAcpAgent;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
-import org.eclipse.agents.services.protocol.IAcpAgent;
 
 public abstract class AbstractService implements IAgentService {
 
@@ -57,7 +58,7 @@ public abstract class AbstractService implements IAgentService {
 
 	
 	public AbstractService() {
-		
+
 	}
 	
 	public String[] getStartupCommand() {
@@ -98,28 +99,34 @@ public abstract class AbstractService implements IAgentService {
 	
 	@Override 
 	public void schedule() {
-		if (!isRunning() && initializeJob == null) {
-			
-			this.initializeJob = new InitializeAgentJob(this);
-			this.initializeJob.addJobChangeListener(new JobChangeAdapter() {
-				@Override
-				public void done(IJobChangeEvent event) {
-					if (event.getJob().getResult().isOK()) {
-						AgentController.instance().agentStarted(AbstractService.this);
-					} else {
-						Tracer.trace().trace(Tracer.CHAT, "initialization job has an error");
-						Tracer.trace().trace(Tracer.CHAT, event.getJob().getResult().getMessage(), event.getJob().getResult().getException());
-						if (event.getJob().getResult().getException() != null) {
-							event.getJob().getResult().getException().printStackTrace();
+		if (!isRunning()) {
+			if (initializeJob == null || initializeJob.getResult() != null) {
+				initializeJob = new InitializeAgentJob(this);
+				initializeJob.addJobChangeListener(new JobChangeAdapter() {
+					@Override
+					public void done(IJobChangeEvent event) {
+						if (event.getJob().getResult().isOK()) {
+							AgentController.instance().agentStarted(AbstractService.this);
+						} else {
+							Tracer.trace().trace(Tracer.CHAT, "initialization job has an error");
+							Tracer.trace().trace(Tracer.CHAT, event.getJob().getResult().getMessage(), event.getJob().getResult().getException());
+							if (event.getJob().getResult().getException() != null) {
+								event.getJob().getResult().getException().printStackTrace();
+							}
+							AgentController.instance().agentFailed(AbstractService.this);
+							AbstractService.this.initializeJob = null;
 						}
-						AgentController.instance().agentFailed(AbstractService.this, event.getJob().getResult());
-						AbstractService.this.initializeJob = null;
 					}
-				}
-			});
-			this.initializeJob.schedule();
+				});
+				initializeJob.schedule();
+			} else {
+				Tracer.trace().trace(Tracer.ACP, "Initialize Job already running");
+			}
+		} else {
+			Tracer.trace().trace(Tracer.ACP, "Agent service already running");
 		}
 	}
+
 	@Override
 	public void start() {
 				
@@ -191,6 +198,14 @@ public abstract class AbstractService implements IAgentService {
 		if (agentProcess != null) {
 			agentProcess.destroy();
 		}
+		AgentController.instance().agentStopped(AbstractService.this);
+	}
+	
+	@Override
+	public void unschedule() {
+		if (isScheduled()) {
+			initializeJob.cancel();
+		}
 	}
 	
 	@Override
@@ -201,6 +216,17 @@ public abstract class AbstractService implements IAgentService {
 	@Override
 	public boolean isScheduled() {
 		return initializeJob != null && initializeJob.getResult() == null;
+	}
+	
+	@Override
+	public IStatus getStatus() {
+		if (isRunning() || isScheduled()) {
+			return Status.OK_STATUS;
+		}
+		if (initializeJob == null) {
+			return null;
+		}
+		return initializeJob.getResult();
 	}
 
 	@Override

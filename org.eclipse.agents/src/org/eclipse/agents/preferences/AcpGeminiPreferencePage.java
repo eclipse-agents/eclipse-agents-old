@@ -19,6 +19,7 @@ import org.eclipse.agents.chat.controller.IAgentServiceListener;
 import org.eclipse.agents.services.agent.GeminiService;
 import org.eclipse.agents.services.agent.IAgentService;
 import org.eclipse.agents.services.protocol.AcpSchema.InitializeResponse;
+import org.eclipse.agents.services.protocol.AcpSchema.McpCapabilities;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferenceManager;
@@ -46,6 +47,7 @@ public class AcpGeminiPreferencePage extends PreferencePage implements
 		IAgentServiceListener, IPreferenceConstants, 
 		IWorkbenchPreferencePage, SelectionListener, ModifyListener {
 
+	Composite parent;
 	VerifyListener integerListener;
 	PreferenceManager preferenceManager;
 	final String geminiPreferenceId = new GeminiService().getStartupCommandPreferenceId();
@@ -53,6 +55,7 @@ public class AcpGeminiPreferencePage extends PreferencePage implements
 	Text input;
 	Button start, stop;
 	Text status;
+	IStatus startupError = null;
 	
 	public AcpGeminiPreferencePage() {
 		super();
@@ -67,7 +70,7 @@ public class AcpGeminiPreferencePage extends PreferencePage implements
 	@Override
 	protected Control createContents(Composite ancestor) {
 
-		Composite parent = new Composite(ancestor, SWT.NONE);
+		parent = new Composite(ancestor, SWT.NONE);
 		GridLayout layout = new GridLayout();
 		layout.numColumns = 4;
 		layout.marginHeight = 0;
@@ -93,25 +96,39 @@ public class AcpGeminiPreferencePage extends PreferencePage implements
 		start = new Button(parent, SWT.PUSH);
 		start.setLayoutData(new GridData());
 		start.setText("Start");
-		((GridData)start.getLayoutData()).horizontalSpan = 2;
+		((GridData)start.getLayoutData()).horizontalSpan = 1;
 		start.addSelectionListener(this);
 		
 		stop = new Button(parent, SWT.PUSH);
 		stop.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		stop.setText("Stop");
-		((GridData)stop.getLayoutData()).horizontalSpan = 2;
+		((GridData)stop.getLayoutData()).horizontalSpan = 3;
 		stop.addSelectionListener(this);
 		
-		status = new Text(parent, SWT.MULTI | SWT.BORDER);
+		status = new Text(parent, SWT.MULTI | SWT.BORDER | SWT.READ_ONLY);
 		status.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		((GridData)status.getLayoutData()).minimumHeight = 50;
-		((GridData)status.getLayoutData()).horizontalSpan = 3;
+		((GridData)status.getLayoutData()).minimumHeight = 100;
+		((GridData)status.getLayoutData()).horizontalSpan = 4;
+		
+		for (IAgentService service: AgentController.instance().getAgents()) {
+			if (service instanceof GeminiService) {
+				if (service.isRunning()) {
+					status.setText("Starting");
+				} else if (service.isScheduled()) {
+					status.setText("Running");
+				} else {
+					status.setText("Stopped");
+				}
+				
+			}
+		}
 		
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(parent,
 				"org.eclipse.agents.preferences.AcpGeminiPreferencePage"); //$NON-NLS-1$
 
 		loadPreferences();
 		updateValidation();
+		updateStatus();
 		
 		return parent;
 	}
@@ -134,6 +151,41 @@ public class AcpGeminiPreferencePage extends PreferencePage implements
 			if (service instanceof GeminiService) {
 				start.setEnabled(!service.isRunning() && !service.isScheduled());
 				stop.setEnabled(service.isRunning());	
+			}
+		}
+	}
+	
+	private void updateStatus() {
+		for (IAgentService service: AgentController.instance().getAgents()) {
+			if (service instanceof GeminiService) {
+				if (service.isRunning()) {
+					InitializeResponse response = service.getInitializeResponse();
+					StringBuffer buffer = new StringBuffer();
+					buffer.append("Gemini CLI Features:");
+					
+					buffer.append("\n  Load Prior Sessions: " + response.agentCapabilities().loadSession());
+					buffer.append("\n  Prompt Capabilities: ");
+					buffer.append("\n    Embedded Contexts: " + response.agentCapabilities().promptCapabilities().embeddedContext());
+					buffer.append("\n    Audio: " + response.agentCapabilities().promptCapabilities().embeddedContext());
+					buffer.append("\n    Images: " + response.agentCapabilities().promptCapabilities().embeddedContext());
+					
+					
+					McpCapabilities mcp = response.agentCapabilities().mcpCapabilities();
+					buffer.append("\n  MCP Autoconfiguration: ");
+					buffer.append("\n     MCP over SSE: " + (mcp == null ? false : mcp.sse()));
+					buffer.append("\n     MCP over HTTP: " + (mcp == null ? false : mcp.http()));
+					
+					status.setText(buffer.toString());
+					parent.layout(true);
+					
+				} else if (service.isScheduled()) {
+					status.setText("Starting");
+				} else if (startupError != null) {
+					status.setText(startupError.toString());
+					getControl().requestLayout();
+				} else {
+					status.setText("Stopped");
+				}
 			}
 		}
 	}
@@ -189,6 +241,7 @@ public class AcpGeminiPreferencePage extends PreferencePage implements
 			for (IAgentService service: AgentController.instance().getAgents()) {
 				if (service instanceof GeminiService) {
 					service.stop();
+					service.unschedule();
 					updateEnablement();
 				}
 			}
@@ -214,8 +267,8 @@ public class AcpGeminiPreferencePage extends PreferencePage implements
 			Activator.getDisplay().asyncExec(new Runnable() {
 				@Override
 				public void run() {
-					status.setText("");
 					updateEnablement();	
+					updateStatus();
 				}
 			});
 		}
@@ -227,8 +280,8 @@ public class AcpGeminiPreferencePage extends PreferencePage implements
 			Activator.getDisplay().asyncExec(new Runnable() {
 				@Override
 				public void run() {
-					status.setText("");
 					updateEnablement();	
+					updateStatus();
 				}
 			});
 		}
@@ -240,37 +293,21 @@ public class AcpGeminiPreferencePage extends PreferencePage implements
 			Activator.getDisplay().asyncExec(new Runnable() {
 				@Override
 				public void run() {
-					status.setText("");
 					updateEnablement();	
-					
-					InitializeResponse response = service.getInitializeResponse();
-					StringBuffer buffer = new StringBuffer();
-					buffer.append("Gemini CLI Features:");
-					
-					buffer.append("  Load Prior Sessions: " + response.agentCapabilities().loadSession());
-					buffer.append("  Prompt Capabilities: ");
-					buffer.append("    Embedded Contexts: " + response.agentCapabilities().promptCapabilities().embeddedContext());
-					buffer.append("    Audio: " + response.agentCapabilities().promptCapabilities().embeddedContext());
-					buffer.append("    Images: " + response.agentCapabilities().promptCapabilities().embeddedContext());
-					
-					buffer.append("  MCP Autoconfiguration: ");
-					buffer.append("     MCP over SSE: " + response.agentCapabilities().mcpCapabilities().sse());
-					buffer.append("     MCP over HTTP: " + response.agentCapabilities().mcpCapabilities().http());
-
-					status.setText(buffer.toString());
+					updateStatus();
 				}
 			});
 		}
 	}
 
 	@Override
-	public void agentFailed(IAgentService service, IStatus istatus) {
+	public void agentFailed(IAgentService service) {
 		if (service instanceof GeminiService) {
 			Activator.getDisplay().asyncExec(new Runnable() {
 				@Override
 				public void run() {
-					status.setText("");
 					updateEnablement();	
+					updateStatus();
 				}
 			});
 		}
