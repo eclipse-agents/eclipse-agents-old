@@ -13,9 +13,6 @@
  *******************************************************************************/
 package org.eclipse.agents.chat.controller;
 
-import java.io.IOException;
-import java.util.concurrent.ExecutionException;
-
 import org.eclipse.agents.Activator;
 import org.eclipse.agents.services.agent.IAgentService;
 import org.eclipse.agents.services.protocol.AcpSchema.ClientCapabilities;
@@ -80,11 +77,7 @@ public class InitializeAgentJob extends Job {
 			this.service.setInitializeRequest(initializeRequest);
 			this.service.setInitializeResponse(initializeResponse);
 
-		} catch (InterruptedException e) {
-			return new Status(IStatus.ERROR, Activator.PLUGIN_ID, e.getLocalizedMessage(), e);
-		} catch (ExecutionException e) {
-			return new Status(IStatus.ERROR, Activator.PLUGIN_ID, e.getLocalizedMessage(), e);
-		} catch (IOException e) {
+		} catch (Exception e) {
 			return new Status(IStatus.ERROR, Activator.PLUGIN_ID, e.getLocalizedMessage(), e);
 		}
 		

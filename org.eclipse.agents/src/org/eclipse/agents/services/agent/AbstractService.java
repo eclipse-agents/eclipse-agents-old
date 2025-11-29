@@ -113,6 +113,7 @@ public abstract class AbstractService implements IAgentService {
 							event.getJob().getResult().getException().printStackTrace();
 						}
 						AgentController.instance().agentFailed(AbstractService.this, event.getJob().getResult());
+						AbstractService.this.initializeJob = null;
 					}
 				}
 			});

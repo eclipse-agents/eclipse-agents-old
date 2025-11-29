@@ -190,9 +190,11 @@ public class ChatView extends ViewPart implements IAgentServiceListener, Travers
 		}
 	}
 
-	public void agentConnected(IAgentService agent) {
-		this.activeAgent = agent;
-		startStop.setEnabled(true);
+	public void setActiveAgent(IAgentService agent) {
+		if (this.activeAgent != agent) {
+			this.activeAgent = agent;
+			this.activeSessionId = null;
+		}
 	}
 
 	public void agentDisconnected() {
@@ -278,27 +280,15 @@ public class ChatView extends ViewPart implements IAgentServiceListener, Travers
 			}
 		}
 	}
-
-	public void setActiveAgent(IAgentService agent) {
-		if (this.activeAgent != agent) {
-			this.activeAgent = agent;
-			this.activeSessionId = null;
-		}
-	}
 	
 	public void setActiveSessionId(String sessionId) {
 		if (activeSessionId == null || !sessionId.equals(activeSessionId)) {
+//			TODO: stopPromptTurn();
 			browser.clearContent();
 		}
 
 		this.activeSessionId = sessionId;
-
-		Activator.getDisplay().asyncExec(new Thread() {
-			public void run() {
-				sessionSelector.setEnabled(true);
-				sessionSelector.updateText("Session " + AgentController.getSessionCount());
-			}
-		});
+		updateEnablement();
 		
 	}
 	
@@ -312,26 +302,47 @@ public class ChatView extends ViewPart implements IAgentServiceListener, Travers
 
 	@Override
 	public void agentStopped(IAgentService service) {
-		// TODO Auto-generated method stub
-		
+		if (getActiveAgent() == service) {
+			this.activeAgent = null;
+			this.activeSessionId = null;
+			updateEnablement();
+		}
 	}
 
 	@Override
 	public void agentScheduled(IAgentService service) {
-		// TODO Auto-generated method stub
-		
+		if (activeAgent == service) {
+			this.activeSessionId = null;
+		}
 	}
 
 	@Override
 	public void agentStarted(IAgentService service) {
 		if (activeAgent == service) {
+			this.activeSessionId = null;
 			new NewSessionAction(this).run();
+			updateEnablement();
 		}
 	}
 
 	@Override
 	public void agentFailed(IAgentService service, IStatus status) {
-		// TODO Auto-generated method stub
-		
+		if (this.activeAgent == service) {
+			this.activeSessionId = null;
+			updateEnablement();
+		}
+	}
+	
+	private void updateEnablement() {
+		Activator.getDisplay().asyncExec(new Runnable() {
+			public void run() {
+				if (!disposed) {
+					agentSelector.setEnabled(true);
+				    sessionSelector.setEnabled(activeAgent != null && activeAgent.isRunning());
+					startStop.setEnabled(activeAgent != null && activeAgent.isRunning() && activeSessionId != null);	
+					inputText.setEnabled(activeAgent != null && activeAgent.isRunning() && activeSessionId != null);
+				}
+			}
+		});
 	}
 }

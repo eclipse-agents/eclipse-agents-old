@@ -77,8 +77,11 @@ public class GeminiService extends AbstractService implements IPreferenceConstan
 			monitor.subTask("Installing / Updating");
 			Process process = pb.start();
 			
+			int result = 0;
+			StringBuffer errorBuffer = new StringBuffer();
+
 			try {
-				int result = process.waitFor();
+				result = process.waitFor();
 				Tracer.trace().trace(Tracer.ACP, "npm i input exit:" + result);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
@@ -88,10 +91,12 @@ public class GeminiService extends AbstractService implements IPreferenceConstan
 			InputStream errorStream = process.getErrorStream();
 			
 			if (!process.isAlive()) {
+				
 				BufferedReader br = new BufferedReader(new InputStreamReader(errorStream, "UTF-8"));
 				String line = br.readLine();
 				while (line != null) {
 					Tracer.trace().trace(Tracer.ACP, line);
+					errorBuffer.append(line + System.lineSeparator());
 					line = br.readLine();
 				}
 				br.close();
@@ -103,6 +108,10 @@ public class GeminiService extends AbstractService implements IPreferenceConstan
 					line = br.readLine();
 				}
 				br.close();
+			}
+			
+			if (result != 0) {
+				throw new RuntimeException(errorBuffer.toString());
 			}
 			
 			if (Activator.getDefault().getPreferenceStore().getBoolean(P_ACP_PROMPT4MCP)) {
