@@ -36,6 +36,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkbench;
@@ -52,6 +53,15 @@ public class AcpGeminiPreferencePage extends PreferencePage implements
 	PreferenceManager preferenceManager;
 	final String geminiPreferenceId = new GeminiService().getStartupCommandPreferenceId();
 	
+	Button useLocalInstall;
+	
+	// Local Install
+	Text installLocation;
+	Button openInstallLocation, installButton, uninstallButton;
+	Text targetVersion;
+	Text installVersion;
+	
+	// Runtime
 	Text input;
 	Button start, stop;
 	Text status;
@@ -76,39 +86,81 @@ public class AcpGeminiPreferencePage extends PreferencePage implements
 		layout.marginHeight = 0;
 		layout.marginWidth = 0;
 		parent.setLayout(layout);
-
+		parent.setLayoutData(new GridData());
+		
 		Label instructions = new Label(parent, SWT.WRAP);
 		instructions.setText("ACP lets you chat with CLI agents like Gemini and Claude Code");
-		GridData gd = new GridData(GridData.GRAB_HORIZONTAL);
+		GridData gd = new GridData(SWT.BEGINNING, SWT.BEGINNING, true, false, 4, 1);
 		gd.widthHint = convertWidthInCharsToPixels(80);
-		gd.horizontalSpan = 4;
 		instructions.setLayoutData(gd);
+		
+		useLocalInstall = new Button(parent, SWT.CHECK);
+		useLocalInstall.setText("Use Eclipse-dedicated installation");
+		useLocalInstall.setLayoutData(new GridData(SWT.BEGINNING, SWT.BEGINNING, true, false, 4, 1));
+		
+		Group installation = new Group(parent, SWT.NONE);
+		installation.setText("Local Installation");
+		layout = new GridLayout();
+		layout.numColumns = 4;
+		layout.marginHeight = 0;
+		layout.marginWidth = 0;
+		installation.setLayout(layout);
+		installation.setLayoutData(new GridData(SWT.FILL, SWT.BEGINNING, true, false, 4, 1));
+		
+		Label location = new Label(installation, SWT.NONE);
+		location.setText("Location:");
+		location.setLayoutData(new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false, 1, 1));
+		
+		installLocation = new Text(installation, SWT.READ_ONLY);
+		installLocation.setLayoutData(new GridData(SWT.FILL, SWT.BEGINNING, true, false, 3, 1));
+		
+		Label version = new Label(installation, SWT.NONE);
+		version.setText("Target Version:");
+		version.setLayoutData(new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false, 1, 1));
+		
+		targetVersion = new Text(installation, SWT.NONE);
+		targetVersion.setLayoutData(new GridData(SWT.FILL, SWT.BEGINNING, true, false, 3, 1));
+		
+		installButton = new Button(installation, SWT.PUSH);
+		installButton.setText("Install");
+		installButton.setLayoutData(new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false, 1, 1));
+		installButton.addSelectionListener(this);
+		
+		uninstallButton = new Button(installation, SWT.PUSH);
+		uninstallButton.setText("Uninstall");
+		uninstallButton.setLayoutData(new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false, 3, 1));
+		uninstallButton.addSelectionListener(this);
+
+		version = new Label(installation, SWT.NONE);
+		version.setText("Installed Version:");
+		version.setLayoutData(new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false, 1, 1));
+		
+		installVersion = new Text(installation, SWT.READ_ONLY);
+		gd = new GridData(GridData.GRAB_HORIZONTAL);
+		gd.horizontalSpan = 3;
+		installVersion.setLayoutData(new GridData(SWT.FILL, SWT.BEGINNING, true, false, 3, 1));
 
 		Label label = new Label(parent, SWT.NONE);
 		label.setText("Startup Command:");
-		label.setLayoutData(new GridData());
+		label.setLayoutData(new GridData(SWT.BEGINNING, SWT.BEGINNING, true, false, 4, 1));
 		
 		input = new Text(parent, SWT.MULTI | SWT.BORDER);
-		input.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		input.setLayoutData(new GridData(SWT.BEGINNING, SWT.BEGINNING, true, false, 4, 1));
 		((GridData)input.getLayoutData()).minimumHeight = 30;
-		((GridData)input.getLayoutData()).horizontalSpan = 3;
 		
 		start = new Button(parent, SWT.PUSH);
-		start.setLayoutData(new GridData());
+		start.setLayoutData(new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false, 1, 1));
 		start.setText("Start");
-		((GridData)start.getLayoutData()).horizontalSpan = 1;
 		start.addSelectionListener(this);
 		
 		stop = new Button(parent, SWT.PUSH);
-		stop.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		stop.setLayoutData(new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false, 1, 1));
 		stop.setText("Stop");
-		((GridData)stop.getLayoutData()).horizontalSpan = 3;
 		stop.addSelectionListener(this);
 		
 		status = new Text(parent, SWT.MULTI | SWT.BORDER | SWT.READ_ONLY);
-		status.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		status.setLayoutData(new GridData(SWT.FILL, SWT.BEGINNING, true, false, 4, 1));
 		((GridData)status.getLayoutData()).minimumHeight = 100;
-		((GridData)status.getLayoutData()).horizontalSpan = 4;
 		
 		for (IAgentService service: AgentController.instance().getAgents()) {
 			if (service instanceof GeminiService) {
@@ -130,6 +182,11 @@ public class AcpGeminiPreferencePage extends PreferencePage implements
 		updateValidation();
 		updateStatus();
 		
+		for (IAgentService service: AgentController.instance().getAgents()) {
+			if (service instanceof GeminiService) {
+				installLocation.setText(((GeminiService)service).getAgentsNodeDirectory().getAbsolutePath());
+			}
+		}
 		return parent;
 	}
 
@@ -193,6 +250,7 @@ public class AcpGeminiPreferencePage extends PreferencePage implements
 	private void loadPreferences() {
 		IPreferenceStore store = getPreferenceStore();
 		input.setText(store.getString(geminiPreferenceId));
+		targetVersion.setText(store.getString(P_ACP_GEMINI_VERSION));
 	}
 
 	private void savePreferences() {
@@ -203,6 +261,7 @@ public class AcpGeminiPreferencePage extends PreferencePage implements
 		preference = preference.replaceAll("\r\n", "\n");
 		
 		store.setValue(geminiPreferenceId, preference);
+		store.setValue(P_ACP_GEMINI_VERSION, targetVersion.getText());
 	}
 
 	@Override
@@ -220,6 +279,7 @@ public class AcpGeminiPreferencePage extends PreferencePage implements
 	protected void performDefaults() {
 		IPreferenceStore store = getPreferenceStore();
 		input.setText(store.getDefaultString(geminiPreferenceId));
+		targetVersion.setText(store.getDefaultString(P_ACP_GEMINI_VERSION));
 		updateValidation();
 	}
 
