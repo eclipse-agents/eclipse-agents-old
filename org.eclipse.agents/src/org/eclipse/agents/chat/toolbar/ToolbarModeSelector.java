@@ -16,8 +16,8 @@ package org.eclipse.agents.chat.toolbar;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.agents.chat.AcpView;
-import org.eclipse.agents.services.AcpService;
+import org.eclipse.agents.chat.ChatView;
+import org.eclipse.agents.chat.controller.AgentController;
 import org.eclipse.agents.services.agent.IAgentService;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.MenuManager;
@@ -26,11 +26,11 @@ public class ToolbarModeSelector extends AbstractDynamicToolbarDropdown {
 
 	List<ModelAction> actions;
 	
-	public ToolbarModeSelector(AcpView view) {
+	public ToolbarModeSelector(ChatView view) {
 		super("Mode", "Select a mode", view);
 		
 		actions = new ArrayList<ModelAction>();
-		for (IAgentService agent: AcpService.instance().getAgents()) {
+		for (IAgentService agent: AgentController.instance().getAgents()) {
 			actions.add(new ModelAction(agent));
 		}
 		setEnabled(false);
@@ -38,9 +38,9 @@ public class ToolbarModeSelector extends AbstractDynamicToolbarDropdown {
 
 	@Override
 	protected void fillMenu(MenuManager menuManager) {
-//		for (ModelAction action: actions) {
+//		for (SelectAgentAction action: actions) {
 //			menuManager.add(action);
-//			action.setChecked(action.getAgent() ==  AcpService.instance().getAgentService());
+//			action.setChecked(action.getAgent() ==  AgentController.instance().getAgentService());
 //		}
 	}
 
@@ -54,7 +54,6 @@ public class ToolbarModeSelector extends AbstractDynamicToolbarDropdown {
 
 		@Override
 		public void run() {
-			AcpService.instance().setAcpService(getView(), agent);
 			ToolbarModeSelector.this.updateText(agent.getName());
 		}
 		

@@ -27,6 +27,10 @@
 			id="org.eclipse.agents.keyword.cli" />
 		<keyword label="CHAT"
 			id="org.eclipse.agents.keyword.chat" />
+		<keyword label="GOOGLE"
+			id="org.eclipse.agents.keyword.google" />
+		<keyword label="GEMINI"
+			id="org.eclipse.agents.keyword.gemini" />
 	</extension>
 
 	<extension point="org.eclipse.ui.activities">
@@ -93,7 +97,7 @@
 		</page>
 		<page
 			id="org.eclipse.agents.preferences.services"
-			name="Agent CLIs"
+			name="Agent Services"
 			category="org.eclipse.agents.preferences.general"
 			class="org.eclipse.agents.preferences.AcpGeneralPreferencePage">
 			<keywordReference id="org.eclipse.agents.keyword.mcp" />
@@ -106,6 +110,24 @@
 			<keywordReference id="org.eclipse.agents.keyword.coding" />
 			<keywordReference id="org.eclipse.agents.keyword.cli" />
 			<keywordReference id="org.eclipse.agents.keyword.chat" />
+		</page>
+		<page
+			id="org.eclipse.agents.preferences.services.gemini"
+			name="Google Gemini"
+			category="org.eclipse.agents.preferences.services"
+			class="org.eclipse.agents.preferences.AcpGeminiPreferencePage">
+			<keywordReference id="org.eclipse.agents.keyword.mcp" />
+			<keywordReference id="org.eclipse.agents.keyword.acp" />
+			<keywordReference id="org.eclipse.agents.keyword.model" />
+			<keywordReference id="org.eclipse.agents.keyword.agent" />
+			<keywordReference id="org.eclipse.agents.keyword.client" />
+			<keywordReference id="org.eclipse.agents.keyword.context" />
+			<keywordReference id="org.eclipse.agents.keyword.protocol" />
+			<keywordReference id="org.eclipse.agents.keyword.coding" />
+			<keywordReference id="org.eclipse.agents.keyword.cli" />
+			<keywordReference id="org.eclipse.agents.keyword.chat" />
+			<keywordReference id="org.eclipse.agents.keyword.google" />
+			<keywordReference id="org.eclipse.agents.keyword.gemini" />
 		</page>
 	</extension>
 
@@ -129,7 +151,7 @@
 	</extension>
 	
 	<extension point="org.eclipse.ui.views">
-      <view id="org.eclipse.agents.chat.AcpView" name="Coding Agent" class="org.eclipse.agents.chat.AcpView" icon="icons/templates.png" />
+      <view id="org.eclipse.agents.chat.ChatView" name="Coding Agent Chat" class="org.eclipse.agents.chat.ChatView" icon="icons/templates.png" />
    </extension>
 	
 	 <extension point="org.eclipse.ui.menus">
@@ -150,6 +172,6 @@
    </extension-->
 
    <extension point="org.eclipse.ui.bindings">
-      <key sequence="M1+M3+M 1" commandId="org.eclipse.agents.chat.cmd.addToChat" schemeId="org.eclipse.ui.defaultAcceleratorConfiguration" contextId="org.eclipse.agents.chat.AcpView"/>
+      <key sequence="M1+M3+M 1" commandId="org.eclipse.agents.chat.cmd.addToChat" schemeId="org.eclipse.ui.defaultAcceleratorConfiguration" contextId="org.eclipse.agents.chat.ChatView"/>
    </extension>
 </plugin>

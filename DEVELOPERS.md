@@ -1,6 +1,6 @@
 # Eclipse Plug-In Developer Extension for Model Context Protocol Services
 
-The [org.eclipse.mcp.modelContextProtocolServer extension point](https://eclipse-agents.github.io/eclipse-agents/org.eclipse.agent.docs/modelContextProtocolServer.html) can be used to declare and instantiate Model Context Protocol (MCP) services such as Resources, Tools and Prompts.  They run on a single MCP server that runs within Eclipse IDE's VM.  This enables interactivity between Eclipse based experiences and LLM-powered Agentic experiences running within or outside of the Eclipse IDE.
+The [org.eclipse.mcp.modelContextProtocolServer extension point](https://eclipse-agents.github.io/eclipse-agents/org.eclipse.agents.docs/modelContextProtocolServer.html) can be used to declare and instantiate Model Context Protocol (MCP) services such as Resources, Tools and Prompts.  They run on a single MCP server that runs within Eclipse IDE's VM.  This enables interactivity between Eclipse based experiences and LLM-powered Agentic experiences running within or outside of the Eclipse IDE.
 
 It provides a simple mechanism to contribute MCP Tools and Resources to an MCP server running inside Eclipse.
 
@@ -14,12 +14,12 @@ The built-in MCP Server makes available a suite MCP resources, templates and too
 
 ## Documentation
 
-- [Extension Point Documentation](https://eclipse-agents.github.io/eclipse-agents/org.eclipse.agent.docs/modelContextProtocolServer.html)
-- [Plugin Java Docs](https://eclipse-agents.github.io/eclipse-agents/org.eclipse.agent.docs/javadocs/org/eclipse/mcp/package-summary.html)
+- [Extension Point Documentation](https://eclipse-agents.github.io/eclipse-agents/org.eclipse.agents.docs/modelContextProtocolServer.html)
+- [Plugin Java Docs](https://eclipse-agents.github.io/eclipse-agents/org.eclipse.agents.docs/javadocs/org/eclipse/mcp/package-summary.html)
 - Summaries of Platform MCP contributions:
-  - [Platform MCP Tools](https://eclipse-agents.github.io/eclipse-agents/org.eclipse.agent.docs/javadocs/org/eclipse/mcp/platform/Tools.html)
-  - [Platform Resource Templates and Template Completions](https://eclipse-agents.github.io/eclipse-agents/org.eclipse.agent.docs/javadocs/org/eclipse/mcp/platform/ResaourceTemplates.html)
-  - [Platform Resource Controller](https://eclipse-agents.github.io/eclipse-agents/org.eclipse.agent.docs/javadocs/org/eclipse/mcp/platform/ResourceController.html)
+  - [Platform MCP Tools](https://eclipse-agents.github.io/eclipse-agents/org.eclipse.agents.docs/javadocs/org/eclipse/mcp/platform/Tools.html)
+  - [Platform Resource Templates and Template Completions](https://eclipse-agents.github.io/eclipse-agents/org.eclipse.agents.docs/javadocs/org/eclipse/mcp/platform/ResaourceTemplates.html)
+  - [Platform Resource Controller](https://eclipse-agents.github.io/eclipse-agents/org.eclipse.agents.docs/javadocs/org/eclipse/mcp/platform/ResourceController.html)
 
 To expose an aspect of your IDE plugin as an MCP tool, do the following:
 

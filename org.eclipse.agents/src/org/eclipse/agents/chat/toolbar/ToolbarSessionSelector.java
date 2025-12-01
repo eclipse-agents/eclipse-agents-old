@@ -13,53 +13,26 @@
  *******************************************************************************/
 package org.eclipse.agents.chat.toolbar;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.eclipse.agents.chat.AcpView;
-import org.eclipse.agents.services.AcpService;
-import org.eclipse.agents.services.agent.IAgentService;
-import org.eclipse.jface.action.Action;
+import org.eclipse.agents.chat.ChatView;
+import org.eclipse.agents.chat.actions.NewSessionAction;
 import org.eclipse.jface.action.MenuManager;
 
 public class ToolbarSessionSelector extends AbstractDynamicToolbarDropdown {
 
-	List<ModelAction> actions;
+	NewSessionAction newSessionAction;
 	
-	public ToolbarSessionSelector(AcpView view) {
-		super("Session", "Select a session", view);
-		
-		actions = new ArrayList<ModelAction>();
-		for (IAgentService agent: AcpService.instance().getAgents()) {
-			actions.add(new ModelAction(agent));
-		}
+	public ToolbarSessionSelector(ChatView view) {
+		super("Session", "Load or create a session", view);
+		newSessionAction = new NewSessionAction(view);
 		setEnabled(false);
 	}
 
 	@Override
 	protected void fillMenu(MenuManager menuManager) {
-//		for (ModelAction action: actions) {
-//			menuManager.add(action);
-//			action.setChecked(action.getAgent() ==  AcpService.instance().getAgentService());
-//		}
-	}
-
-	class ModelAction extends Action {
-		IAgentService agent;
 		
-		public ModelAction(IAgentService agent) {
-			super(agent.getName());
-			this.agent = agent;
-		}
-
-		@Override
-		public void run() {
-			AcpService.instance().setAcpService(getView(), agent);
-			ToolbarSessionSelector.this.updateText(agent.getName());
-		}
+//		List<Action> actions = new ArrayList<Action>();
+		//TODO add load session actions, if supported
 		
-		public IAgentService getAgent() {
-			return agent;
-		}
+		menuManager.add(newSessionAction);
 	}
 }

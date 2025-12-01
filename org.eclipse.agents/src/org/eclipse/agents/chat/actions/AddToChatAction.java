@@ -14,7 +14,7 @@
 package org.eclipse.agents.chat.actions;
 
 import org.eclipse.agents.Tracer;
-import org.eclipse.agents.chat.AcpView;
+import org.eclipse.agents.chat.ChatView;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -25,7 +25,7 @@ import org.eclipse.ui.handlers.HandlerUtil;
 
 public class AddToChatAction extends Action {
 
-	public static final String ID = "org.eclipse.agents.services.cmd.addToChat";
+	public static final String ID = "org.eclipse.agents.chat.cmd.addToChat";
 
 	ExecutionEvent event;
 	public AddToChatAction(ExecutionEvent event) {
@@ -39,7 +39,7 @@ public class AddToChatAction extends Action {
 		
 		IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
 		try {
-			AcpView view = (AcpView) page.showView(AcpView.ID, null, //$NON-NLS-1$
+			ChatView view = (ChatView) page.showView(ChatView.ID, null, //$NON-NLS-1$
 					IWorkbenchPage.VIEW_CREATE);
 
 			IStructuredSelection selection = HandlerUtil.getCurrentStructuredSelection(event);

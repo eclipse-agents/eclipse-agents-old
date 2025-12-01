@@ -64,8 +64,8 @@ public class ServerManager implements IPreferenceConstants, IActivityManagerList
 		
 		activityIds.clear();
 		
-		if (store.getBoolean(P_SERVER_ENABLED)) {
-			int port = store.getInt(P_SERVER_HTTP_PORT);
+		if (store.getBoolean(P_MCP_SERVER_ENABLED)) {
+			int port = store.getInt(P_MCP_SERVER_HTTP_PORT);
 			
 			Set<Contributor> contributors = new HashSet<Contributor>();
 			for (ExtensionManager.Contributor contributor: Activator.getDefault().getExtensionManager().getContributors()) {

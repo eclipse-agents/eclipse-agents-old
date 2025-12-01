@@ -14,7 +14,7 @@
 package org.eclipse.agents.chat.toolbar;
 
 
-import org.eclipse.agents.chat.AcpView;
+import org.eclipse.agents.chat.ChatView;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IMenuCreator;
@@ -30,9 +30,9 @@ public abstract class AbstractDynamicToolbarDropdown extends Action implements I
     
 	private Menu menu;
     private String text;
-    private AcpView view;
+    private ChatView view;
 
-    public AbstractDynamicToolbarDropdown(String name, String tooltip, AcpView view) {
+    public AbstractDynamicToolbarDropdown(String name, String tooltip, ChatView view) {
         // Set the style to pulldown to get the drop-down arrow
         super(name, IAction.AS_DROP_DOWN_MENU);
         
@@ -136,7 +136,7 @@ public abstract class AbstractDynamicToolbarDropdown extends Action implements I
         return text;
     }
     
-    protected AcpView getView() {
+    protected ChatView getView() {
     	return view;
     }
 }
