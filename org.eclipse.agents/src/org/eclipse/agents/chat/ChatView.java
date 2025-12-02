@@ -140,6 +140,7 @@ public class ChatView extends ViewPart implements IAgentServiceListener, Travers
 			}
 		});
 		
+		AgentController.instance().addAgentListener(this);
 		SessionController.addChatView(this);
 	}
 
@@ -156,6 +157,7 @@ public class ChatView extends ViewPart implements IAgentServiceListener, Travers
 		super.dispose();
 		this.disposed = true;
 		SessionController.removeChatView(this);
+		AgentController.instance().removeAgentListener(this);
 	}
 
 	@Override
@@ -193,13 +195,16 @@ public class ChatView extends ViewPart implements IAgentServiceListener, Travers
 	public void setActiveAgent(IAgentService agent) {
 		if (this.activeAgent != agent) {
 			this.activeAgent = agent;
-			this.activeSessionId = null;
+			if (agent.isRunning() && activeSessionId == null) {
+				new NewSessionAction(this).run();
+			}
+			updateEnablement();
 		}
 	}
 
 	public void agentDisconnected() {
-		this.activeAgent = null;
-		startStop.setEnabled(false);
+		this.activeSessionId = null;
+		updateEnablement();
 	}
 
 	@Override
@@ -303,7 +308,6 @@ public class ChatView extends ViewPart implements IAgentServiceListener, Travers
 	@Override
 	public void agentStopped(IAgentService service) {
 		if (getActiveAgent() == service) {
-			this.activeAgent = null;
 			this.activeSessionId = null;
 			updateEnablement();
 		}
@@ -313,6 +317,7 @@ public class ChatView extends ViewPart implements IAgentServiceListener, Travers
 	public void agentScheduled(IAgentService service) {
 		if (activeAgent == service) {
 			this.activeSessionId = null;
+			updateEnablement();
 		}
 	}
 

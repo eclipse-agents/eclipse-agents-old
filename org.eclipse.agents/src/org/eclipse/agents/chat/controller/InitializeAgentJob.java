@@ -14,6 +14,7 @@
 package org.eclipse.agents.chat.controller;
 
 import org.eclipse.agents.Activator;
+import org.eclipse.agents.preferences.IPreferenceConstants;
 import org.eclipse.agents.services.agent.IAgentService;
 import org.eclipse.agents.services.protocol.AcpSchema.ClientCapabilities;
 import org.eclipse.agents.services.protocol.AcpSchema.FileSystemCapability;
@@ -25,7 +26,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 
 
-public class InitializeAgentJob extends Job {
+public class InitializeAgentJob extends Job implements IPreferenceConstants {
 
 	// Inputs
 	IAgentService service;
@@ -69,7 +70,11 @@ public class InitializeAgentJob extends Job {
 			monitor.worked(1);
 			monitor.subTask("Initializing Agent");
 			
-			FileSystemCapability fsc = new FileSystemCapability(null, true, true);
+			
+			FileSystemCapability fsc = new FileSystemCapability(null, 
+					Activator.getDefault().getPreferenceStore().getBoolean(P_ACP_FILE_READ),
+					Activator.getDefault().getPreferenceStore().getBoolean(P_ACP_FILE_WRITE));
+
 			ClientCapabilities capabilities = new ClientCapabilities(null, fsc, true);
 			InitializeRequest initializeRequest = new InitializeRequest(null, capabilities, 1);
 			
