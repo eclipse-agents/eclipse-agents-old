@@ -17,7 +17,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Base64;
@@ -52,6 +51,7 @@ import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.ImageLoader;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.ui.IEditorDescriptor;
 import org.eclipse.ui.ISharedImages;
@@ -59,9 +59,10 @@ import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.browser.IWebBrowser;
+import org.eclipse.ui.browser.IWorkbenchBrowserSupport;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.navigator.CommonNavigator;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -172,6 +173,11 @@ public class ChatBrowser {
 				browser.addLocationListener(LocationListener.changingAdapter(event -> {
 					event.doit = false;
 					
+					if (isWebURL(event.location)) {
+						openWebUrl(event.location);
+						return;
+					}
+					
 					WorkspaceResourceAdapter wra = new WorkspaceResourceAdapter(event.location);
 					IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
 					
@@ -220,7 +226,11 @@ public class ChatBrowser {
 			}
 			
 		});
-
+		// Cancel opening of new windows
+		browser.addOpenWindowListener(event -> {
+			event.required= true;
+		});
+		
 		// Replace browser's built-in context menu with none
 		browser.setMenu(new Menu(browser.getShell(), SWT.NONE));
 	}
@@ -377,5 +387,37 @@ public class ChatBrowser {
 	public boolean setFocus() {
 		return browser.setFocus();
 	}
+	
+	public static boolean isWebURL(String location) {
+		try {
+			URL url = new URL(location);
+			String protocol = url.getProtocol();
+			return protocol.equalsIgnoreCase("http") || protocol.equalsIgnoreCase("https");
+		} catch (MalformedURLException e) {
+			return false;
+		} catch (NullPointerException e) {
+			return false;
+		}
+	}
+	
+	public static void openWebUrl(String location) {
+		// Run on the UI thread to prevent freezing
+		Display.getDefault().asyncExec(new Runnable() {
+			public void run() {
+				try {
+					// Automatically uses the internal/external browser based on user preferences.
+					int style = IWorkbenchBrowserSupport.LOCATION_BAR | IWorkbenchBrowserSupport.NAVIGATION_BAR;
+					IWorkbenchBrowserSupport browserSupport = PlatformUI.getWorkbench().getBrowserSupport();
+					IWebBrowser browser = browserSupport.createBrowser(style, null, null, null);
+					browser.openURL(new URL(location));
+				} catch (PartInitException e) {
+					e.printStackTrace();
+				} catch (MalformedURLException e) {
+					e.printStackTrace();
+				}
+			}
+		});
+	}
+	
 	
 }
