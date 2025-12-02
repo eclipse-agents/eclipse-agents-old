@@ -30,6 +30,12 @@ public interface IAgentService {
 	
 	public String getId();
 	
+	/**
+	 * Folder name, no spaces
+	 * @return
+	 */
+	public String getFolderName();
+	
 	public String[] getDefaultStartupCommand();
 
 	/**

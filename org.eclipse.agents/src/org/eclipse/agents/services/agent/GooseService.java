@@ -61,4 +61,9 @@ public class GooseService extends AbstractService {
 	public void checkForUpdates(IProgressMonitor monitor) throws IOException {
 		
 	}
+
+	@Override
+	public String getFolderName() {
+		return "goose";
+	}
 }

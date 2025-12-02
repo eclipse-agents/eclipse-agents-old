@@ -42,6 +42,11 @@ public class GeminiService extends AbstractService implements IPreferenceConstan
 		return "Gemini CLI";
 	}
 	
+	@Override 
+	public String getFolderName() {
+		return "gemini";
+	}
+	
 	@Override
 	public String getId() {
 		return "input";
@@ -242,6 +247,25 @@ public class GeminiService extends AbstractService implements IPreferenceConstan
 				getMCPUrl()
 				};
 	}
+	
+	public String getVersion() {
+		if (isInstalled()) {
+			ProcessResult result = super.runProcess(new String[] {
+				getNodeCommand(),
+				getGeminiCommand(),
+				"--version"});
+			
+			if (result.result == 0) {
+				return result.inputLines.get(0);
+			}
+			
+			for (String line: result.errorLines) {
+				Tracer.trace().trace(Tracer.ACP, line);
+			}
+		}
+		return "Not found";
+
+	}	
 	
 	private String[] removeMCPCommand() {
 		return new String[] {

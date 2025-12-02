@@ -97,7 +97,9 @@ public class AcpGeminiPreferencePage extends PreferencePage implements
 		useLocalInstall = new Button(parent, SWT.CHECK);
 		useLocalInstall.setText("Use Eclipse-dedicated installation");
 		useLocalInstall.setLayoutData(new GridData(SWT.BEGINNING, SWT.BEGINNING, true, false, 4, 1));
-		
+		useLocalInstall.addSelectionListener(this);
+		useLocalInstall.setVisible(false);
+
 		Group installation = new Group(parent, SWT.NONE);
 		installation.setText("Local Installation");
 		layout = new GridLayout();
@@ -145,8 +147,9 @@ public class AcpGeminiPreferencePage extends PreferencePage implements
 		label.setLayoutData(new GridData(SWT.BEGINNING, SWT.BEGINNING, true, false, 4, 1));
 		
 		input = new Text(parent, SWT.MULTI | SWT.BORDER);
-		input.setLayoutData(new GridData(SWT.BEGINNING, SWT.BEGINNING, true, false, 4, 1));
+		input.setLayoutData(new GridData(SWT.FILL, SWT.BEGINNING, true, false, 4, 1));
 		((GridData)input.getLayoutData()).minimumHeight = 30;
+		
 		
 		start = new Button(parent, SWT.PUSH);
 		start.setLayoutData(new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false, 1, 1));
@@ -171,7 +174,6 @@ public class AcpGeminiPreferencePage extends PreferencePage implements
 				} else {
 					status.setText("Stopped");
 				}
-				
 			}
 		}
 		
@@ -180,6 +182,7 @@ public class AcpGeminiPreferencePage extends PreferencePage implements
 
 		loadPreferences();
 		updateValidation();
+		updateEnablement();
 		updateStatus();
 		
 		for (IAgentService service: AgentController.instance().getAgents()) {
@@ -206,11 +209,13 @@ public class AcpGeminiPreferencePage extends PreferencePage implements
 	private void updateEnablement() {
 		for (IAgentService service: AgentController.instance().getAgents()) {
 			if (service instanceof GeminiService) {
-				start.setEnabled(!service.isRunning() && !service.isScheduled());
-				stop.setEnabled(service.isRunning());	
+				if (!start.isDisposed() && !stop.isDisposed()) {
+					start.setEnabled(!service.isRunning() && !service.isScheduled());
+					stop.setEnabled(service.isRunning());
+				}
 			}
 		}
-	}
+		input.setEnabled(!useLocalInstall.getSelection());}
 	
 	private void updateStatus() {
 		for (IAgentService service: AgentController.instance().getAgents()) {
@@ -244,12 +249,18 @@ public class AcpGeminiPreferencePage extends PreferencePage implements
 					status.setText("Stopped");
 				}
 			}
+			
+			installVersion.setText("...");
+			Activator.getDisplay().asyncExec(()->{
+				installVersion.setText(((GeminiService)service).getVersion());
+			});
 		}
 	}
 
 	private void loadPreferences() {
 		IPreferenceStore store = getPreferenceStore();
 		input.setText(store.getString(geminiPreferenceId));
+		useLocalInstall.setSelection(store.getString(geminiPreferenceId).equals(store.getDefaultString(geminiPreferenceId)));
 		targetVersion.setText(store.getString(P_ACP_GEMINI_VERSION));
 	}
 
@@ -280,6 +291,7 @@ public class AcpGeminiPreferencePage extends PreferencePage implements
 		IPreferenceStore store = getPreferenceStore();
 		input.setText(store.getDefaultString(geminiPreferenceId));
 		targetVersion.setText(store.getDefaultString(P_ACP_GEMINI_VERSION));
+		useLocalInstall.setSelection(true);
 		updateValidation();
 	}
 
@@ -305,6 +317,13 @@ public class AcpGeminiPreferencePage extends PreferencePage implements
 					updateEnablement();
 				}
 			}
+		} else if (event.getSource() == useLocalInstall) {
+			if (useLocalInstall.getSelection()) {
+				input.setText(getPreferenceStore().getDefaultString(geminiPreferenceId));
+			} else {
+				input.setText("gemini\n--experimental-acp");
+			}
+			parent.layout(true);
 		}
 
 		updateValidation();

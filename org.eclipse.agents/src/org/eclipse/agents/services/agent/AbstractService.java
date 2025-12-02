@@ -42,7 +42,6 @@ import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 public abstract class AbstractService implements IAgentService {
 
 	public static final String ECLIPSEAGENTS = ".eclipseagents";
-	public static final String ECLIPSEAGENTSNODE = "node";
 
 	InitializeAgentJob initializeJob = null;
 	
@@ -76,7 +75,7 @@ public abstract class AbstractService implements IAgentService {
 			throw new RuntimeException("user home not found");
 		}
 		
-		File agentsHome = new File(userHome + File.separator + ECLIPSEAGENTS);
+		File agentsHome = new File(System.getProperty("user.home") + File.separator + ECLIPSEAGENTS);
 
 	    if (!agentsHome.exists()) {
 	    	if (!agentsHome.mkdirs()) {
@@ -84,14 +83,18 @@ public abstract class AbstractService implements IAgentService {
 	    	}
 	    }
 	    
-	    File agentsNode= new File(userHome + File.separator + ECLIPSEAGENTS + File.separator + ECLIPSEAGENTSNODE);
+	    File agentsNode= new File(System.getProperty("user.home") + File.separator + ECLIPSEAGENTS + File.separator + getFolderName());
 
 	    if (!agentsNode.exists()) {
 	    	if (!agentsNode.mkdirs()) {
-	    		throw new RuntimeException("Could not create " + ECLIPSEAGENTSNODE + " in user home directory");
+	    		throw new RuntimeException("Could not create " + getFolderName() + " in user home directory");
 	    	}
 	    }
 	    return agentsNode;
+	}
+	
+	protected boolean isInstalled() {
+		return new File(System.getProperty("user.home") + File.separator + ECLIPSEAGENTS + File.separator + getFolderName()).exists();
 	}
 
 
