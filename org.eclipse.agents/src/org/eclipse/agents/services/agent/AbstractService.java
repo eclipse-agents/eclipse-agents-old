@@ -20,22 +20,31 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.eclipse.agents.Activator;
 import org.eclipse.agents.Tracer;
+import org.eclipse.agents.chat.controller.AgentController;
+import org.eclipse.agents.chat.controller.InitializeAgentJob;
 import org.eclipse.agents.services.protocol.AcpClient;
 import org.eclipse.agents.services.protocol.AcpClientLauncher;
 import org.eclipse.agents.services.protocol.AcpClientThread;
-import org.eclipse.agents.services.protocol.IAcpAgent;
 import org.eclipse.agents.services.protocol.AcpSchema.AuthenticateResponse;
 import org.eclipse.agents.services.protocol.AcpSchema.InitializeRequest;
 import org.eclipse.agents.services.protocol.AcpSchema.InitializeResponse;
+import org.eclipse.agents.services.protocol.IAcpAgent;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.IJobChangeEvent;
+import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 
 public abstract class AbstractService implements IAgentService {
 
 	public static final String ECLIPSEAGENTS = ".eclipseagents";
-	public static final String ECLIPSEAGENTSNODE = "node";
 
+	InitializeAgentJob initializeJob = null;
+	
 	private AcpClientThread thread;
 	private Process agentProcess;
 	private InputStream inputStream;
@@ -48,7 +57,7 @@ public abstract class AbstractService implements IAgentService {
 
 	
 	public AbstractService() {
-		
+
 	}
 	
 	public String[] getStartupCommand() {
@@ -66,7 +75,7 @@ public abstract class AbstractService implements IAgentService {
 			throw new RuntimeException("user home not found");
 		}
 		
-		File agentsHome = new File(userHome + File.separator + ECLIPSEAGENTS);
+		File agentsHome = new File(System.getProperty("user.home") + File.separator + ECLIPSEAGENTS);
 
 	    if (!agentsHome.exists()) {
 	    	if (!agentsHome.mkdirs()) {
@@ -74,19 +83,53 @@ public abstract class AbstractService implements IAgentService {
 	    	}
 	    }
 	    
-	    File agentsNode= new File(userHome + File.separator + ECLIPSEAGENTS + File.separator + ECLIPSEAGENTSNODE);
+	    File agentsNode= new File(System.getProperty("user.home") + File.separator + ECLIPSEAGENTS + File.separator + getFolderName());
 
 	    if (!agentsNode.exists()) {
 	    	if (!agentsNode.mkdirs()) {
-	    		throw new RuntimeException("Could not create " + ECLIPSEAGENTSNODE + " in user home directory");
+	    		throw new RuntimeException("Could not create " + getFolderName() + " in user home directory");
 	    	}
 	    }
 	    return agentsNode;
+	}
+	
+	protected boolean isInstalled() {
+		return new File(System.getProperty("user.home") + File.separator + ECLIPSEAGENTS + File.separator + getFolderName()).exists();
 	}
 
 
 	public abstract Process createProcess() throws IOException;
 	
+	@Override 
+	public void schedule() {
+		if (!isRunning()) {
+			if (initializeJob == null || initializeJob.getResult() != null) {
+				initializeJob = new InitializeAgentJob(this);
+				initializeJob.addJobChangeListener(new JobChangeAdapter() {
+					@Override
+					public void done(IJobChangeEvent event) {
+						if (event.getJob().getResult().isOK()) {
+							AgentController.instance().agentStarted(AbstractService.this);
+						} else {
+							Tracer.trace().trace(Tracer.CHAT, "initialization job has an error");
+							Tracer.trace().trace(Tracer.CHAT, event.getJob().getResult().getMessage(), event.getJob().getResult().getException());
+							if (event.getJob().getResult().getException() != null) {
+								event.getJob().getResult().getException().printStackTrace();
+							}
+							AgentController.instance().agentFailed(AbstractService.this);
+							AbstractService.this.initializeJob = null;
+						}
+					}
+				});
+				initializeJob.schedule();
+			} else {
+				Tracer.trace().trace(Tracer.ACP, "Initialize Job already running");
+			}
+		} else {
+			Tracer.trace().trace(Tracer.ACP, "Agent service already running");
+		}
+	}
+
 	@Override
 	public void start() {
 				
@@ -158,11 +201,35 @@ public abstract class AbstractService implements IAgentService {
 		if (agentProcess != null) {
 			agentProcess.destroy();
 		}
+		AgentController.instance().agentStopped(AbstractService.this);
+	}
+	
+	@Override
+	public void unschedule() {
+		if (isScheduled()) {
+			initializeJob.cancel();
+		}
 	}
 	
 	@Override
 	public boolean isRunning() {
 		return agentProcess != null && agentProcess.isAlive();
+	}
+	
+	@Override
+	public boolean isScheduled() {
+		return initializeJob != null && initializeJob.getResult() == null;
+	}
+	
+	@Override
+	public IStatus getStatus() {
+		if (isRunning() || isScheduled()) {
+			return Status.OK_STATUS;
+		}
+		if (initializeJob == null) {
+			return null;
+		}
+		return initializeJob.getResult();
 	}
 
 	@Override
@@ -216,6 +283,65 @@ public abstract class AbstractService implements IAgentService {
 	@Override
 	public void setAuthenticateResponse(AuthenticateResponse authenticateResponse) {
 		this.authenticateResponse = authenticateResponse;
+	}
+	
+	public class ProcessResult {
+		int result;
+		List<String> errorLines = new ArrayList<String>();
+		List<String> inputLines = new ArrayList<String>();
+		Throwable ex;
+	}
+	
+	protected ProcessResult runProcess(String[] command) {
+	
+		ProcessResult result = new ProcessResult();
+		
+		Tracer.trace().trace(Tracer.ACP, String.join(", ", command));
+	    
+		try {
+		
+			ProcessBuilder pb = new ProcessBuilder(command);
+			Process process = pb.start();
+	   
+			result.result = process.waitFor();
+			Tracer.trace().trace(Tracer.ACP, "Result:" + result);
+		
+			inputStream = process.getInputStream();
+			errorStream = process.getErrorStream();
+
+			if (!process.isAlive()) {
+				BufferedReader br = new BufferedReader(new InputStreamReader(errorStream, "UTF-8"));
+				String line = br.readLine();
+				while (line != null) {
+					Tracer.trace().trace(Tracer.ACP, line);
+					result.errorLines.add(line);
+					line = br.readLine();
+				}
+				br.close();
+				
+				br = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
+				line = br.readLine();
+				while (line != null) {
+					Tracer.trace().trace(Tracer.ACP, line);
+					result.inputLines.add(line);
+					line = br.readLine();
+				}
+				br.close();
+			}
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+			Tracer.trace().trace(Tracer.ACP, "", e);
+			result.ex = e;
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+			Tracer.trace().trace(Tracer.ACP, "", e);
+			result.ex = e;
+		} catch (IOException e) {
+			Tracer.trace().trace(Tracer.ACP, "", e);
+			e.printStackTrace();
+			result.ex = e;
+		}
+		return result;
 	}
 
 }

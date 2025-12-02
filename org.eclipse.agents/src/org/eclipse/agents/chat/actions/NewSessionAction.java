@@ -1,10 +1,8 @@
 package org.eclipse.agents.chat.actions;
 
-import org.eclipse.agents.Activator;
 import org.eclipse.agents.Tracer;
 import org.eclipse.agents.chat.ChatView;
 import org.eclipse.agents.chat.controller.StartSessionJob;
-import org.eclipse.agents.chat.toolbar.ToolbarAgentSelector;
 import org.eclipse.agents.chat.toolbar.ToolbarSessionSelector;
 import org.eclipse.agents.services.agent.IAgentService;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
@@ -49,4 +47,6 @@ public class NewSessionAction extends Action {
 			}
 		}
  	}
+	
+	
 }

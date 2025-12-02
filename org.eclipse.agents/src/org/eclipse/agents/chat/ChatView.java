@@ -19,7 +19,9 @@ import java.util.List;
 
 import org.eclipse.agents.Activator;
 import org.eclipse.agents.chat.ContentAssistProvider.ResourceProposal;
+import org.eclipse.agents.chat.actions.NewSessionAction;
 import org.eclipse.agents.chat.controller.AgentController;
+import org.eclipse.agents.chat.controller.IAgentServiceListener;
 import org.eclipse.agents.chat.controller.SessionController;
 import org.eclipse.agents.chat.controller.StartSessionJob;
 import org.eclipse.agents.chat.toolbar.ToolbarAgentSelector;
@@ -33,6 +35,7 @@ import org.eclipse.agents.services.protocol.AcpSchema.ContentBlock;
 import org.eclipse.agents.services.protocol.AcpSchema.TextBlock;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.jface.action.IToolBarManager;
@@ -57,7 +60,7 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.ui.part.ViewPart;
 
-public class ChatView extends ViewPart implements TraverseListener, IContentProposalListener, ModifyListener, VerifyListener, Listener  {
+public class ChatView extends ViewPart implements IAgentServiceListener, TraverseListener, IContentProposalListener, ModifyListener, VerifyListener, Listener  {
 
 	public static final String ID  = "org.eclipse.agents.chat.ChatView"; //$NON-NLS-1$
 
@@ -137,6 +140,7 @@ public class ChatView extends ViewPart implements TraverseListener, IContentProp
 			}
 		});
 		
+		AgentController.instance().addAgentListener(this);
 		SessionController.addChatView(this);
 	}
 
@@ -153,6 +157,7 @@ public class ChatView extends ViewPart implements TraverseListener, IContentProp
 		super.dispose();
 		this.disposed = true;
 		SessionController.removeChatView(this);
+		AgentController.instance().removeAgentListener(this);
 	}
 
 	@Override
@@ -187,14 +192,19 @@ public class ChatView extends ViewPart implements TraverseListener, IContentProp
 		}
 	}
 
-	public void agentConnected(IAgentService agent) {
-		this.activeAgent = agent;
-		startStop.setEnabled(true);
+	public void setActiveAgent(IAgentService agent) {
+		if (this.activeAgent != agent) {
+			this.activeAgent = agent;
+			if (agent.isRunning() && activeSessionId == null) {
+				new NewSessionAction(this).run();
+			}
+			updateEnablement();
+		}
 	}
 
 	public void agentDisconnected() {
-		this.activeAgent = null;
-		startStop.setEnabled(false);
+		this.activeSessionId = null;
+		updateEnablement();
 	}
 
 	@Override
@@ -275,27 +285,15 @@ public class ChatView extends ViewPart implements TraverseListener, IContentProp
 			}
 		}
 	}
-
-	public void setActiveAgent(IAgentService agent) {
-		if (this.activeAgent != agent) {
-			this.activeAgent = agent;
-			this.activeSessionId = null;
-		}
-	}
 	
 	public void setActiveSessionId(String sessionId) {
 		if (activeSessionId == null || !sessionId.equals(activeSessionId)) {
+//			TODO: stopPromptTurn();
 			browser.clearContent();
 		}
 
 		this.activeSessionId = sessionId;
-
-		Activator.getDisplay().asyncExec(new Thread() {
-			public void run() {
-				sessionSelector.setEnabled(true);
-				sessionSelector.updateText("Session " + AgentController.getSessionCount());
-			}
-		});
+		updateEnablement();
 		
 	}
 	
@@ -305,5 +303,51 @@ public class ChatView extends ViewPart implements TraverseListener, IContentProp
 
 	public IAgentService getActiveAgent() {
 		return activeAgent;
+	}
+
+	@Override
+	public void agentStopped(IAgentService service) {
+		if (getActiveAgent() == service) {
+			this.activeSessionId = null;
+			updateEnablement();
+		}
+	}
+
+	@Override
+	public void agentScheduled(IAgentService service) {
+		if (activeAgent == service) {
+			this.activeSessionId = null;
+			updateEnablement();
+		}
+	}
+
+	@Override
+	public void agentStarted(IAgentService service) {
+		if (activeAgent == service) {
+			this.activeSessionId = null;
+			new NewSessionAction(this).run();
+			updateEnablement();
+		}
+	}
+
+	@Override
+	public void agentFailed(IAgentService service) {
+		if (this.activeAgent == service) {
+			this.activeSessionId = null;
+			updateEnablement();
+		}
+	}
+	
+	private void updateEnablement() {
+		Activator.getDisplay().asyncExec(new Runnable() {
+			public void run() {
+				if (!disposed) {
+					agentSelector.setEnabled(true);
+				    sessionSelector.setEnabled(activeAgent != null && activeAgent.isRunning());
+					startStop.setEnabled(activeAgent != null && activeAgent.isRunning() && activeSessionId != null);	
+					inputText.setEnabled(activeAgent != null && activeAgent.isRunning() && activeSessionId != null);
+				}
+			}
+		});
 	}
 }

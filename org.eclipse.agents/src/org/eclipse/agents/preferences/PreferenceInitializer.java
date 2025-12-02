@@ -29,8 +29,12 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer impleme
 
 		store.setDefault(P_MCP_SERVER_ENABLED, false);
 		store.setDefault(P_MCP_SERVER_HTTP_PORT, 8673);
-		store.setDefault(P_ACP_WORKING_DIR, ResourcesPlugin.getWorkspace().getRoot().getRawLocation().toOSString());
-		
+		store.setDefault(P_ACP_WORKING_DIR, ResourcesPlugin.getWorkspace().getRoot().getRawLocation().toOSString());		
+		store.setDefault(P_ACP_GEMINI_VERSION, "latest");
+		store.setDefault(P_ACP_FILE_READ, true);
+		store.setDefault(P_ACP_FILE_WRITE, true);
+		store.setDefault(P_ACP_PROMPT4MCP, true);
+
 		for (IAgentService service: AgentController.instance().getAgents()) {
 			if (service instanceof AbstractService) {
 				store.setDefault(
