@@ -30,12 +30,18 @@ class PermissionRequest extends DivTemplate {
 		this._title.textContent = title.replaceAll(' ', '\u00A0');
 		for(const option of options) {
 			const permissionRequestButton = addChild(this._buttonContainer, "permission-request-button");
-			permissionRequestButton.create(option.kind, option.name, option.optionId);
+			permissionRequestButton.create(option.kind, option.name, option.optionId, this);
 		};
 	}
 
 	getToolCallId() {
 		return this._toolCallId;
+	}
+	
+	handleClick() {
+		this._title.style.borderBottom = 'none';
+		this._buttonContainer.remove();
+		// TODO handle API call
 	}
 
 }
