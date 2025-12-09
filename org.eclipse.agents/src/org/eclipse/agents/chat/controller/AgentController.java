@@ -204,6 +204,12 @@ public class AgentController {
 			}
 		}
 	}
+	
+	public void acceptRequestsPermission(RequestPermissionRequest permissionRequest) {
+		for (ISessionListener listener: sesionListeners) {
+			listener.accept(permissionRequest);
+		}
+	}
 
 	public void agentStarted(IAgentService service) {
 		for (IAgentServiceListener listener: agentListeners) {

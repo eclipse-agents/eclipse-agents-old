@@ -82,6 +82,7 @@ public class AcpClient implements IAcpClient {
 	@Override
 	public CompletableFuture<RequestPermissionResponse> requestPermission(RequestPermissionRequest request) {
 		CompletableFuture<RequestPermissionResponse>  future = new CompletableFuture<RequestPermissionResponse>();
+		AgentController.instance().acceptRequestsPermission(request);
 		Activator.getDisplay().syncExec(new Runnable() {
 			public void run() {
 				SelectionDialog dialog = new SelectionDialog(Activator.getDisplay().getActiveShell()) {

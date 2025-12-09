@@ -38,6 +38,7 @@ const user_thoughts = "user-thoughts";
 const agent_thoughts = "agent-thoughts";
 const agent_messages= "agent-messages";
 const tool_call= "tool-call";
+const permission_request = "permission-request";
 
 
 
@@ -87,6 +88,13 @@ function acceptSessionToolCallUpdate(toolCallId, status) {
 	scrollToBottom();
 }
 
+function acceptPermissionRequest(toolCallId, options, title) {
+	addChild(getTurn(), permission_request).id = toolCallId;
+	const json = JSON.parse(options);
+	getTurnMessage().create(toolCallId, json, title);
+	scrollToBottom();
+}
+
 
 function setStyle(fontSize, foreground, background, link, linkActive, infoFg, infoBg) {
 	document.body.style.color = foreground;
@@ -122,7 +130,7 @@ function clearContents() {
 	const tagsToKeep = ['script', 'template'];
 	children.forEach(element => {
 		const tagName = element.tagName.toLowerCase();
-    	if (!tagsToKeep.includes(tagName)) {
+ 	   	if (!tagsToKeep.includes(tagName)) {
     		element.remove();
     	}
   	});

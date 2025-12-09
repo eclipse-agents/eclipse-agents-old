@@ -34,6 +34,8 @@
 		<script src="components/agent-messages.js"></script>
 		<script src="components/agent-thoughts.js"></script>
 		<script src="components/tool-call.js"></script>
+		<script src="components/permission-request.js"></script>
+		<script src="components/permission-request-button.js"></script>
 	
 		<template id="prompt-turn">
 		</template>
@@ -85,6 +87,24 @@
 		</template>
 
 		<!-- END SessionUpdate -->
+		
+		<template id="permission-request">
+			<link href="components/permission-request.css" rel="stylesheet">
+			<div id="permissionRequestId" tabindex="0">
+				<span id="permissionRequestTitle" class="requestName"></span>
+				<span id="permissionButtonContainer" class="buttonContainer"></span>
+			</div>
+		</template>
+		
+		<template id="permission-request-button">
+			<link href="components/permission-request-button.css" rel="stylesheet">
+			<div id="permissionRequestButtonId">
+				<button>
+					<img id="kind" alt=""></img>
+					<span id="name"></span>
+				</button>
+			</div>
+		</template>
 
 	</body>
 

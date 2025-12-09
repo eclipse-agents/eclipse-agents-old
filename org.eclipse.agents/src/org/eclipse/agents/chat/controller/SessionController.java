@@ -217,8 +217,14 @@ public class SessionController implements ISessionListener {
 
 	@Override
 	public void accept(RequestPermissionRequest request) {
-		// TODO Auto-generated method stub
+		if (!sessionId.equals(request.sessionId())) {
+			return;
+		}
 		
+		for (ChatView view: getChatViews(request.sessionId())) {
+			ChatBrowser browser = view.getBrowser();
+			browser.acceptPermissionRequest(request);
+		}
 	}
 
 	@Override

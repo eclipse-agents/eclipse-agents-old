@@ -27,7 +27,9 @@ import org.eclipse.agents.Tracer;
 import org.eclipse.agents.contexts.platform.resource.WorkspaceResourceAdapter;
 import org.eclipse.agents.services.protocol.AcpSchema.ContentBlock;
 import org.eclipse.agents.services.protocol.AcpSchema.PromptRequest;
+import org.eclipse.agents.services.protocol.AcpSchema.RequestPermissionRequest;
 import org.eclipse.agents.services.protocol.AcpSchema.SessionUpdate;
+import org.eclipse.agents.services.protocol.AcpSchema.ToolCallUpdate;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
@@ -365,6 +367,26 @@ public class ChatBrowser {
 			Activator.getDisplay().syncExec(()-> {
 				Tracer.trace().trace(Tracer.BROWSER, "" + browser.evaluate(fxn));
 			});
+		}
+	}
+	
+	public void acceptPermissionRequest(RequestPermissionRequest request) {
+		if (!browser.isDisposed()) {
+			try {
+				ToolCallUpdate toolCall = request.toolCall();
+				String toolCallId = toolCall.toolCallId();
+				String optionsJson = mapper.writeValueAsString(request.options());
+				String title = toolCall.title();
+				
+				String fxn = String.format("acceptPermissionRequest(`%s`, `%s`, `%s`);", 
+						toolCallId, optionsJson, title);
+				Tracer.trace().trace(Tracer.BROWSER, fxn);
+				Activator.getDisplay().syncExec(()-> {
+					Tracer.trace().trace(Tracer.BROWSER, "" + browser.evaluate(fxn));
+				});
+			} catch (JsonProcessingException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 	

@@ -50,6 +50,9 @@ function demo() {
 	acceptSessionAgentMessageChunk(JSON.stringify({"content":{"resource":{"blob":"text/xml","mimeType":"<xml><body></body></xml>","uri":"file:///no/where/dot/snippet.xml"},"type":"resource"},"sessionUpdate":"session1"}.content));
 
 	acceptSessionAgentMessageChunk(JSON.stringify({"content":{"text":". if not ask me for additional details","type":"text"},"sessionUpdate":"session1"}.content));
+
+	const options = JSON.stringify({"options": [{"kind":"allow_always","name":"Allow All Edits","optionId":"proceed_always"},{"kind":"allow_once","name":"Allow","optionId":"proceed_once"},{"kind":"reject_once","name":"Reject","optionId":"cancel"}]}.options);
+	acceptPermissionRequest("permission1", options, "index.html:         \u003c!-- Main heading of t... \u003d\u003e         \u003ch1\u003eDemo\u003c/h1\u003e...");
 }
 
 if (getProgramIcon == null) { 
