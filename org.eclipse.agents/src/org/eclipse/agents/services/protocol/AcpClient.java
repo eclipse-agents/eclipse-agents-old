@@ -82,7 +82,9 @@ public class AcpClient implements IAcpClient {
 	@Override
 	public CompletableFuture<RequestPermissionResponse> requestPermission(RequestPermissionRequest request) {
 		CompletableFuture<RequestPermissionResponse>  future = new CompletableFuture<RequestPermissionResponse>();
-		AgentController.instance().acceptRequestsPermission(request);
+		// TODO Uncomment the following to show the UI template in the agent chat
+		// AgentController.instance().acceptRequestsPermission(request);
+		// TODO The above will need to replace the SWT dialog below
 		Activator.getDisplay().syncExec(new Runnable() {
 			public void run() {
 				SelectionDialog dialog = new SelectionDialog(Activator.getDisplay().getActiveShell()) {
