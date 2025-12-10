@@ -293,16 +293,18 @@ public abstract class AbstractService implements IAgentService {
 	}
 	
 	protected ProcessResult runProcess(String[] command) {
-	
+	    ProcessBuilder pb = new ProcessBuilder(command);
+		return runProcess(pb);
+	}
+
+	protected ProcessResult runProcess(ProcessBuilder builder) {
+
+		Tracer.trace().trace(Tracer.ACP, String.join(", ", builder.command()));
+
 		ProcessResult result = new ProcessResult();
 		
-		Tracer.trace().trace(Tracer.ACP, String.join(", ", command));
-	    
 		try {
-		
-			ProcessBuilder pb = new ProcessBuilder(command);
-			Process process = pb.start();
-	   
+			Process process = builder.start();
 			result.result = process.waitFor();
 			Tracer.trace().trace(Tracer.ACP, "Result:" + result);
 		
