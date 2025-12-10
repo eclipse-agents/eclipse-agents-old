@@ -220,7 +220,7 @@ public class AcpGeminiPreferencePage extends PreferencePage implements
 	private void updateStatus() {
 		for (IAgentService service: AgentController.instance().getAgents()) {
 			if (service instanceof GeminiService) {
-				if (service.isRunning()) {
+				if (service.isRunning() && service.getInitializeResponse() != null) {
 					InitializeResponse response = service.getInitializeResponse();
 					StringBuffer buffer = new StringBuffer();
 					buffer.append("Gemini CLI Features:");
