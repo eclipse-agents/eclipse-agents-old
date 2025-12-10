@@ -84,7 +84,7 @@ This feature runs a Model Context Protocol server within the Eclipse IDE VM enab
 ## Installation
 
 - Download a recent version of [Eclipse J2EE package](https://www.eclipse.org/downloads/packages/release/2025-09/r/eclipse-ide-enterprise-java-and-web-developers) that has this plugins dependencies built-in.
-- Download the [Eclipse Agents plugin](https://ibm.box.com/v/eclipse-agents) and unzip it
+- Download the [Eclipse Agents plugin](https://ibm.box.com/s/mbdlz17f7wqcvun40ouuqb6zgvzckss9) and unzip it
 - From Eclipse navigate to Help > Install New Software...
 - Click "Add..." > "Archive..." and navigate to the org.eclipse.mcp.update folder, then click "Open"
 - Uncheck "Group items by category"
@@ -102,15 +102,5 @@ This feature runs a Model Context Protocol server within the Eclipse IDE VM enab
 
 ### To use the Coding Agent view with Google Gemini CLI
 
-- Install the [Google Gemini CLI](https://github.com/google-gemini/gemini-cli) locally
-- Start up gemini in a terminal and log in using google.
-- In Eclipse navigate to preference page "Coding Agents/Agent CLIs".
-- Enter in a valid location for your node executable and the gemini cli js file
-  - while we await improvements on automatically finding gemini files...
-    - use `where node` and `where gemini` in a terminal to find locations
-    - you can use quotes if either contains a space
-    - on windows you may find the gemini js file somewhere like  
-      - C:\Users\<user>\AppData\Roaming\npm\node_modules\@google\gemini-cli\dist\index.js
-- Open the Coding Agent view
-- Select Coding Agent: Gemini CLI
-- Type into the chat input, press enter to submit prompt
+- There is currently a bug with gemini ACP so you'll need to target an older version
+- In preference page Coding Agents > Agent Services > Google Gemini set the Target Version to 0.9.0
