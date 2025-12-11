@@ -21,9 +21,11 @@ class PermissionRequest extends DivTemplate {
 	connectedCallback() {
 		this._title = this.root.querySelector('div span#permissionRequestTitle');
 		this._buttonContainer = this.root.querySelector('div span#permissionButtonContainer');
+		this._input = this.root.querySelector('div chunked-markdown#permissionRequestInput');
+		this._output = this.root.querySelector('div chunked-markdown#permissionRequestOutput');
 	}
 
-	create(toolCallId, options, title) {
+	create(toolCallId, options, title, input, output) {
 		this._toolCallId = toolCallId;
 		this._buttonContainer.id = toolCallId;
 		// make sure spaces are rendered correctly
@@ -31,7 +33,15 @@ class PermissionRequest extends DivTemplate {
 		for(const option of options) {
 			const permissionRequestButton = addChild(this._buttonContainer, "permission-request-button");
 			permissionRequestButton.create(option.kind, option.name, option.optionId, this);
-		};
+		}
+		if (input != null) {
+			const inputBlock= {"text":"```json\n" + input + "\n```","type":"text"};
+			this._input.addContentBlock(inputBlock);
+		}
+		if (output != null) {
+			const outputBlock = {"text":"```json\n" + output + "\n```","type":"text"};
+			this._output.addContentBlock(outputBlock);
+		}
 	}
 
 	getToolCallId() {

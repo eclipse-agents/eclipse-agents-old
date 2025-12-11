@@ -29,6 +29,8 @@ import org.eclipse.agents.services.protocol.AcpSchema.ContentBlock;
 import org.eclipse.agents.services.protocol.AcpSchema.PromptRequest;
 import org.eclipse.agents.services.protocol.AcpSchema.RequestPermissionRequest;
 import org.eclipse.agents.services.protocol.AcpSchema.SessionUpdate;
+import org.eclipse.agents.services.protocol.AcpSchema.ToolCallContent;
+import org.eclipse.agents.services.protocol.AcpSchema.ToolCallContentDiff;
 import org.eclipse.agents.services.protocol.AcpSchema.ToolCallUpdate;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
@@ -378,8 +380,25 @@ public class ChatBrowser {
 				String optionsJson = mapper.writeValueAsString(request.options());
 				String title = toolCall.title();
 				
-				String fxn = String.format("acceptPermissionRequest(`%s`, `%s`, `%s`);", 
-						toolCallId, optionsJson, title);
+				String input = null;
+				String output = null;
+				ToolCallContent[] contents = toolCall.content();
+				if (contents != null && contents.length > 0) {
+					ToolCallContent content = contents[0];
+					if (content instanceof ToolCallContentDiff) {
+						ToolCallContentDiff contentDiff = (ToolCallContentDiff) content;
+						// TODO for diffs, currently just display the old and new text with a separater
+						// We'll need to properly handle this in the html/prism side
+						input = contentDiff.oldText() + 
+								"\n\n--------------- \n\n" + 
+								contentDiff.newText();
+					}
+				}
+				
+				String formattedFxn = String.format("acceptPermissionRequest(`%s`, `%s`, `%s`, `%s`, `%s`);",
+						toolCallId, optionsJson, title, input, output);
+				// handle when input or output are empty
+				String fxn = formattedFxn.replaceAll("`null`", "null");
 				Tracer.trace().trace(Tracer.BROWSER, fxn);
 				Activator.getDisplay().syncExec(()-> {
 					Tracer.trace().trace(Tracer.BROWSER, "" + browser.evaluate(fxn));

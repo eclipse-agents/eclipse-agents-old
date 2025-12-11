@@ -23,7 +23,7 @@
 	justify-content: flex-end;
 }
 
-div {
+.permissionRequest {
 	border-color: var(--info_fg);
 	border-top-width: thin;
 	border-bottom-width: thin;
@@ -34,6 +34,28 @@ div {
 	margin-top: 10px;
 }
 
+.markdownContainer {
+	padding: 6px;
+}
+
 div span {
 	padding: 6px;
+}
+
+div div chunked-markdown {
+	background-color: var(--info_bg);
+	color:var(--info_fg);
+	max-height: 0;
+	overflow: hidden;
+	transition: max-height 0.2s ease-out;
+	border: none;
+	text-align: left;
+	outline: none;
+}
+
+/* Allow wrapping text in code blocks */
+code[class*="language-"],
+pre[class*="language-"] {
+	white-space: pre-wrap;
+	word-break: break-word;
 }
