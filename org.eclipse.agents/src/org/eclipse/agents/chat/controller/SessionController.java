@@ -15,6 +15,7 @@ package org.eclipse.agents.chat.controller;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.agents.Tracer;
 import org.eclipse.agents.chat.ChatBrowser;
@@ -62,7 +63,22 @@ import org.eclipse.agents.services.protocol.AcpSchema.WaitForTerminalExitRequest
 import org.eclipse.agents.services.protocol.AcpSchema.WaitForTerminalExitResponse;
 import org.eclipse.agents.services.protocol.AcpSchema.WriteTextFileRequest;
 import org.eclipse.agents.services.protocol.AcpSchema.WriteTextFileResponse;
+import org.eclipse.core.filesystem.provider.FileInfo;
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFileState;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.ListenerList;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.team.core.synchronize.SyncInfo;
+import org.eclipse.team.core.synchronize.SyncInfoSet;
+import org.eclipse.team.core.synchronize.SyncInfoTree;
+import org.eclipse.team.core.variants.IResourceVariant;
+import org.eclipse.team.core.variants.IResourceVariantComparator;
+import org.eclipse.team.ui.synchronize.ISynchronizeScope;
 
 public class SessionController implements ISessionListener {
 
@@ -205,8 +221,7 @@ public class SessionController implements ISessionListener {
 	//------------------------
 	@Override
 	public void accept(WriteTextFileRequest request) {
-		// TODO Auto-generated method stub
-		
+		writeRequests.add(request);
 	}
 
 	@Override
@@ -317,6 +332,35 @@ public class SessionController implements ISessionListener {
 			view.prompTurnEnded();
 		}
 		
+		if (!fileStates.isEmpty()) {
+			SyncInfoSet myEmptySet = new SyncInfoSet();
+			SyncInfoSet syncSet = new SyncInfoTree();
+			for (IFile file: fileStates.keySet()) {
+				if (file.exists()) {
+
+			     IResourceVariant base = fileStates.get(file).get; // null if it doesn't exist in base/remote
+			     IResourceVariant remote = null; // null if it doesn't exist in base/remote
+			     IResourceVariantComparator comparator = getMyTeamProviderComparator(file.getProject()); // Must be acquired from your SCM provider
+
+	            try {
+	                // 4. Instantiate SyncInfo. The constructor requires specific parameters.
+	                // The 'kind' (sync state) is calculated internally by the SyncInfo using the comparator.
+	                SyncInfo info = new SyncInfo(file, base, remote, comparator);
+	                // The kind will likely be SyncInfo.OUTGOING | SyncInfo.ADDITION if it's new locally.
+
+	                // 5. Add the SyncInfo to the set
+	                syncSet.add(info);
+
+	            } catch (Exception e) {
+	                // Handle exceptions (e.g., CoreException if comparator is missing)
+	                e.printStackTrace();
+	            }
+			        }
+			    }
+				myEmptySet.add(new SyncInfo());
+			}
+		}
+		
 		
 	}
 
@@ -363,6 +407,7 @@ public class SessionController implements ISessionListener {
 
 	@Override
 	public void accept(PromptRequest request) {
+		writeRequests.clear();
 		for (ChatView view: getChatViews(sessionId)) {
 			view.getBrowser().acceptPromptRequest(request);
 			view.prompTurnStarted();
@@ -443,6 +488,24 @@ public class SessionController implements ISessionListener {
 	public void accept(NewSessionRequest request) {
 		// TODO Auto-generated method stub
 		
+	}
+
+	@Override
+	public void fileAboutToBeChanged(String sessionId, IFile file) {
+		if (!sessionId.equals(sessionId)) {
+			return;
+		}
+		
+		if (!fileStates.containsKey(file)) {
+			 try {
+				IFileState[] history = file.getHistory(new NullProgressMonitor());
+				 if (history.length > 0) {
+					 fileStates.put(file,  history[history.length - 1]);
+				}
+			 } catch (CoreException e) {
+				e.printStackTrace();
+			 }
+		}
 	}
 	
 	

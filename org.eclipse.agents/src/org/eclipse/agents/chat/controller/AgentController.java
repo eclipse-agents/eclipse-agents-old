@@ -48,7 +48,9 @@ import org.eclipse.agents.services.protocol.AcpSchema.TerminalOutputRequest;
 import org.eclipse.agents.services.protocol.AcpSchema.TerminalOutputResponse;
 import org.eclipse.agents.services.protocol.AcpSchema.WaitForTerminalExitRequest;
 import org.eclipse.agents.services.protocol.AcpSchema.WaitForTerminalExitResponse;
+import org.eclipse.agents.services.protocol.AcpSchema.WriteTextFileRequest;
 import org.eclipse.agents.services.protocol.AcpSchema.WriteTextFileResponse;
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.ListenerList;
 
@@ -163,6 +165,8 @@ public class AgentController {
 		for (ISessionListener listener : sesionListeners) {
 			if (req instanceof ReadTextFileRequest) {
 				listener.accept((ReadTextFileRequest)req);
+			} else if (req instanceof WriteTextFileRequest) {
+				listener.accept((WriteTextFileRequest)req);
 			} else if (req instanceof RequestPermissionRequest) {
 				listener.accept((RequestPermissionRequest)req);
 			} else if (req instanceof CreateTerminalRequest) {
@@ -202,6 +206,12 @@ public class AgentController {
 			if (notification instanceof SessionNotification) {
 				listener.accept((SessionNotification)notification);
 			}
+		}
+	}
+	
+	public void fileAboutToBeChanged(String sessionId, IFile file) {
+		for (ISessionListener listener: sesionListeners) {
+			listener.fileAboutToBeChanged(sessionId, file);
 		}
 	}
 

@@ -81,6 +81,8 @@ public class AcpClient implements IAcpClient {
 
 	@Override
 	public CompletableFuture<RequestPermissionResponse> requestPermission(RequestPermissionRequest request) {
+		AgentController.instance().agentRequests(request);
+		
 		CompletableFuture<RequestPermissionResponse>  future = new CompletableFuture<RequestPermissionResponse>();
 		Activator.getDisplay().syncExec(new Runnable() {
 			public void run() {
@@ -130,6 +132,8 @@ public class AcpClient implements IAcpClient {
 
 	@Override
 	public CompletableFuture<ReadTextFileResponse> readTextFile(ReadTextFileRequest request) {
+		AgentController.instance().agentRequests(request);
+		
 		Path  absolutePath = new Path(request.path());
 		CompletableFuture<ReadTextFileResponse> result = new CompletableFuture<ReadTextFileResponse>();
 		Activator.getDisplay().syncExec(new Runnable() {
@@ -202,7 +206,12 @@ public class AcpClient implements IAcpClient {
 
 	@Override
 	public CompletableFuture<WriteTextFileResponse> writeTextFile(WriteTextFileRequest request) {
+		AgentController.instance().agentRequests(request);
+		
 		Path  absolutePath = new Path(request.path());
+		IFile file = findFile(absolutePath);
+		AgentController.instance().captureFileInfo(request.sessionId(), file);
+		
 		CompletableFuture<WriteTextFileResponse> result = new CompletableFuture<WriteTextFileResponse>();
 		Activator.getDisplay().syncExec(new Runnable() {
 			public void run() {
@@ -216,7 +225,7 @@ public class AcpClient implements IAcpClient {
 		});
 
 		if (!result.isDone()) {
-			IFile file = findFile(absolutePath);
+			
 			if (file != null) {
 			    try {
 			        byte[] bytes = request.content().getBytes(file.getCharset());
@@ -277,26 +286,29 @@ public class AcpClient implements IAcpClient {
 	}
 	
 	private ITextEditor findFileEditor(Path absolutePath) {
+		ITextEditor editor = null;
 		for (IWorkbenchWindow ww : PlatformUI.getWorkbench().getWorkbenchWindows()) {
 			for (IWorkbenchPage page : ww.getPages()) {
 				for (IEditorReference reference : page.getEditorReferences()) {
-					IEditorPart part = reference.getEditor(false);
+					IEditorPart part = reference.getEditor(true);
 					if (part != null && part instanceof ITextEditor) {
 						IEditorInput input = part.getEditorInput();
 						if (input instanceof FileEditorInput) {
 							IFile file = ((IFileEditorInput)input).getFile();
 							if (file.getRawLocation().equals(absolutePath)) {
-								return (ITextEditor)part;
+								editor = (ITextEditor)part;
 							}
 						}
 					}
 				}
 			}
 		}
-		return null;
+		Tracer.trace().trace(Tracer.ACP, absolutePath.toOSString() + ": " + (editor != null));
+		
+		return editor;
 	}
 	
-	private IFile findFile(Path absolutePath) {
+	public static IFile findFile(Path absolutePath) {
 		IFile file = ResourcesPlugin.getWorkspace().getRoot().getFileForLocation(absolutePath);
 		if (file != null) {
 			if (!file.exists()) {

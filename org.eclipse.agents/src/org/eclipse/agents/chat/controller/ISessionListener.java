@@ -39,6 +39,7 @@ import org.eclipse.agents.services.protocol.AcpSchema.WaitForTerminalExitRequest
 import org.eclipse.agents.services.protocol.AcpSchema.WaitForTerminalExitResponse;
 import org.eclipse.agents.services.protocol.AcpSchema.WriteTextFileRequest;
 import org.eclipse.agents.services.protocol.AcpSchema.WriteTextFileResponse;
+import org.eclipse.core.resources.IFile;
 
 public interface ISessionListener {
 
@@ -85,4 +86,7 @@ public interface ISessionListener {
 	public void accept(ReleaseTerminalResponse response);
 	public void accept(WaitForTerminalExitResponse response);
 	public void accept(KillTerminalCommandResponse response);
+
+	//Non-API
+	public void fileAboutToBeChanged(String sessionId, IFile file);
 }
