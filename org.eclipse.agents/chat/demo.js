@@ -54,7 +54,16 @@ function demo() {
 	const options = JSON.stringify({"options": [{"kind":"allow_always","name":"Allow All Edits","optionId":"proceed_always"},{"kind":"allow_once","name":"Allow","optionId":"proceed_once"},{"kind":"reject_once","name":"Reject","optionId":"cancel"}]}.options);
 	const input = JSON.stringify({"children":[{"name":"sample","isFolder":true,"uri":{"type":"resource_link","name":"sample","uri":"file:/C:/geminiProjects/sample","description":"Eclipse workspace project"}},{"name":"sample2","isFolder":true,"uri":{"type":"resource_link","name":"sample2","uri":"file:/C:/geminiProjects/sample2","description":"Eclipse workspace project"}}],"depthSearched":"CHILDREN"})
 	const output = JSON.stringify({"children":[{"name":".project","isFolder":false,"uri":{"type":"resource_link","name":".project","uri":"file:/C:/geminiProjects/sample2/.project","description":"Eclipse workspace file","mimeType":"text/plain","size":398}},{"name":".settings","isFolder":true,"uri":{"type":"resource_link","name":".settings","uri":"file:/C:/geminiProjects/sample2/.settings","description":"Eclipse workspace folder"}},{"name":".jsdtscope","isFolder":false,"uri":{"type":"resource_link","name":".jsdtscope","uri":"file:/C:/geminiProjects/sample2/.settings/.jsdtscope","description":"Eclipse workspace file","mimeType":"text/plain","size":319}},{"name":"org.eclipse.wst.jsdt.ui.superType.container","isFolder":false,"uri":{"type":"resource_link","name":"org.eclipse.wst.jsdt.ui.superType.container","uri":"file:/C:/geminiProjects/sample2/.settings/org.eclipse.wst.jsdt.ui.superType.container","description":"Eclipse workspace file","mimeType":"text/plain","size":44}},{"name":"org.eclipse.wst.jsdt.ui.superType.name","isFolder":false,"uri":{"type":"resource_link","name":"org.eclipse.wst.jsdt.ui.superType.name","uri":"file:/C:/geminiProjects/sample2/.settings/org.eclipse.wst.jsdt.ui.superType.name","description":"Eclipse workspace file","mimeType":"text/plain","size":6}},{"name":"app.js","isFolder":false,"uri":{"type":"resource_link","name":"app.js","uri":"file:/C:/geminiProjects/sample2/app.js","description":"Eclipse workspace file","mimeType":"text/plain","size":22110}},{"name":"sample2.html","isFolder":false,"uri":{"type":"resource_link","name":"sample2.html","uri":"file:/C:/geminiProjects/sample2/sample2.html","description":"Eclipse workspace file","mimeType":"text/plain","size":734}}],"depthSearched":"INFINITE"});
-	acceptPermissionRequest("permission1", options, "index.html:         \u003c!-- Main heading of t... \u003d\u003e         \u003ch1\u003eDemo\u003c/h1\u003e...", input, output);
+	
+	const demoUpdatePermissionDelay = true;
+	if (demoUpdatePermissionDelay) {
+		// Demonstrate updateing a request after some delay
+		const permissionRequest = acceptPermissionRequest("permission2", options, "{\"fileUri\":\"file:/C:/geminiProjects/sample2/sample2.html\"}", null, null);	
+		setTimeout(() => {permissionRequest.updateInput(input)}, 3000);
+		setTimeout(() => {permissionRequest.updateOutput(output)}, 8000);
+	} else {
+		acceptPermissionRequest("permission1", options, "index.html:         \u003c!-- Main heading of t... \u003d\u003e         \u003ch1\u003eDemo\u003c/h1\u003e...", input, output);
+	}
 }
 
 if (getProgramIcon == null) { 

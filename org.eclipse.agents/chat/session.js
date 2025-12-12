@@ -88,11 +88,12 @@ function acceptSessionToolCallUpdate(toolCallId, status) {
 	scrollToBottom();
 }
 
-function acceptPermissionRequest(toolCallId, options, title) {
+function acceptPermissionRequest(toolCallId, options, title, input, output) {
 	addChild(getTurn(), permission_request).id = toolCallId;
-	const json = JSON.parse(options);
-	getTurnMessage().create(toolCallId, json, title);
+	const jsonOptions = JSON.parse(options);
+	const permissionRequest = getTurnMessage().create(toolCallId, jsonOptions, title, input, output);
 	scrollToBottom();
+	return permissionRequest;
 }
 
 

@@ -92,13 +92,20 @@
 			<link href="prism-okaida.css" rel="stylesheet" >
 			<link href="components/permission-request.css" rel="stylesheet">
 			<div id="permissionRequestId" tabindex="0" class="permissionRequest">
-				<span id="permissionRequestTitle" class="requestName"></span>
+				<div id="titleContainer" class="titleContainer">
+					<span id="permissionRequestTitle"></span>
+					<img id="status" src="icons/in_progress.png" class="statusIcon"></img>
+				</div>
+				<button id="expandCollapseInputButton" class="expandCollapseButton"><img></img></button>
 				<div class="markdownContainer">
 					<chunked-markdown id="permissionRequestInput" tabindex="0"></chunked-markdown>
+					<button id="inputFooterButton" class="footerButton"><img></img></button>
 				</div>
 				<span id="permissionButtonContainer" class="buttonContainer"></span>
+				<button id="expandCollapseOutputButton" class="expandCollapseButton"><img></img></button>
 				<div class="markdownContainer">
 					<chunked-markdown id="permissionRequestOutput" tabindex="0"></chunked-markdown>
+					<button id="outputFooterButton" class="footerButton"><img></img></button>
 				</div>
 			</div>
 		</template>

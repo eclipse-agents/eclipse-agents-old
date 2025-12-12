@@ -12,10 +12,23 @@
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 
-.requestName {
+.titleContainer {
 	display: flex;
 	border-bottom: 1px solid var(--info_fg);
 	overflow: hidden;
+}
+
+.expandCollapseButton {
+	display: flex;
+	margin-left: auto;
+	margin-right: 6px;
+	margin-top: 6px;
+	height: 18px;
+	width: 30px
+}
+
+.footerButton {
+	width: 100%;
 }
 
 .buttonContainer {
@@ -35,7 +48,16 @@
 }
 
 .markdownContainer {
-	padding: 6px;
+	padding-bottom: 6px;
+	padding-left: 6px;
+	padding-right: 6px; 
+}
+
+.statusIcon {
+	max-height: min-content;
+	margin-top: 4px;
+	margin-right:6px;
+	margin-left: auto;
 }
 
 div span {
@@ -43,6 +65,7 @@ div span {
 }
 
 div div chunked-markdown {
+	display: unset;
 	background-color: var(--info_bg);
 	color:var(--info_fg);
 	max-height: 0;
