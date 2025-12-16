@@ -252,78 +252,37 @@ public class AcpClient implements IAcpClient {
 
 	@Override
 	public CompletableFuture<CreateTerminalResponse> terminalCreate(CreateTerminalRequest request) {
-		// TODO Auto-generated method stub
+		AgentController.instance().agentRequests(request);
 		return null;
 	}
 
 	@Override
 	public CompletableFuture<TerminalOutputResponse> terminalOutput(TerminalOutputRequest request) {
-		// TODO Auto-generated method stub
+		AgentController.instance().agentRequests(request);
 		return null;
 	}
 
 	@Override
 	public CompletableFuture<ReleaseTerminalResponse> terminalRelease(WaitForTerminalExitRequest request) {
-		// TODO Auto-generated method stub
+		AgentController.instance().agentRequests(request);
 		return null;
 	}
 
 	@Override
 	public CompletableFuture<WaitForTerminalExitResponse> terminalWaitForExit(CreateTerminalRequest request) {
-		// TODO Auto-generated method stub
+		AgentController.instance().agentRequests(request);
 		return null;
 	}
 
 	@Override
 	public CompletableFuture<KillTerminalCommandResponse> terminalKill(KillTerminalCommandRequest request) {
-		// TODO Auto-generated method stub
+		AgentController.instance().agentRequests(request);
 		return null;
 	}
 
 	@Override
 	public void update(SessionNotification notification) {
 		AgentController.instance().agentNotifies(notification);
-	}
-	
-	private ITextEditor findFileEditor(Path absolutePath) {
-		ITextEditor editor = null;
-		for (IWorkbenchWindow ww : PlatformUI.getWorkbench().getWorkbenchWindows()) {
-			for (IWorkbenchPage page : ww.getPages()) {
-				for (IEditorReference reference : page.getEditorReferences()) {
-					IEditorPart part = reference.getEditor(true);
-					if (part != null && part instanceof ITextEditor) {
-						IEditorInput input = part.getEditorInput();
-						if (input instanceof FileEditorInput) {
-							IFile file = ((IFileEditorInput)input).getFile();
-							if (file.getRawLocation().equals(absolutePath)) {
-								editor = (ITextEditor)part;
-							}
-						}
-					}
-				}
-			}
-		}
-		Tracer.trace().trace(Tracer.ACP, absolutePath.toOSString() + ": " + (editor != null));
-		
-		return editor;
-	}
-	
-	public static IFile findFile(Path absolutePath) {
-		IFile file = ResourcesPlugin.getWorkspace().getRoot().getFileForLocation(absolutePath);
-		if (file != null) {
-			if (!file.exists()) {
-				try {
-					file.refreshLocal(0, new NullProgressMonitor());
-				} catch (CoreException e) {
-					e.printStackTrace();
-				}
-			}
-			
-			if (file.exists()) {
-				return file;
-			}
-		}
-		return null;
 	}
 
 }

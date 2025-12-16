@@ -87,6 +87,4 @@ public interface ISessionListener {
 	public void accept(WaitForTerminalExitResponse response);
 	public void accept(KillTerminalCommandResponse response);
 
-	//Non-API
-	public void fileAboutToBeChanged(String sessionId, IFile file);
 }
