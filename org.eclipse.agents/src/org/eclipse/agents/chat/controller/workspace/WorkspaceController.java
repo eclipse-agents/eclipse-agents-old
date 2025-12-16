@@ -142,46 +142,28 @@ public class WorkspaceController {
 	}
 
 
-	public void writeTextFile(Path  absolutePath, String content) {
+	public void writeToEditor(ITextEditor editor, String content) {
+		IDocument doc = editor.getDocumentProvider().getDocument(editor.getEditorInput());
+		doc.set(content);
+	}
+
+	public void writeToFile(Path absolutePath, String content) {
 		IFile file = findFile(absolutePath);
-		AgentController.instance().captureFileInfo(request.sessionId(), file);
 		
-		CompletableFuture<WriteTextFileResponse> result = new CompletableFuture<WriteTextFileResponse>();
-		Activator.getDisplay().syncExec(new Runnable() {
-			public void run() {
-				ITextEditor editor = findFileEditor(absolutePath);
-				if (editor != null) {
-					IDocument doc = editor.getDocumentProvider().getDocument(editor.getEditorInput());
-					doc.set(request.content());
-					result.complete(new WriteTextFileResponse(null));
-				}
-			}
-		});
-
-		if (!result.isDone()) {
-			
-			if (file != null) {
-			    try {
-			        byte[] bytes = request.content().getBytes(file.getCharset());
-			        ByteArrayInputStream newContentStream = new ByteArrayInputStream(bytes);
-			        IProgressMonitor monitor = new NullProgressMonitor(); // Or a real progress monitor
-			        file.setContents(newContentStream, IFile.NONE, monitor); // IFile.NONE for no update flags
-			        result.complete(new WriteTextFileResponse(null));
-			    } catch (CoreException e) {
-			    	e.printStackTrace();
-			    	throw new JsonRpcException(e);
-			    } catch (UnsupportedEncodingException e) {
-					e.printStackTrace();
-					throw new JsonRpcException(e);
-				}
+		if (file != null) {
+		    try {
+		        byte[] bytes = content.getBytes(file.getCharset());
+		        ByteArrayInputStream newContentStream = new ByteArrayInputStream(bytes);
+		        IProgressMonitor monitor = new NullProgressMonitor(); // Or a real progress monitor
+		        file.setContents(newContentStream, IFile.NONE, monitor); // IFile.NONE for no update flags
+		    } catch (CoreException e) {
+		    	e.printStackTrace();
+		    	throw new JsonRpcException(e);
+		    } catch (UnsupportedEncodingException e) {
+				e.printStackTrace();
+				throw new JsonRpcException(e);
 			}
 		}
-
-		if (!result.isDone()) {
-			throw new JsonRpcException(new Exception("write failed"));
-		}
-		
-		return result;
 	}
 	
 	public static ITextEditor findFileEditor(Path absolutePath) {

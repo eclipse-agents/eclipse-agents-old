@@ -256,11 +256,16 @@ public class ChatView extends ViewPart implements IAgentServiceListener, Travers
 	public void prompTurnStarted() {
 		startStop.prompTurnStarted();
 		getViewSite().getActionBars().updateActionBars();
+		
+		AgentController.getSession(activeSessionId).getWorkspaceController().clearVariants();
 	}
 
 	public void prompTurnEnded() {
 		startStop.prompTurnEnded();
 		getViewSite().getActionBars().updateActionBars();
+	
+		//TODO clean up
+		AgentController.getSession(activeSessionId).getWorkspaceController().displayDiffs();
 	}
 
 	@Override

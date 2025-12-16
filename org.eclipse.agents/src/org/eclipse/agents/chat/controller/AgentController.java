@@ -208,12 +208,6 @@ public class AgentController {
 			}
 		}
 	}
-	
-	public void fileAboutToBeChanged(String sessionId, IFile file) {
-		for (ISessionListener listener: sesionListeners) {
-			listener.fileAboutToBeChanged(sessionId, file);
-		}
-	}
 
 	public void agentStarted(IAgentService service) {
 		for (IAgentServiceListener listener: agentListeners) {
