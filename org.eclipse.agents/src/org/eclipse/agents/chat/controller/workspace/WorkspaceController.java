@@ -11,16 +11,8 @@ import java.text.DateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
 
-import org.eclipse.agents.Activator;
 import org.eclipse.agents.Tracer;
-import org.eclipse.agents.chat.controller.AgentController;
-import org.eclipse.agents.chat.controller.SessionAdapter;
-import org.eclipse.agents.services.protocol.AcpSchema.ReadTextFileRequest;
-import org.eclipse.agents.services.protocol.AcpSchema.ReadTextFileResponse;
-import org.eclipse.agents.services.protocol.AcpSchema.WriteTextFileRequest;
-import org.eclipse.agents.services.protocol.AcpSchema.WriteTextFileResponse;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFileState;
 import org.eclipse.core.resources.IResource;
@@ -65,15 +57,6 @@ public class WorkspaceController {
 		return sessionId;
 	}
 	
-	public String readTextFile(Path absolutePath, Integer line, Integer limit) {
-		ITextEditor editor = findFileEditor(absolutePath);
-		if (editor != null) {
-			return readFromEditor(editor, line, limit);
-		} else {
-			return readFromFile(absolutePath, line, limit);
-		}
-	}
-	
 	public String readFromEditor(ITextEditor editor, Integer line, Integer limit) {
 	 	IDocument doc = editor.getDocumentProvider().getDocument(editor.getEditorInput());
 		int offset = 0;
@@ -84,7 +67,13 @@ public class WorkspaceController {
 				offset = doc.getLineOffset(line);
 				if (limit != null) {
 					int endLine = line + limit - 1;
-					length = doc.getLineOffset(endLine) + doc.getLineLength(endLine);
+					String delim = doc.getLineDelimiter(endLine);
+					length = doc.getLineOffset(endLine) 
+							+ doc.getLineLength(endLine) 
+							- offset 
+							- (delim == null ? 0 : delim.length());
+				} else {
+					length -= offset;
 				}
 			}
 			

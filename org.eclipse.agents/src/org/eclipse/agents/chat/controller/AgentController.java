@@ -50,8 +50,6 @@ import org.eclipse.agents.services.protocol.AcpSchema.WaitForTerminalExitRequest
 import org.eclipse.agents.services.protocol.AcpSchema.WaitForTerminalExitResponse;
 import org.eclipse.agents.services.protocol.AcpSchema.WriteTextFileRequest;
 import org.eclipse.agents.services.protocol.AcpSchema.WriteTextFileResponse;
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.ListenerList;
 
 public class AgentController {
