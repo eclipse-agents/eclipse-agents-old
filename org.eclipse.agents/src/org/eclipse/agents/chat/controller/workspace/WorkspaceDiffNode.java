@@ -22,6 +22,4 @@ public class WorkspaceDiffNode extends DiffNode {
 		this.absolutePath = absolutePath;
 		this.originalContent = originalContent;
 	}
-	
-	
 }

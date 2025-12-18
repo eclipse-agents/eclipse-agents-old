@@ -3,16 +3,20 @@ package org.eclipse.agents.chat.controller.workspace;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.agents.Activator;
 import org.eclipse.agents.Tracer;
-import org.eclipse.compare.CompareConfiguration;
-import org.eclipse.compare.CompareUI;
+import org.eclipse.compare.HistoryItem;
+import org.eclipse.compare.ITypedElement;
+import org.eclipse.compare.ResourceNode;
 import org.eclipse.compare.structuremergeviewer.Differencer;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFileState;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -21,6 +25,8 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.lsp4j.jsonrpc.JsonRpcException;
+import org.eclipse.team.internal.ui.synchronize.LocalResourceTypedElement;
+import org.eclipse.team.ui.TeamUI;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorReference;
@@ -36,6 +42,7 @@ public class WorkspaceController {
 	String sessionId;
 	WorkspaceDiffNode rootNode = new WorkspaceDiffNode(Differencer.CHANGE);
 	Map<Path, WorkspaceDiffNode> nodes = new HashMap<Path, WorkspaceDiffNode>();
+//	Map<Path, IFileState> states = new HashMap<Path, IFileState>();
 	
 	public WorkspaceController(String sessionId) {
 		this.sessionId = sessionId;
@@ -123,11 +130,24 @@ public class WorkspaceController {
 		
 		if (!nodes.containsKey(absolutePath)) {
 			IFile file = findFile(absolutePath);
-			IDocument document = editor.getDocumentProvider().getDocument(editor.getEditorInput());
-			DocumentNode left = new DocumentNode(document, file);
-			StringNode right = new StringNode(file, document.get());
+			ITypedElement left = new LocalResourceTypedElement(file);
+			ITypedElement right = new StringNode(file, readFromFile(absolutePath, null, null));
+			
+			IFileState state = getHistory(absolutePath);
+			if (state != null) {
+				right = new HistoryItem(left, state);
+			}
+			
 			nodes.put(absolutePath, new WorkspaceDiffNode(Differencer.CHANGE, left, right));
 			rootNode.add(nodes.get(absolutePath));
+			
+
+//			IFile file = findFile(absolutePath);
+//			IDocument document = editor.getDocumentProvider().getDocument(editor.getEditorInput());
+//			FileNode left = new FileNode(file);
+//			StringNode right = new StringNode(file, document.get());
+//			nodes.put(absolutePath, new WorkspaceDiffNode(Differencer.CHANGE, left, right));
+//			rootNode.add(nodes.get(absolutePath));
 		}
 		
 		IDocument doc = editor.getDocumentProvider().getDocument(editor.getEditorInput());
@@ -145,10 +165,17 @@ public class WorkspaceController {
 		if (file != null) {
 			
 			if (!nodes.containsKey(absolutePath)) {
-				FileNode left = new FileNode(file);
-				StringNode right = new StringNode(file, readFromFile(absolutePath, null, null));
+				ITypedElement left = new ResourceNode(file);
+				ITypedElement right = new StringNode(file, readFromFile(absolutePath, null, null));
+				
+				IFileState state = getHistory(absolutePath);
+				if (state != null) {
+					right = new HistoryItem(left, state);
+				}
+
 				nodes.put(absolutePath, new WorkspaceDiffNode(Differencer.CHANGE, left, right));
 				rootNode.add(nodes.get(absolutePath));
+				
 			}
 		    try {
 		        byte[] bytes = content.getBytes(file.getCharset());
@@ -163,6 +190,26 @@ public class WorkspaceController {
 				throw new JsonRpcException(e);
 			}
 		}
+	}
+	
+	public IFileState getHistory(Path path) {
+		try {
+			IFile file = findFile(path);
+			if (file != null) {
+				IFileState[] fs = file.getHistory(null);
+				if (fs == null || fs.length == 0) {
+					InputStream source = file.getContents(true); // Get current contents
+			        file.setContents(source, IFile.FORCE, new NullProgressMonitor());
+			        fs = file.getHistory(null);
+				}
+				if (fs != null && fs.length > 0) {
+					return fs[fs.length - 1];
+				}
+			}
+		} catch (CoreException ex) {
+			ex.printStackTrace();
+		}
+		return null;
 	}
 	
 	public static ITextEditor findFileEditor(Path absolutePath) {
@@ -211,16 +258,61 @@ public class WorkspaceController {
 	}
 
 	public void displayDiffs() {
-		CompareConfiguration configuration = new CompareConfiguration();
-		configuration.setLeftLabel("Agent Changes");
-		configuration.setRightLabel("Original");
-		configuration.setLeftEditable(true);
-		configuration.setRightEditable(false);
-
-		WorkspaceCompareInput input = new WorkspaceCompareInput(configuration, rootNode);
 		
-		CompareUI.openCompareDialog(input);
+		IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+        
+//		try {
+//			Utils.openEditor(page, new LocalFileRevision((IFileState)states.values().toArray()[0]), new NullProgressMonitor());
+//		} catch (CoreException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+		
+		TeamUI.showHistoryFor(page, rootNode, new WorkspaceHistorySource());
+		
+		
+		//CompareFileRevisionEditorInput
+		//LocalResourceTypedElement
+		//SaveableCompareEditorInput
+		//CompareAction
+		
+		while(true) {
+			Activator.getDisplay().readAndDispatch();
+		}
+		
+//		CompareConfiguration configuration = new CompareConfiguration();
+//		configuration.setLeftLabel("Agent Changes");
+//		configuration.setRightLabel("Original");
+//		configuration.setLeftEditable(true);
+//		configuration.setRightEditable(false);
+//
+//		WorkspaceCompareInput input = new WorkspaceCompareInput(configuration, rootNode);
+//		
+//		CompareUI.openCompareDialog(input);
 //		CompareUI.openCompareEditor(input);
+		
+//		rootNode = new WorkspaceDiffNode(Differencer.CHANGE);
+//		for (Path path: states.keySet()) {
+//			IFile file = findFile(path);
+//			if (file != null) {
+//				ITypedElement base = new ResourceNode(file);
+//				ITypedElement target= base;
+//				ITextEditor editor = findFileEditor(path);
+//				if (editor != null) {
+//					IDocument document= editor.getDocumentProvider().getDocument(editor.getEditorInput());
+//					if (document != null) {
+//						target= new DocumentNode(document, file);
+//					}
+//				}
+//				
+//				ITypedElement edition = new HistoryItem(base, states.get(path));
+//				
+//				//GenericHistoryView
+//			
+//				//LocalHistoryPage
+//			}
+//		}
+
 		
 	}
 	
