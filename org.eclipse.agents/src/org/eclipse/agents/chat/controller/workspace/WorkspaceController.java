@@ -2,21 +2,17 @@ package org.eclipse.agents.chat.controller.workspace;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
-import java.text.DateFormat;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.agents.Tracer;
+import org.eclipse.compare.CompareConfiguration;
+import org.eclipse.compare.CompareUI;
+import org.eclipse.compare.structuremergeviewer.Differencer;
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IFileState;
-import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.IStorage;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -25,29 +21,21 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.lsp4j.jsonrpc.JsonRpcException;
-import org.eclipse.team.core.TeamException;
-import org.eclipse.team.core.synchronize.SyncInfo;
-import org.eclipse.team.core.synchronize.SyncInfoTree;
-import org.eclipse.team.core.variants.IResourceVariant;
-import org.eclipse.team.core.variants.IResourceVariantComparator;
-import org.eclipse.team.ui.synchronize.AbstractSynchronizeParticipant;
-import org.eclipse.team.ui.synchronize.ISynchronizePageConfiguration;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorReference;
 import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.FileEditorInput;
-import org.eclipse.ui.part.IPageBookViewPage;
 import org.eclipse.ui.texteditor.ITextEditor;
 
 public class WorkspaceController {
 
 	String sessionId;
-	Map<IFile, IFileState> fileVariants = new HashMap<IFile, IFileState>();
+	WorkspaceDiffNode rootNode = new WorkspaceDiffNode(Differencer.CHANGE);
+	Map<Path, WorkspaceDiffNode> nodes = new HashMap<Path, WorkspaceDiffNode>();
 	
 	public WorkspaceController(String sessionId) {
 		this.sessionId = sessionId;
@@ -131,8 +119,23 @@ public class WorkspaceController {
 	}
 
 
-	public void writeToEditor(ITextEditor editor, String content) {
+	public void writeToEditor(Path absolutePath, ITextEditor editor, String content) {
+		
+		if (!nodes.containsKey(absolutePath)) {
+			IFile file = findFile(absolutePath);
+			IDocument document = editor.getDocumentProvider().getDocument(editor.getEditorInput());
+			DocumentNode left = new DocumentNode(document, file);
+			StringNode right = new StringNode(file, document.get());
+			nodes.put(absolutePath, new WorkspaceDiffNode(Differencer.CHANGE, left, right));
+			rootNode.add(nodes.get(absolutePath));
+		}
+		
 		IDocument doc = editor.getDocumentProvider().getDocument(editor.getEditorInput());
+		
+		if (!nodes.containsKey(absolutePath)) {
+			nodes.put(absolutePath, new WorkspaceDiffNode(Differencer.CHANGE, absolutePath, doc.get()));
+		}
+		
 		doc.set(content);
 	}
 
@@ -140,6 +143,13 @@ public class WorkspaceController {
 		IFile file = findFile(absolutePath);
 		
 		if (file != null) {
+			
+			if (!nodes.containsKey(absolutePath)) {
+				FileNode left = new FileNode(file);
+				StringNode right = new StringNode(file, readFromFile(absolutePath, null, null));
+				nodes.put(absolutePath, new WorkspaceDiffNode(Differencer.CHANGE, left, right));
+				rootNode.add(nodes.get(absolutePath));
+			}
 		    try {
 		        byte[] bytes = content.getBytes(file.getCharset());
 		        ByteArrayInputStream newContentStream = new ByteArrayInputStream(bytes);
@@ -197,169 +207,22 @@ public class WorkspaceController {
 	}
 
 	public void clearVariants() {
-		fileVariants.clear();
+		rootNode = new WorkspaceDiffNode(Differencer.NO_CHANGE);
 	}
 
-	public void addFileVariant(IFile file) {
-		if (!fileVariants.containsKey(file)) {
-			try {
-				IFileState[] history = file.getHistory(new NullProgressMonitor());
-				 if (history.length > 0) {
-					 addFileVariant(file,  history[history.length - 1]);
-				} else {
-					System.err.println("handle this case");
-				}
-			 } catch (CoreException e) {
-				e.printStackTrace();
-			 }
-		}
-	}
-	
-	public void addFileVariant(IFile file, IFileState state) {
-		fileVariants.put(file,  state);
-	}
-	
 	public void displayDiffs() {
-		if (!fileVariants.isEmpty()) {
-			SyncInfoTree syncSet = new SyncInfoTree();
-		    IResourceVariantComparator comparator = new FileVariantComparator();
-		    
-		    for (IFile file: fileVariants.keySet()) {
-		        // The local file is our "local" resource
-		        // The current state in history (from IFileState) is our "remote" variant
-		        // The 'base' can be null, or another common ancestor
-		        
-		        FileStateVariant remoteVariant = new FileStateVariant(file, fileVariants.get(file));
-		        
-		        // SyncInfo calculates the difference kind automatically based on comparator logic
-		        SyncInfo info = new SyncInfo(file, null, remoteVariant, comparator);
-		   
-		        // Manually set the kind to force it to show as an outgoing change (modified) if needed
-		        // info.setKind(SyncInfo.OUTGOING | SyncInfo.CHANGE); 
-		        
-		        syncSet.add(info);
-		    }
-		    
-//		    SyncInfoCompareInput input = new SyncInfoCompareInput("abcd", syncSet); 
-//		    
-//		    ISynchronizationScopeManager manager = new 
-//		    SynchronizationContext context = new SynchronizationContext();
-//		    ModelSynchronizeParticipant msp = new ModelSynchronizeParticipant(syncSet);
-//		    ISynchronizeManager manager = TeamUI.getSynchronizeManager();
-//		    
-//		    // Create and register the participant
-//		    manager.addSynchronizeParticipants(new ISynchronizeParticipant[]{msp});
-//		    
-//		    // Show the synchronize view and activate your new participant
-//		    ISynchronizeView view = manager.showSynchronizeViewInActivePage();
-//		    view.display(msp);
+		CompareConfiguration configuration = new CompareConfiguration();
+		configuration.setLeftLabel("Agent Changes");
+		configuration.setRightLabel("Original");
+		configuration.setLeftEditable(true);
+		configuration.setRightEditable(false);
 
-		    // Optional: pin the view so it doesn't get replaced by default SCM operations
-		    
-		}
-	}
-	
-	
-	class FileStateVariant implements IResourceVariant {
+		WorkspaceCompareInput input = new WorkspaceCompareInput(configuration, rootNode);
 		
-		IFileState state;
-		IFile file;
-		
-		public FileStateVariant(IFile file, IFileState state) {
-			this.file = file;
-			this.state = state;
-		}
-
-		@Override
-		public byte[] asBytes() {
-			try {
-				InputStream is = state.getContents();
-				ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-				int nRead;
-				byte[] data = new byte[1024];
-				while ((nRead = is.read(data, 0, data.length)) != -1) {
-				    buffer.write(data, 0, nRead);
-				}
-				buffer.flush();
-				return buffer.toByteArray();
-			} catch (CoreException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-			return new byte[0];
-		}
-
-		@Override
-		public String getContentIdentifier() {
-			return DateFormat.getDateTimeInstance().format(new Date(state.getModificationTime()));
-		}
-
-		@Override
-		public String getName() {
-			return state.getName();
-		}
-
-		@Override
-		public IStorage getStorage(IProgressMonitor arg0) throws TeamException {
-			return state;
-		}
-
-		@Override
-		public boolean isContainer() {
-			return false;
-		}
-	}
-	
-	class FileVariantComparator implements IResourceVariantComparator {
-
-		@Override
-		public boolean compare(IResource arg0, IResourceVariant arg1) {
-			// TODO Auto-generated method stub
-			return false;
-		}
-
-		@Override
-		public boolean compare(IResourceVariant arg0, IResourceVariant arg1) {
-			// TODO Auto-generated method stub
-			return false;
-		}
-
-		@Override
-		public boolean isThreeWay() {
-			// TODO Auto-generated method stub
-			return false;
-		}
-		
+		CompareUI.openCompareDialog(input);
+//		CompareUI.openCompareEditor(input);
 		
 	}
 	
-	class FileVariantParticipant extends AbstractSynchronizeParticipant {
-
-		@Override
-		public IPageBookViewPage createPage(ISynchronizePageConfiguration arg0) {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public void dispose() {
-			// TODO Auto-generated method stub
-			
-		}
-
-		@Override
-		public void run(IWorkbenchPart arg0) {
-			// TODO Auto-generated method stub
-			
-		}
-
-		@Override
-		protected void initializeConfiguration(ISynchronizePageConfiguration arg0) {
-			// TODO Auto-generated method stub
-			
-		}
-		
-	}
-
+	
 }

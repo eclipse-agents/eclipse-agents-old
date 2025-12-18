@@ -247,10 +247,13 @@ public final class WorkspaceControllerTest {
 	@Test
 	public void testWriteEditor() {
 		WorkspaceController controller = new WorkspaceController(UUID.randomUUID().toString());
-		controller.writeToEditor(editor, modifiedContent);
+		Path path = (Path)file.getRawLocation();
+		controller.writeToEditor(path, editor, modifiedContent);
 		testEquals(modifiedContent, 
 				controller.readFromEditor(editor, null, null));
-		controller.writeToEditor(editor, content);
+		controller.displayDiffs();
+		controller.writeToEditor(path, editor, content);
+		
 	}
 		
 	

@@ -153,31 +153,30 @@ public class AcpClient implements IAcpClient {
 	public CompletableFuture<WriteTextFileResponse> writeTextFile(WriteTextFileRequest request) {
 		AgentController.instance().agentRequests(request);
 		
-		Path  absolutePath = new Path(request.path());
+		Path absolutePath = new Path(request.path());
 		CompletableFuture<WriteTextFileResponse> result = new CompletableFuture<WriteTextFileResponse>();
 		WorkspaceController workspaceController = AgentController.getSession(request.sessionId()).getWorkspaceController();
-		ITextEditor editor = WorkspaceController.findFileEditor(absolutePath);
-		
-		if (editor != null) {
-			Activator.getDisplay().asyncExec(new Runnable() {
-				public void run() {
-					workspaceController.writeToEditor(editor, request.content());
-					
-					
-				}			
-			});
-		} else {
-			new Thread() {
-				@Override
-				public void run() {
+
+		new Thread() {
+			@Override
+			public void run() {
+				Activator.getDisplay().syncExec(new Runnable() {
+					public void run() {
+						ITextEditor editor = WorkspaceController.findFileEditor(absolutePath);
+						if (editor != null) {
+							workspaceController.writeToEditor(absolutePath, editor, request.content());
+							result.complete(new WriteTextFileResponse(null));
+						}
+					}			
+				});
+				if (!result.isDone()) {
 					workspaceController.writeToFile(absolutePath, request.content());
 					result.complete(new WriteTextFileResponse(null));
 				}
-				
-			}.start();
+			}
 			
-		}
-		
+		}.start();
+
 		return result;
 	}
 
