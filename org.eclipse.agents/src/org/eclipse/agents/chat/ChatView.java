@@ -35,7 +35,6 @@ import org.eclipse.agents.services.protocol.AcpSchema.ContentBlock;
 import org.eclipse.agents.services.protocol.AcpSchema.TextBlock;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IAdaptable;
-import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.jface.action.IToolBarManager;
@@ -67,6 +66,7 @@ public class ChatView extends ViewPart implements IAgentServiceListener, Travers
 	Text inputText;
 	boolean disposed = false;
 	ChatResourceAdditions contexts;
+	ChatExpandBar expandBar;
 	ChatBrowser browser;
 
 	Composite middle;
@@ -95,6 +95,8 @@ public class ChatView extends ViewPart implements IAgentServiceListener, Travers
 		browser.initialize();
 		
 		contexts = new ChatResourceAdditions(middle, SWT.NONE);
+		
+		expandBar = new ChatExpandBar(middle);
 
 		inputText = new Text(middle, SWT.MULTI | SWT.BORDER);
 		GridData gd = new GridData(GridData.FILL_HORIZONTAL);
