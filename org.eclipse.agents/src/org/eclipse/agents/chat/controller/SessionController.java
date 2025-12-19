@@ -19,6 +19,8 @@ import java.util.List;
 import org.eclipse.agents.Tracer;
 import org.eclipse.agents.chat.ChatBrowser;
 import org.eclipse.agents.chat.ChatView;
+import org.eclipse.agents.chat.controller.workspace.IWorkspaceChangeListener;
+import org.eclipse.agents.chat.controller.workspace.WorkspaceChange;
 import org.eclipse.agents.chat.controller.workspace.WorkspaceController;
 import org.eclipse.agents.services.agent.IAgentService;
 import org.eclipse.agents.services.protocol.AcpSchema.CancelNotification;
@@ -65,7 +67,7 @@ import org.eclipse.agents.services.protocol.AcpSchema.WriteTextFileRequest;
 import org.eclipse.agents.services.protocol.AcpSchema.WriteTextFileResponse;
 import org.eclipse.core.runtime.ListenerList;
 
-public class SessionController implements ISessionListener {
+public class SessionController implements ISessionListener, IWorkspaceChangeListener {
 
 	// Initialization
 	private IAgentService agent;
@@ -96,6 +98,7 @@ public class SessionController implements ISessionListener {
 		
 		AgentController.instance().addSessionListener(this);
 		workspaceController = new WorkspaceController(sessionId);
+		workspaceController.addListener(this);
 	}
 	
 	@Override
@@ -448,6 +451,26 @@ public class SessionController implements ISessionListener {
 
 	@Override
 	public void accept(NewSessionRequest request) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void changeAdded(String sessionId, WorkspaceChange change) {
+		for (ChatView view: getChatViews(sessionId)) {
+			view.workspaceChangeAdded(change);
+		}
+		
+	}
+
+	@Override
+	public void changeModified(String sessionID, WorkspaceChange change) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void changeRemoved(String sessionId, WorkspaceChange change) {
 		// TODO Auto-generated method stub
 		
 	}

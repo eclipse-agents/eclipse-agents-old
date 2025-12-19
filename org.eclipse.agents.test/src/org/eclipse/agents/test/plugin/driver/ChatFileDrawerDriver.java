@@ -12,7 +12,7 @@
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
  
-package org.eclipse.agents.test.plugin;
+package org.eclipse.agents.test.plugin.driver;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -23,6 +23,8 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.eclipse.agents.chat.ChatExpandBar;
+import org.eclipse.agents.chat.ChatView;
+import org.eclipse.agents.chat.controller.workspace.IWorkspaceChangeListener;
 import org.eclipse.agents.chat.controller.workspace.WorkspaceChange;
 import org.eclipse.agents.chat.controller.workspace.WorkspaceController;
 import org.eclipse.core.resources.IFile;
@@ -57,7 +59,7 @@ import org.junit.jupiter.api.TestMethodOrder;
 
 @TestInstance(Lifecycle.PER_CLASS)
 @TestMethodOrder(OrderAnnotation.class)
-public final class WorkspaceControllerTest {
+public final class ChatFileDrawerDriver {
 
 	String[] lines = new String[] {
 			"public class HelloWorld {",
@@ -145,6 +147,7 @@ public final class WorkspaceControllerTest {
 					file.createMarker(IMarker.PROBLEM, attr);
 
 					page.getActivePart();
+					
 				} catch (PartInitException e) {
 					e.printStackTrace();
 				} catch (CoreException e) {
@@ -153,128 +156,47 @@ public final class WorkspaceControllerTest {
 				}
 			}
 		});
-	}
-	
-	//------------------------
-	// READ FILE TESTS
-	//------------------------
-	
-	@Test
-	//@DisplayName(absoluteFile3)
-	public void testReadFile() {
-		WorkspaceController controller = new WorkspaceController(UUID.randomUUID().toString());
-		Path path = (Path)file.getRawLocation();
-		testEquals(content, controller.readFromFile(path, null, null));
-	}
-	
-	@Test
-	//@DisplayName(absoluteFile3)
-	public void testReadFileFirstLine() {
-		WorkspaceController controller = new WorkspaceController(UUID.randomUUID().toString());
-		Path path = (Path)file.getRawLocation();
-		testEquals(lines[0], controller.readFromFile(path, 0, 1));
-	}
-	
-	@Test
-	public void testReadFileMiddleLine() {
-		WorkspaceController controller = new WorkspaceController(UUID.randomUUID().toString());
-		Path path = (Path)file.getRawLocation();
-		testEquals(lines[1], controller.readFromFile(path, 1, 1));
-	}
-	
-	@Test
-	public void testReadFileLastLine() {
-		WorkspaceController controller = new WorkspaceController(UUID.randomUUID().toString());
-		Path path = (Path)file.getRawLocation();
-		testEquals(lines[4], controller.readFromFile(path, 4, 1));
-	}
-	
-	@Test
-	public void testReadFileMiddleLines() {
-		WorkspaceController controller = new WorkspaceController(UUID.randomUUID().toString());
-		Path path = (Path)file.getRawLocation();
-		testEquals(lines[1] + "\n" + lines[2] + "\n" + lines[3], controller.readFromFile(path, 1, 3));
-	}
-	
-	@Test
-	public void testReadFileFromMiddleLine() {
-		WorkspaceController controller = new WorkspaceController(UUID.randomUUID().toString());
-		Path path = (Path)file.getRawLocation();
-		testEquals(lines[1] + "\n" + lines[2] + "\n" + lines[3] + "\n" + lines[4], 
-				controller.readFromFile(path, 1, null));
-	}
-	
-	//------------------------
-	// READ EDITOR TESTS
-	//------------------------
 		
-	@Test
-	//@DisplayName(absoluteFile3)
-	public void testReadEditor() {
-		WorkspaceController controller = new WorkspaceController(UUID.randomUUID().toString());
-		testEquals(content, controller.readFromEditor(editor, null, null));
+		long start = System.currentTimeMillis();
+		while (start + 5000 > System.currentTimeMillis()) {
+			Display.getDefault().readAndDispatch();
+		}
 	}
 	
 	@Test
-	//@DisplayName(absoluteFile3)
-	public void testReadEditorFirstLine() {
-		WorkspaceController controller = new WorkspaceController(UUID.randomUUID().toString());
-		testEquals(lines[0], controller.readFromEditor(editor, 0, 1));
-	}
-	
-	@Test
-	public void testReadEditorMiddleLine() {
-		WorkspaceController controller = new WorkspaceController(UUID.randomUUID().toString());
-		testEquals(lines[1], controller.readFromEditor(editor, 1, 1));
-	}
-	
-	@Test
-	public void testReadEditorLastLine() {
-		WorkspaceController controller = new WorkspaceController(UUID.randomUUID().toString());
-		testEquals(lines[4], controller.readFromEditor(editor, 4, 1));
-	}
-	
-	@Test
-	public void testReadEditorMiddleLines() {
-		WorkspaceController controller = new WorkspaceController(UUID.randomUUID().toString());
-		testEquals(lines[1] + "\n" + lines[2] + "\n" + lines[3], controller.readFromEditor(editor, 1, 3));
-	}
-	
-	@Test
-	public void testReadEditorFromMiddleLine() {
-		WorkspaceController controller = new WorkspaceController(UUID.randomUUID().toString());
-		testEquals(lines[1] + "\n" + lines[2] + "\n" + lines[3] + "\n" + lines[4], 
-				controller.readFromEditor(editor, 1, null));
-	}
-	
-	//------------------------
-	// WRITE EDITOR TESTS
-	//------------------------
-	@Test
-	public void testWriteEditor() {
-		WorkspaceController controller = new WorkspaceController(UUID.randomUUID().toString());
-		Path path = (Path)file.getRawLocation();
-		controller.writeToEditor(path, editor, modifiedContent);
-		testEquals(modifiedContent, 
-				controller.readFromEditor(editor, null, null));
+	public void testWriteEditor() throws Exception {
 		
 		
-		controller.writeToEditor(path, editor, content);
+		IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+		final ChatView view = (ChatView) page.showView(ChatView.ID, null, //$NON-NLS-1$
+				IWorkbenchPage.VIEW_ACTIVATE);
 		
-	}
 		
-	
-	////////////////
-	
-
-	public void testEquals(String left, String right) {
-		System.out.println(left + " == " + right);
-		Assert.assertEquals(left, right);
-	}
-
-	public void testArrayEquals(String message, String[] left, String[] right) {
-		System.out.println(message + ":: " + Arrays.toString(left) + " == " + Arrays.toString(right));
-		Assert.assertArrayEquals(message, left, right);
+		WorkspaceController controller = new WorkspaceController(UUID.randomUUID().toString());
+		controller.addListener(new IWorkspaceChangeListener() {
+			
+			@Override
+			public void changeRemoved(String sessionId, WorkspaceChange change) {
+				
+			}
+			
+			@Override
+			public void changeModified(String sessionID, WorkspaceChange change) {
+				
+			}
+			
+			@Override
+			public void changeAdded(String sessionId, WorkspaceChange change) {
+				view.workspaceChangeAdded(change);
+			}
+		});
+		
+		Path path = (Path)file.getRawLocation();
+		controller.writeToEditor(path, WorkspaceController.findFileEditor(path), modifiedContent);
+		
+		while (true) {
+			Display.getDefault().readAndDispatch();
+		}
 	}
 
 }

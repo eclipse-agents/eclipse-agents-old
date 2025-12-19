@@ -9,24 +9,19 @@ import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.eclipse.agents.Activator;
 import org.eclipse.agents.Tracer;
-import org.eclipse.compare.HistoryItem;
-import org.eclipse.compare.ITypedElement;
-import org.eclipse.compare.ResourceNode;
 import org.eclipse.compare.structuremergeviewer.Differencer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFileState;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.lsp4j.jsonrpc.JsonRpcException;
-import org.eclipse.team.internal.ui.synchronize.LocalResourceTypedElement;
-import org.eclipse.team.ui.TeamUI;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorReference;
@@ -40,16 +35,26 @@ import org.eclipse.ui.texteditor.ITextEditor;
 public class WorkspaceController {
 
 	String sessionId;
-	WorkspaceDiffNode rootNode = new WorkspaceDiffNode(Differencer.CHANGE);
-	Map<Path, WorkspaceDiffNode> nodes = new HashMap<Path, WorkspaceDiffNode>();
+	public Map<Path, WorkspaceChange> nodes = new HashMap<Path, WorkspaceChange>();
+	ListenerList<IWorkspaceChangeListener> listeners;
+
 //	Map<Path, IFileState> states = new HashMap<Path, IFileState>();
 	
 	public WorkspaceController(String sessionId) {
 		this.sessionId = sessionId;
+		listeners = new ListenerList<IWorkspaceChangeListener>();
 	}
 	
 	public String getSessionId() {
 		return sessionId;
+	}
+	
+	public void addListener(IWorkspaceChangeListener listener) {
+		listeners.add(listener);
+	}
+	
+	public void removeListener(IWorkspaceChangeListener listener) {
+		listeners.remove(listener);
 	}
 	
 	public String readFromEditor(ITextEditor editor, Integer line, Integer limit) {
@@ -128,32 +133,19 @@ public class WorkspaceController {
 
 	public void writeToEditor(Path absolutePath, ITextEditor editor, String content) {
 		
-		if (!nodes.containsKey(absolutePath)) {
-			IFile file = findFile(absolutePath);
-			ITypedElement left = new LocalResourceTypedElement(file);
-			ITypedElement right = new StringNode(file, readFromFile(absolutePath, null, null));
-			
-			IFileState state = getHistory(absolutePath);
-			if (state != null) {
-				right = new HistoryItem(left, state);
-			}
-			
-			nodes.put(absolutePath, new WorkspaceDiffNode(Differencer.CHANGE, left, right));
-			rootNode.add(nodes.get(absolutePath));
-			
-
-//			IFile file = findFile(absolutePath);
-//			IDocument document = editor.getDocumentProvider().getDocument(editor.getEditorInput());
-//			FileNode left = new FileNode(file);
-//			StringNode right = new StringNode(file, document.get());
-//			nodes.put(absolutePath, new WorkspaceDiffNode(Differencer.CHANGE, left, right));
-//			rootNode.add(nodes.get(absolutePath));
-		}
-		
 		IDocument doc = editor.getDocumentProvider().getDocument(editor.getEditorInput());
 		
 		if (!nodes.containsKey(absolutePath)) {
-			nodes.put(absolutePath, new WorkspaceDiffNode(Differencer.CHANGE, absolutePath, doc.get()));
+			String original = "";
+			try {
+				doc.getLength();
+				original = doc.get(0, doc.getLength());
+				addChange(absolutePath, new WorkspaceChange(Differencer.CHANGE, absolutePath, original));
+			} catch (BadLocationException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
 		}
 		
 		doc.set(content);
@@ -162,21 +154,18 @@ public class WorkspaceController {
 	public void writeToFile(Path absolutePath, String content) {
 		IFile file = findFile(absolutePath);
 		
-		if (file != null) {
-			
-			if (!nodes.containsKey(absolutePath)) {
-				ITypedElement left = new ResourceNode(file);
-				ITypedElement right = new StringNode(file, readFromFile(absolutePath, null, null));
-				
-				IFileState state = getHistory(absolutePath);
-				if (state != null) {
-					right = new HistoryItem(left, state);
-				}
-
-				nodes.put(absolutePath, new WorkspaceDiffNode(Differencer.CHANGE, left, right));
-				rootNode.add(nodes.get(absolutePath));
-				
+		if (!nodes.containsKey(absolutePath)) {
+			IFileState state = getHistory(absolutePath);
+			if (state != null) {
+				addChange(absolutePath, new WorkspaceChange(Differencer.CHANGE, absolutePath, state));
+			} else if (file != null) {
+				addChange(absolutePath, new WorkspaceChange(Differencer.CHANGE, absolutePath, readFromFile(absolutePath, null, null)));
+			} else {
+				addChange(absolutePath, new WorkspaceChange(Differencer.CHANGE, absolutePath, ""));
 			}
+		}
+		
+		if (file != null) {
 		    try {
 		        byte[] bytes = content.getBytes(file.getCharset());
 		        ByteArrayInputStream newContentStream = new ByteArrayInputStream(bytes);
@@ -254,66 +243,14 @@ public class WorkspaceController {
 	}
 
 	public void clearVariants() {
-		rootNode = new WorkspaceDiffNode(Differencer.NO_CHANGE);
+		nodes.clear();
 	}
 
-	public void displayDiffs() {
-		
-		IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
-        
-//		try {
-//			Utils.openEditor(page, new LocalFileRevision((IFileState)states.values().toArray()[0]), new NullProgressMonitor());
-//		} catch (CoreException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-		
-		TeamUI.showHistoryFor(page, rootNode, new WorkspaceHistorySource());
-		
-		
-		//CompareFileRevisionEditorInput
-		//LocalResourceTypedElement
-		//SaveableCompareEditorInput
-		//CompareAction
-		
-		while(true) {
-			Activator.getDisplay().readAndDispatch();
+	public void addChange(Path path, WorkspaceChange change) {
+		nodes.put(path, change);
+		for (IWorkspaceChangeListener listener: listeners) {
+			listener.changeAdded(sessionId, change);
 		}
-		
-//		CompareConfiguration configuration = new CompareConfiguration();
-//		configuration.setLeftLabel("Agent Changes");
-//		configuration.setRightLabel("Original");
-//		configuration.setLeftEditable(true);
-//		configuration.setRightEditable(false);
-//
-//		WorkspaceCompareInput input = new WorkspaceCompareInput(configuration, rootNode);
-//		
-//		CompareUI.openCompareDialog(input);
-//		CompareUI.openCompareEditor(input);
-		
-//		rootNode = new WorkspaceDiffNode(Differencer.CHANGE);
-//		for (Path path: states.keySet()) {
-//			IFile file = findFile(path);
-//			if (file != null) {
-//				ITypedElement base = new ResourceNode(file);
-//				ITypedElement target= base;
-//				ITextEditor editor = findFileEditor(path);
-//				if (editor != null) {
-//					IDocument document= editor.getDocumentProvider().getDocument(editor.getEditorInput());
-//					if (document != null) {
-//						target= new DocumentNode(document, file);
-//					}
-//				}
-//				
-//				ITypedElement edition = new HistoryItem(base, states.get(path));
-//				
-//				//GenericHistoryView
-//			
-//				//LocalHistoryPage
-//			}
-//		}
-
-		
 	}
 	
 	

@@ -24,6 +24,7 @@ import org.eclipse.agents.chat.controller.AgentController;
 import org.eclipse.agents.chat.controller.IAgentServiceListener;
 import org.eclipse.agents.chat.controller.SessionController;
 import org.eclipse.agents.chat.controller.StartSessionJob;
+import org.eclipse.agents.chat.controller.workspace.WorkspaceChange;
 import org.eclipse.agents.chat.toolbar.ToolbarAgentSelector;
 import org.eclipse.agents.chat.toolbar.ToolbarModeSelector;
 import org.eclipse.agents.chat.toolbar.ToolbarModelSelector;
@@ -44,6 +45,8 @@ import org.eclipse.jface.fieldassist.IContentProposalListener;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
+import org.eclipse.swt.events.ExpandEvent;
+import org.eclipse.swt.events.ExpandListener;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.TraverseEvent;
@@ -54,6 +57,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.ExpandBar;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolBar;
@@ -267,8 +271,19 @@ public class ChatView extends ViewPart implements IAgentServiceListener, Travers
 		getViewSite().getActionBars().updateActionBars();
 	
 		//TODO clean up
-		AgentController.getSession(activeSessionId).getWorkspaceController().displayDiffs();
+//		AgentController.getSession(activeSessionId).getWorkspaceController().displayDiffs();
 	}
+	
+	public void workspaceChangeAdded(WorkspaceChange change) {
+		expandBar.getFileDrawer().addChange(change);
+	}
+	public void workspaceChangeModified(WorkspaceChange change) {
+		
+	}
+	public void workspaceChangeRemoved(WorkspaceChange change) {
+		
+	}
+
 
 	@Override
 	public void verifyText(VerifyEvent e) {
