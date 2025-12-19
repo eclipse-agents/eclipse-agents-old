@@ -2,6 +2,7 @@ package org.eclipse.agents.chat;
 
 
 import org.eclipse.agents.Activator;
+import org.eclipse.agents.chat.controller.workspace.WorkspaceChange;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ExpandEvent;
 import org.eclipse.swt.events.ExpandListener;
@@ -26,11 +27,8 @@ public class ChatExpandBar implements ExpandListener {
 		}));
 		
 		expandBar.addExpandListener(this);
-
-//		todoExpand.setExpanded(true);
-		
 		expandBar.setSpacing(8);
-		
+		updateVisibility();
 		
 	}
 	
@@ -55,5 +53,21 @@ public class ChatExpandBar implements ExpandListener {
 				expandBar.getParent().layout(true, true);
 			}
 		});
+	}
+	
+	public void workspaceChangeAdded(WorkspaceChange change) {
+		fileDrawer.workspaceChangeAdded(change);
+		updateVisibility();
+	}
+	public void workspaceChangeModified(WorkspaceChange change) {
+		
+	}
+	public void workspaceChangeRemoved(WorkspaceChange change) {
+		
+	}
+	
+	public void updateVisibility() {
+		expandBar.setVisible(fileDrawer.isVisible());
+		((GridData)expandBar.getLayoutData()).exclude = !fileDrawer.isVisible();
 	}
 }

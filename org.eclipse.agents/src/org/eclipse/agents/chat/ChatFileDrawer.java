@@ -42,15 +42,16 @@ public class ChatFileDrawer {
 		}
 		
 		expand = new ExpandItem(bar, SWT.NONE, index);
-		expand.setText("3 files changed");
+		expand.setText("0 files changed");
 //		expand.setImage(Activator.getDefault().getImageRegistry().get(Images.IMG_PLAY));
 		expand.setHeight(composite.computeSize(SWT.DEFAULT, SWT.DEFAULT).y);
 		expand.setControl(composite);
 		
 	}
 	
-	public void addChange(WorkspaceChange change) {
-
+	
+	public void workspaceChangeAdded(WorkspaceChange change) {
+		
 		TableItem item = new TableItem (table, SWT.NONE);
 		
 		item.setImage(0, change.getTypeImage());
@@ -70,7 +71,7 @@ public class ChatFileDrawer {
 		
 		editor = new TableEditor (table);
 		button = new Button (table, SWT.PUSH);
-		button.setText("Approve");
+		button.setText("Accept");
 		button.pack ();
 		editor.minimumWidth = button.getSize ().x;
 		editor.horizontalAlignment = SWT.LEFT;
@@ -79,14 +80,36 @@ public class ChatFileDrawer {
 		
 		editor = new TableEditor (table);
 		button = new Button (table, SWT.PUSH);
-		button.setText("Reject");
+		button.setText("Revert");
 		button.pack ();
 		editor.minimumWidth = button.getSize ().x;
 		editor.horizontalAlignment = SWT.LEFT;
 		editor.setEditor (button, item, 5);
 		table.getColumn(5).setWidth(button.getSize().x + 10);
 		
+		updateExpandBar();
 	}
+
+	public void workspaceChangeModified(WorkspaceChange change) {
+	
+	}
+	public void workspaceChangeRemoved(WorkspaceChange change) {
+	
+	}
+	
+	public void updateExpandBar() {
+		int count = table.getItemCount();
+		if (count == 1) {
+			expand.setText(count + " file changed");
+		} else {
+			expand.setText(count + " files changed");
+		}
+	}
+	
+	public boolean isVisible() {
+		return table.getItemCount() > 0;
+	}
+	
 
 	class ReviewListener implements SelectionListener {
 
@@ -102,4 +125,6 @@ public class ChatFileDrawer {
 		}
 		
 	}
+	
+	
 }

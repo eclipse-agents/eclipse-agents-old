@@ -275,8 +275,10 @@ public class ChatView extends ViewPart implements IAgentServiceListener, Travers
 	}
 	
 	public void workspaceChangeAdded(WorkspaceChange change) {
-		expandBar.getFileDrawer().addChange(change);
+		expandBar.workspaceChangeAdded(change);
+		middle.layout(true);
 	}
+
 	public void workspaceChangeModified(WorkspaceChange change) {
 		
 	}
