@@ -76,9 +76,13 @@ function acceptSessionAgentMessageChunk(blockChunk) {
 	scrollToBottom();
 }
 
-function acceptSessionToolCall(toolCallId, title, kind, status) {
+function acceptSessionToolCall(toolCallId, title, kind, status, content, options) {
 	addChild(getTurn(), tool_call).id = toolCallId;
-	getTurnMessage().create(toolCallId, title, kind, status);
+	let jsonOptions;
+	if (options != null) {
+		jsonOptions = JSON.parse(options);
+	}
+	getTurnMessage().create(toolCallId, title, kind, status, content, jsonOptions);
 	scrollToBottom();
 }
 

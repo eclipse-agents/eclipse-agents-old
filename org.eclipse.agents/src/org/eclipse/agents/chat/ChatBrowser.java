@@ -380,24 +380,17 @@ public class ChatBrowser {
 				String optionsJson = mapper.writeValueAsString(request.options());
 				String title = toolCall.title();
 				
-				String input = null;
-				String output = null;
+				String contentJson = null;
 				ToolCallContent[] contents = toolCall.content();
 				if (contents != null && contents.length > 0) {
 					ToolCallContent content = contents[0];
-					if (content instanceof ToolCallContentDiff) {
-						ToolCallContentDiff contentDiff = (ToolCallContentDiff) content;
-						// TODO for diffs, currently just display the old and new text with a separater
-						// We'll need to properly handle this in the html/prism side
-						input = contentDiff.oldText() + 
-								"\n\n--------------- \n\n" + 
-								contentDiff.newText();
-					}
+					contentJson = mapper.writeValueAsString(content);
 				}
-				
-				String formattedFxn = String.format("acceptPermissionRequest(`%s`, `%s`, `%s`, `%s`, `%s`);",
-						toolCallId, optionsJson, title, input, output);
-				// handle when input or output are empty
+				// TODO: for now, we pass in the raw content
+				// We'll need to render content differently based on type. e.g. regular/diff/terminal
+				String formattedFxn = String.format("acceptSessionToolCall(`%s`, `%s`, `%s`, `%s`, `%s`, `%s`);",
+						toolCallId, title, toolCall.kind(), toolCall.status(), contentJson, optionsJson);
+				// handle when content or options are empty
 				String fxn = formattedFxn.replaceAll("`null`", "null");
 				Tracer.trace().trace(Tracer.BROWSER, fxn);
 				Activator.getDisplay().syncExec(()-> {

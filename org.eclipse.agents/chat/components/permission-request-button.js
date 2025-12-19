@@ -23,11 +23,11 @@ class PermissionRequestButton extends DivTemplate {
 			this._name = this.root.querySelector('div span#name');
 		}
 
-		create(kind, name, optionId, clickHandler) {
+		create(kind, name, optionId, toolCall) {
 			this._optionId= optionId;
 			this._name.textContent = name;
 			this.root.querySelector('button').addEventListener("click", function(){
-				clickHandler.handleClick();
+				toolCall.handlePermissionResponse();
 			});
 			// handle when agent returns integer or string as kind
 			switch(kind) { 
@@ -48,10 +48,6 @@ class PermissionRequestButton extends DivTemplate {
 					this._kind.src = "icons/remove_all.gif";
 					break;
 			}
-		}
-		
-		handleClick() {
-			clickHandler.handleClick();
 		}
 	}
 	customElements.define("permission-request-button", PermissionRequestButton);
