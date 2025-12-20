@@ -1,16 +1,22 @@
 package org.eclipse.agents.chat.controller.workspace;
 
+import org.eclipse.agents.Activator;
+import org.eclipse.agents.contexts.Images;
 import org.eclipse.compare.CompareConfiguration;
 import org.eclipse.compare.CompareUI;
 import org.eclipse.compare.HistoryItem;
 import org.eclipse.compare.ITypedElement;
 import org.eclipse.compare.ResourceNode;
 import org.eclipse.compare.structuremergeviewer.DiffNode;
+import org.eclipse.compare.structuremergeviewer.Differencer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFileState;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.team.internal.ui.synchronize.LocalResourceTypedElement;
+import org.eclipse.ui.IEditorDescriptor;
+import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.texteditor.ITextEditor;
 
 public class WorkspaceChange {
@@ -36,12 +42,29 @@ public class WorkspaceChange {
 		this.originalContent = originalContent;
 	}
 	
-	public Image getTypeImage() {
-		return null;//Activator.getDefault().getImageRegistry().get(Images.IMG_PLAY);
+	public int getKind() {
+		return type;
 	}
 	
-	public Image getPathImage() {
-		return null;//Activator.getDefault().getImageRegistry().get(Images.IMG_PLAY);
+	public Image getTypeImage() {
+		if (type == Differencer.ADDITION) {
+			return Activator.getDefault().getImageRegistry().get(Images.IMG_MOD_ADD);
+		} else if (type == Differencer.DELETION) {
+			return Activator.getDefault().getImageRegistry().get(Images.IMG_MOD_DEL);
+		} 
+		
+		return Activator.getDefault().getImageRegistry().get(Images.IMG_MOD_CHG);
+	}
+	
+	public ImageDescriptor getPathImageDescriptor() {
+        IFile file = WorkspaceController.findFile(path);
+        if (file != null) {
+        	IEditorDescriptor editorDescriptor = IDE.getDefaultEditor(file);
+        	if (editorDescriptor != null) {
+        		return editorDescriptor.getImageDescriptor();
+        	}
+        }
+        return null;
 	}
 	
 	public String getName() {

@@ -164,6 +164,7 @@ public class ChatView extends ViewPart implements IAgentServiceListener, Travers
 		this.disposed = true;
 		SessionController.removeChatView(this);
 		AgentController.instance().removeAgentListener(this);
+		expandBar.dispose();
 	}
 
 	@Override
