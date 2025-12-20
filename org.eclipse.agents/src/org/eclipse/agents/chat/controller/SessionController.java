@@ -460,19 +460,20 @@ public class SessionController implements ISessionListener, IWorkspaceChangeList
 		for (ChatView view: getChatViews(sessionId)) {
 			view.workspaceChangeAdded(change);
 		}
-		
 	}
 
 	@Override
 	public void changeModified(String sessionID, WorkspaceChange change) {
-		// TODO Auto-generated method stub
-		
+		for (ChatView view: getChatViews(sessionId)) {
+			view.workspaceChangeModified(change);
+		}
 	}
 
 	@Override
 	public void changeRemoved(String sessionId, WorkspaceChange change) {
-		// TODO Auto-generated method stub
-		
+		for (ChatView view: getChatViews(sessionId)) {
+			view.workspaceChangeRemoved(change);
+		}
 	}
 	
 }

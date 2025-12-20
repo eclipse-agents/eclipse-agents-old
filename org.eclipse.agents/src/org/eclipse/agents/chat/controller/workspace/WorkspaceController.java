@@ -22,6 +22,10 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.lsp4j.jsonrpc.JsonRpcException;
+import org.eclipse.ltk.core.refactoring.PerformChangeOperation;
+import org.eclipse.ltk.core.refactoring.TextFileChange;
+import org.eclipse.text.edits.MalformedTreeException;
+import org.eclipse.text.edits.ReplaceEdit;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorReference;
@@ -135,46 +139,68 @@ public class WorkspaceController {
 		
 		IDocument doc = editor.getDocumentProvider().getDocument(editor.getEditorInput());
 		
-		if (!nodes.containsKey(absolutePath)) {
-			String original = "";
-			try {
-				doc.getLength();
-				original = doc.get(0, doc.getLength());
-				addChange(absolutePath, new WorkspaceChange(Differencer.CHANGE, absolutePath, original));
-			} catch (BadLocationException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			
-		}
+		boolean changeExists = nodes.containsKey(absolutePath);
 		
-		doc.set(content);
+		try {
+			WorkspaceChange workspaceChange = changeExists ?
+					nodes.get(absolutePath) :
+					new WorkspaceChange(this, Differencer.CHANGE, absolutePath, doc.get(0, doc.getLength()));
+		
+			new ReplaceEdit(0, doc.getLength(), content).apply(doc);
+			
+			if (changeExists) {
+				modifyChange(workspaceChange);
+			} else {
+				addChange(workspaceChange);
+			}
+		
+		} catch (MalformedTreeException e) {
+			e.printStackTrace();
+			throw new JsonRpcException(e);
+		} catch (BadLocationException e) {
+			e.printStackTrace();
+			throw new JsonRpcException(e);
+		}
 	}
 
 	public void writeToFile(Path absolutePath, String content) {
 		IFile file = findFile(absolutePath);
+		boolean changeExists = nodes.containsKey(absolutePath);
+		WorkspaceChange workspaceChange = nodes.get(absolutePath);
 		
-		if (!nodes.containsKey(absolutePath)) {
+		if (!changeExists) {
 			IFileState state = getHistory(absolutePath);
 			if (state != null) {
-				addChange(absolutePath, new WorkspaceChange(Differencer.CHANGE, absolutePath, state));
+				workspaceChange = new WorkspaceChange(this, Differencer.CHANGE, absolutePath, state);
 			} else if (file != null) {
-				addChange(absolutePath, new WorkspaceChange(Differencer.CHANGE, absolutePath, readFromFile(absolutePath, null, null)));
+				workspaceChange = new WorkspaceChange(this, Differencer.CHANGE, absolutePath, readFromFile(absolutePath, null, null));
 			} else {
-				addChange(absolutePath, new WorkspaceChange(Differencer.CHANGE, absolutePath, ""));
+				workspaceChange = new WorkspaceChange(this, Differencer.CHANGE, absolutePath, "");
 			}
 		}
 		
-		if (file != null) {
+		if (file != null && file.exists()) {
 		    try {
-		        byte[] bytes = content.getBytes(file.getCharset());
-		        ByteArrayInputStream newContentStream = new ByteArrayInputStream(bytes);
-		        IProgressMonitor monitor = new NullProgressMonitor(); // Or a real progress monitor
-		        file.setContents(newContentStream, IFile.NONE, monitor); // IFile.NONE for no update flags
+		    	TextFileChange change = new TextFileChange(content, file);
+		    	change.setSaveMode(TextFileChange.FORCE_SAVE); // Ensure it saves if the editor is closed
+		    	ReplaceEdit edit = new ReplaceEdit(0, file.getContents().available(), content);
+		    	change.setEdit(edit);
+		    	change.initializeValidationData(new NullProgressMonitor());
+		    	PerformChangeOperation op = new PerformChangeOperation(change);
+		    	ResourcesPlugin.getWorkspace().run(op, new NullProgressMonitor());
+		        
+		        if (changeExists) {
+		        	modifyChange(workspaceChange);
+		        } else {
+		        	addChange(workspaceChange);
+		        }
 		    } catch (CoreException e) {
 		    	e.printStackTrace();
 		    	throw new JsonRpcException(e);
 		    } catch (UnsupportedEncodingException e) {
+				e.printStackTrace();
+				throw new JsonRpcException(e);
+			} catch (IOException e) {
 				e.printStackTrace();
 				throw new JsonRpcException(e);
 			}
@@ -246,12 +272,24 @@ public class WorkspaceController {
 		nodes.clear();
 	}
 
-	public void addChange(Path path, WorkspaceChange change) {
-		nodes.put(path, change);
+	public void addChange(WorkspaceChange change) {
+		nodes.put(change.path, change);
 		for (IWorkspaceChangeListener listener: listeners) {
 			listener.changeAdded(sessionId, change);
 		}
 	}
 	
+	public void removeChange(WorkspaceChange change) {
+		nodes.remove(change.path);
+		for (IWorkspaceChangeListener listener: listeners) {
+			listener.changeRemoved(sessionId, change);
+		}
+	}
+	
+	public void modifyChange(WorkspaceChange change) {
+		for (IWorkspaceChangeListener listener: listeners) {
+			listener.changeModified(sessionId, change);
+		}
+	}
 	
 }

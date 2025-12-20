@@ -173,11 +173,13 @@ public final class ChatFileDrawerDriver {
 		
 		
 		WorkspaceController controller = new WorkspaceController(UUID.randomUUID().toString());
+		WorkspaceChange[] lastChange = new WorkspaceChange[] { null };
+		
 		controller.addListener(new IWorkspaceChangeListener() {
 			
 			@Override
 			public void changeRemoved(String sessionId, WorkspaceChange change) {
-				
+				view.workspaceChangeRemoved(change);
 			}
 			
 			@Override
@@ -187,12 +189,17 @@ public final class ChatFileDrawerDriver {
 			
 			@Override
 			public void changeAdded(String sessionId, WorkspaceChange change) {
+				lastChange[0] = change;
 				view.workspaceChangeAdded(change);
+				
 			}
 		});
 		
 		Path path = (Path)file.getRawLocation();
 		controller.writeToEditor(path, WorkspaceController.findFileEditor(path), modifiedContent);
+		lastChange[0].remove();
+		controller.writeToEditor(path, WorkspaceController.findFileEditor(path), content);
+	
 		
 		while (true) {
 			Display.getDefault().readAndDispatch();

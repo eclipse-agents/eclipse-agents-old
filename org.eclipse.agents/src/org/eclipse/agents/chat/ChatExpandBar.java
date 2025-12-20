@@ -65,11 +65,15 @@ public class ChatExpandBar implements ExpandListener {
 		fileDrawer.workspaceChangeAdded(change);
 		updateVisibility();
 	}
+	
 	public void workspaceChangeModified(WorkspaceChange change) {
-		
+		fileDrawer.workspaceChangeModified(change);
+		updateVisibility();
 	}
+	
 	public void workspaceChangeRemoved(WorkspaceChange change) {
-		
+		fileDrawer.workspaceChangeRemoved(change);
+		updateVisibility();
 	}
 	
 	public void updateVisibility() {

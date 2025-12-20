@@ -257,9 +257,28 @@ public final class WorkspaceControllerTest {
 		controller.writeToEditor(path, editor, modifiedContent);
 		testEquals(modifiedContent, 
 				controller.readFromEditor(editor, null, null));
-		
-		
 		controller.writeToEditor(path, editor, content);
+		testEquals(content, 
+				controller.readFromEditor(editor, null, null));
+		
+	}
+	
+	//------------------------
+	// WRITE FILE TESTS
+	//------------------------
+	@Test
+	public void testWriteFile() {
+		WorkspaceController controller = new WorkspaceController(UUID.randomUUID().toString());
+		Path path = (Path)file.getRawLocation();
+		testEquals(content, controller.readFromFile(path, null, null));
+		
+		controller.writeToFile(path, modifiedContent);
+		testEquals(modifiedContent, 
+				controller.readFromEditor(editor, null, null));
+		
+		
+		controller.writeToFile(path, content);
+		testEquals(content, controller.readFromFile(path, null, null));
 		
 	}
 		

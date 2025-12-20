@@ -1,19 +1,15 @@
 package org.eclipse.agents.chat.controller.workspace;
 
-import org.eclipse.agents.Activator;
-import org.eclipse.agents.contexts.Images;
 import org.eclipse.compare.CompareConfiguration;
 import org.eclipse.compare.CompareUI;
 import org.eclipse.compare.HistoryItem;
 import org.eclipse.compare.ITypedElement;
 import org.eclipse.compare.ResourceNode;
 import org.eclipse.compare.structuremergeviewer.DiffNode;
-import org.eclipse.compare.structuremergeviewer.Differencer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFileState;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.resource.ImageDescriptor;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.team.internal.ui.synchronize.LocalResourceTypedElement;
 import org.eclipse.ui.IEditorDescriptor;
 import org.eclipse.ui.ide.IDE;
@@ -27,15 +23,18 @@ public class WorkspaceChange {
 	Path path;
 	IFileState state;;
 	String originalContent;
+	WorkspaceController controller;
 	
-	public WorkspaceChange(int type, Path path, IFileState state) {
+	public WorkspaceChange(WorkspaceController controller, int type, Path path, IFileState state) {
+		this.controller = controller;
 		this.type = type;
 		this.path = path;
 		this.state = state;
 		this.originalContent = null;
 	}
 	
-	public WorkspaceChange(int type, Path path, String originalContent) {
+	public WorkspaceChange(WorkspaceController controller, int type, Path path, String originalContent) {
+		this.controller = controller;
 		this.type = type;
 		this.path = path;
 		this.state = null;
@@ -44,16 +43,6 @@ public class WorkspaceChange {
 	
 	public int getKind() {
 		return type;
-	}
-	
-	public Image getTypeImage() {
-		if (type == Differencer.ADDITION) {
-			return Activator.getDefault().getImageRegistry().get(Images.IMG_MOD_ADD);
-		} else if (type == Differencer.DELETION) {
-			return Activator.getDefault().getImageRegistry().get(Images.IMG_MOD_DEL);
-		} 
-		
-		return Activator.getDefault().getImageRegistry().get(Images.IMG_MOD_CHG);
 	}
 	
 	public ImageDescriptor getPathImageDescriptor() {
@@ -107,11 +96,27 @@ public class WorkspaceChange {
 		}
 	}
 
-	public void accept() {
-		
+	public void remove() {
+		controller.removeChange(this);
 	}
 	
+	/**
+	 * Use the controller to modify the editor or file based on current Workbench state.
+	 * This will update the existing WorkspaceChange for the path
+	 * After we will remove the WorkspaceChange from the controller
+	 */
 	public void revert() {
+		if (originalContent == null) {
+			//TODO
+		} else {
+			ITextEditor editor = WorkspaceController.findFileEditor(path);
+			if (editor != null) {
+				controller.writeToEditor(path, editor, originalContent);
+			} else {
+				controller.writeToFile(path, originalContent);
+			}
+		}
+		controller.removeChange(this);
 		
 	}
 }

@@ -13,8 +13,10 @@ import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.ColumnWeightData;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.TableEditor;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
+import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Button;
@@ -31,6 +33,8 @@ public class ChatFileDrawer {
 	ExpandItem expand; 
 	Table table;
 	ReviewListener reviewListener;
+	ClearListener clearListener;
+	RevertListener revertListener;
 	
 	Map<ImageDescriptor, Image> images;
 	CompareConfiguration cc;
@@ -40,6 +44,8 @@ public class ChatFileDrawer {
 		images = new HashMap<ImageDescriptor, Image>();
 		cc = new CompareConfiguration();
 		reviewListener = new ReviewListener();
+		clearListener = new ClearListener();
+		revertListener = new RevertListener();
 
 		composite = new Composite (bar, SWT.NONE);
 		TableColumnLayout tableLayout =new TableColumnLayout();
@@ -76,9 +82,9 @@ public class ChatFileDrawer {
 	public void workspaceChangeAdded(WorkspaceChange change) {
 		
 		TableItem item = new TableItem (table, SWT.NONE);
+		item.setData(change);
 		
 		ImageDescriptor id = change.getPathImageDescriptor();
-		
 		if (id != null) {
 			if (!images.containsKey(id)) {
 				images.put(id, id.createImage());
@@ -89,46 +95,64 @@ public class ChatFileDrawer {
 		item.setText(1, change.getName());
 		
 		TableEditor editor = new TableEditor (table);
-		Button button = new Button (table, SWT.PUSH);
+		final Button reviewButton = new Button (table, SWT.PUSH);
 //		button.setText("Review");
-		button.setImage(Activator.getDefault().getImageRegistry().get(Images.IMG_2WAYCOMPARE));
-		button.pack ();
-		button.setData(change);
-		button.addSelectionListener(reviewListener);
-		editor.minimumWidth = button.getSize ().x;
+		reviewButton.setImage(Activator.getDefault().getImageRegistry().get(Images.IMG_2WAYCOMPARE));
+		reviewButton.pack ();
+		reviewButton.setData(item);
+		reviewButton.addSelectionListener(reviewListener);
+		editor.minimumWidth = reviewButton.getSize ().x;
 		editor.horizontalAlignment = SWT.LEFT;
-		editor.setEditor (button, item, 2);
-		table.getColumn(2).setWidth(button.getSize().x + 10);
+		editor.setEditor (reviewButton, item, 2);
+		table.getColumn(2).setWidth(reviewButton.getSize().x + 10);
 		
 		editor = new TableEditor (table);
-		button = new Button (table, SWT.PUSH);
+		final Button removeButton = new Button (table, SWT.PUSH);
 //		button.setText("Accept");
-		button.setImage(Activator.getDefault().getImageRegistry().get(Images.IMG_REMOVE));
-		button.pack ();
-		editor.minimumWidth = button.getSize ().x;
+		removeButton.setImage(Activator.getDefault().getImageRegistry().get(Images.IMG_REMOVE));
+		removeButton.pack ();
+		removeButton.setData(item);
+		removeButton.addSelectionListener(clearListener);
+		editor.minimumWidth = removeButton.getSize ().x;
 		editor.horizontalAlignment = SWT.LEFT;
-		editor.setEditor (button, item, 3);
-		table.getColumn(3).setWidth(button.getSize().x + 10);
+		editor.setEditor (removeButton, item, 3);
+		table.getColumn(3).setWidth(removeButton.getSize().x + 10);
 		
 		editor = new TableEditor (table);
-		button = new Button (table, SWT.PUSH);
+		final Button revertButton= new Button (table, SWT.PUSH);
 //		button.setText("Revert");
-		button.setImage(Activator.getDefault().getImageRegistry().get(Images.IMG_UNDO));
-		button.pack ();
-		editor.minimumWidth = button.getSize ().x;
+		revertButton.setImage(Activator.getDefault().getImageRegistry().get(Images.IMG_UNDO));
+		revertButton.pack ();
+		revertButton.setData(item);
+		revertButton.addSelectionListener(revertListener);
+		editor.minimumWidth = revertButton.getSize ().x;
 		editor.horizontalAlignment = SWT.LEFT;
-		editor.setEditor (button, item, 4);
-		table.getColumn(4).setWidth(button.getSize().x + 10);
+		editor.setEditor (revertButton, item, 4);
+		table.getColumn(4).setWidth(revertButton.getSize().x + 10);
 		
+		item.addDisposeListener(new DisposeListener() {
+			@Override
+			public void widgetDisposed(DisposeEvent e) {
+				reviewButton.dispose();
+				removeButton.dispose();
+				revertButton.dispose();
+			}
+			
+		});
 		updateExpandBar();
 		layout();
 	}
 
 	public void workspaceChangeModified(WorkspaceChange change) {
-	
+		//TODO
 	}
 	public void workspaceChangeRemoved(WorkspaceChange change) {
-	
+		for (int i = 0; i < table.getItemCount(); i++) {
+			if (change == table.getItem(i).getData()) {
+				table.remove(i);
+				break;
+			}
+		}
 	}
 	
 	public void updateExpandBar() {
@@ -145,25 +169,38 @@ public class ChatFileDrawer {
 	}
 	
 
-	class ReviewListener implements SelectionListener {
-
+	class ReviewListener extends SelectionAdapter {
 		@Override
 		public void widgetSelected(SelectionEvent e) {
-			WorkspaceChange change = ((WorkspaceChange)e.widget.getData());
+			TableItem item = ((TableItem)e.widget.getData());
+			WorkspaceChange change = ((WorkspaceChange)item.getData());
 			change.review();
 		}
-
+	}
+	
+	class ClearListener extends SelectionAdapter {
 		@Override
-		public void widgetDefaultSelected(SelectionEvent e) {
-			
+		public void widgetSelected(SelectionEvent e) {
+			TableItem item = ((TableItem)e.widget.getData());
+			WorkspaceChange change = ((WorkspaceChange)item.getData());
+			change.remove();
 		}
-		
+	}
+	
+	class RevertListener extends SelectionAdapter {
+		@Override
+		public void widgetSelected(SelectionEvent e) {
+			TableItem item = ((TableItem)e.widget.getData());
+			WorkspaceChange change = ((WorkspaceChange)item.getData());
+			change.revert();
+		}
 	}
 	
 	public void dispose() {
 		for (Image image: images.values()) {
 			image.dispose();
 		}
+		cc.dispose();
 	}
 	
 	public void layout() {
