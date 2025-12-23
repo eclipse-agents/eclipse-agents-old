@@ -1,5 +1,7 @@
 package org.eclipse.agents.chat.controller;
 
+import java.util.concurrent.CompletableFuture;
+
 import org.eclipse.agents.services.protocol.AcpSchema.CancelNotification;
 import org.eclipse.agents.services.protocol.AcpSchema.CreateTerminalRequest;
 import org.eclipse.agents.services.protocol.AcpSchema.CreateTerminalResponse;
@@ -50,7 +52,7 @@ public class SessionAdapter implements ISessionListener {
 	}
 
 	@Override
-	public void accept(RequestPermissionRequest request) {
+	public void accept(RequestPermissionRequest request, CompletableFuture<RequestPermissionResponse> pendingResponse) {
 		
 	}
 

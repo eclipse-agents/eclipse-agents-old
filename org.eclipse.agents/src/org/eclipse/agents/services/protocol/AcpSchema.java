@@ -632,7 +632,7 @@ public class AcpSchema {
 			Map<String, Object> meta) implements ClientResponse {}
 
 
-	enum Outcome { cancelled, selected};
+	public enum Outcome { cancelled, selected};
      
 	@JsonInclude(JsonInclude.Include.NON_ABSENT)
 	@JsonIgnoreProperties(ignoreUnknown = true)

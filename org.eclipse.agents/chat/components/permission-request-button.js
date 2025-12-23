@@ -27,10 +27,10 @@ class PermissionRequestButton extends DivTemplate {
 			this._optionId= optionId;
 			this._name.textContent = name;
 			this.root.querySelector('button').addEventListener("click", function(){
-				toolCall.handlePermissionResponse();
+				toolCall.handlePermissionResponse(optionId);
 			});
 			// handle when agent returns integer or string as kind
-			switch(kind) { 
+			switch(kind) {
 				case "allow_once":
 				case 0:
 					this._kind.src = "icons/check.png";

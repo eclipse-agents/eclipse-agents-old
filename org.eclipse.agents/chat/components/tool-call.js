@@ -64,6 +64,12 @@ class ToolCall extends DivTemplate {
 				permissionRequestButton.create(option.kind, option.name, option.optionId, this);
 			}
 			this._toolCallContainer.classList.add("requestToolCall");
+			
+			// TODO: Gemini can return empty info for the title.
+			// For now, replace it with the toolCallId if it's empty
+			if (title === "{}" || title === "" || title == null) {
+				this._title.textContent = toolCallId;
+			}
 		} else {
 			this._buttonContainer.style.display = "none";
 		}
@@ -136,7 +142,7 @@ class ToolCall extends DivTemplate {
 	}
 	
 	toggleContent(event) {
-		if (this._content.style.display == "none") {
+		if (this._content.style.display === "none") {
 			this._content.style.display = "unset";
 			this._expandCollapseContentImg.src = "icons/collapse.png";
 			this._contentFooterButton.style.display = "unset"
@@ -151,11 +157,11 @@ class ToolCall extends DivTemplate {
 		this._expandCollapseContentImg.src = "icons/expand.png";
 	}
 	
-	handlePermissionResponse() {
+	handlePermissionResponse(optionId) {
 		this._buttonContainer.remove();
 		this.collapseContent();
-		this.updateStatus("completed");
-		// TODO: handle API call
+		// Pass response info to eclipse browser location handler
+		window.location = "response:" + this._toolCallId + "/" + optionId;
 	}
 }
 customElements.define("tool-call", ToolCall);

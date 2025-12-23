@@ -18,6 +18,8 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 import org.eclipse.agents.Activator;
@@ -81,52 +83,55 @@ public class AcpClient implements IAcpClient {
 
 	@Override
 	public CompletableFuture<RequestPermissionResponse> requestPermission(RequestPermissionRequest request) {
-		CompletableFuture<RequestPermissionResponse>  future = new CompletableFuture<RequestPermissionResponse>();
-		// TODO Uncomment the following to show the UI template in the agent chat
-		// AgentController.instance().acceptRequestsPermission(request);
-		// TODO The above will need to replace the SWT dialog below
+		CompletableFuture<RequestPermissionResponse> future = new CompletableFuture<RequestPermissionResponse>();
+		
 		Activator.getDisplay().syncExec(new Runnable() {
 			public void run() {
-				SelectionDialog dialog = new SelectionDialog(Activator.getDisplay().getActiveShell()) {
-
-					@Override
-					protected Control createDialogArea(Composite parent) {
-						Composite top = (Composite) super.createDialogArea(parent);
-						top.setLayout(new GridLayout(1, true));
-						
-						Combo combo = new Combo(top, SWT.READ_ONLY);
-						for (PermissionOption po: request.options()) {
-							combo.add(po.name());
-						}
-						combo.addModifyListener(new ModifyListener() {
-							@Override
-							public void modifyText(ModifyEvent arg0) {
-								setSelectionResult(new Object[] { 
-										request.options()[combo.getSelectionIndex()]
-								});
-								getOkButton().setEnabled(true);
+				// TODO : temporarily leave dialog available for testing purposes
+				boolean useChatPermissionRequest = false;
+				if (useChatPermissionRequest) {
+					AgentController.instance().acceptRequestsPermission(request, future);
+				} else {
+					SelectionDialog dialog = new SelectionDialog(Activator.getDisplay().getActiveShell()) {
+						@Override
+						protected Control createDialogArea(Composite parent) {
+							Composite top = (Composite) super.createDialogArea(parent);
+							top.setLayout(new GridLayout(1, true));
+							
+							Combo combo = new Combo(top, SWT.READ_ONLY);
+							for (PermissionOption po: request.options()) {
+								combo.add(po.name());
 							}
-						});
-						return top;
-					}
-				};
-				
-				String message =  
-						"Agent would like to call " + request.toolCall().toolCallId() + ": " 
-								+ request.toolCall().title() + " TODO";
-				
-				dialog.setMessage(message);
-				if (dialog.open() == Dialog.OK) {
-					Object result = dialog.getResult()[0];
-					if (result instanceof PermissionOption) {
-						PermissionOption option = (PermissionOption)result;
-						RequestPermissionOutcome outcome = new RequestPermissionOutcome(Outcome.selected, option.optionId());
-						future.complete(new RequestPermissionResponse(null, outcome));
+							combo.addModifyListener(new ModifyListener() {
+								@Override
+								public void modifyText(ModifyEvent arg0) {
+									setSelectionResult(new Object[] { 
+											request.options()[combo.getSelectionIndex()]
+									});
+									getOkButton().setEnabled(true);
+								}
+							});
+							return top;
+						}
+					};
+					
+					String message =  
+							"Agent would like to call " + request.toolCall().toolCallId() + ": " 
+									+ request.toolCall().title() + " TODO";
+					
+					dialog.setMessage(message);
+					if (dialog.open() == Dialog.OK) {
+						Object result = dialog.getResult()[0];
+						if (result instanceof PermissionOption) {
+							PermissionOption option = (PermissionOption)result;
+							RequestPermissionOutcome outcome = new RequestPermissionOutcome(Outcome.selected, option.optionId());
+							RequestPermissionResponse response = new RequestPermissionResponse(null, outcome);
+							future.complete(response);
+						}
 					}
 				}
 			}
 		});
-		
 		
 		return future;
 	}
@@ -160,7 +165,7 @@ public class AcpClient implements IAcpClient {
 						throw new JsonRpcException(e);
 					}
 				}
-			}			
+			}
 		});
 
 		if (!result.isDone()) {

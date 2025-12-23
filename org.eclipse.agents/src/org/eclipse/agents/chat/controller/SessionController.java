@@ -15,6 +15,7 @@ package org.eclipse.agents.chat.controller;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 import org.eclipse.agents.Tracer;
 import org.eclipse.agents.chat.ChatBrowser;
@@ -216,14 +217,14 @@ public class SessionController implements ISessionListener {
 	}
 
 	@Override
-	public void accept(RequestPermissionRequest request) {
+	public void accept(RequestPermissionRequest request, CompletableFuture<RequestPermissionResponse> pendingResponse) {
 		if (!sessionId.equals(request.sessionId())) {
 			return;
 		}
 		
 		for (ChatView view: getChatViews(request.sessionId())) {
 			ChatBrowser browser = view.getBrowser();
-			browser.acceptPermissionRequest(request);
+			browser.acceptPermissionRequest(request, pendingResponse);
 		}
 	}
 

@@ -17,20 +17,24 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Base64;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 import org.eclipse.agents.Activator;
 import org.eclipse.agents.Tracer;
 import org.eclipse.agents.contexts.platform.resource.WorkspaceResourceAdapter;
 import org.eclipse.agents.services.protocol.AcpSchema.ContentBlock;
+import org.eclipse.agents.services.protocol.AcpSchema.Outcome;
 import org.eclipse.agents.services.protocol.AcpSchema.PromptRequest;
+import org.eclipse.agents.services.protocol.AcpSchema.RequestPermissionOutcome;
 import org.eclipse.agents.services.protocol.AcpSchema.RequestPermissionRequest;
+import org.eclipse.agents.services.protocol.AcpSchema.RequestPermissionResponse;
 import org.eclipse.agents.services.protocol.AcpSchema.SessionUpdate;
 import org.eclipse.agents.services.protocol.AcpSchema.ToolCallContent;
-import org.eclipse.agents.services.protocol.AcpSchema.ToolCallContentDiff;
 import org.eclipse.agents.services.protocol.AcpSchema.ToolCallUpdate;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
@@ -75,6 +79,7 @@ public class ChatBrowser {
 	private ObjectMapper mapper;
 	private Browser browser;
 	private File source;
+	Map<String, CompletableFuture<RequestPermissionResponse>> pendingResponses = new HashMap<>();
 	
 	public ChatBrowser(Composite parent, int style) {
 		mapper = new ObjectMapper();
@@ -175,6 +180,12 @@ public class ChatBrowser {
 				
 				browser.addLocationListener(LocationListener.changingAdapter(event -> {
 					event.doit = false;
+					
+					if (isRequestPermissionResponse(event.location)) {
+						provideResponse(event.location);
+						return;
+					}
+					
 					
 					WorkspaceResourceAdapter wra = new WorkspaceResourceAdapter(event.location);
 					IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
@@ -372,7 +383,7 @@ public class ChatBrowser {
 		}
 	}
 	
-	public void acceptPermissionRequest(RequestPermissionRequest request) {
+	public void acceptPermissionRequest(RequestPermissionRequest request, CompletableFuture<RequestPermissionResponse> pendingResponse) {
 		if (!browser.isDisposed()) {
 			try {
 				ToolCallUpdate toolCall = request.toolCall();
@@ -396,6 +407,8 @@ public class ChatBrowser {
 				Activator.getDisplay().syncExec(()-> {
 					Tracer.trace().trace(Tracer.BROWSER, "" + browser.evaluate(fxn));
 				});
+				
+				pendingResponses.put(toolCallId, pendingResponse);
 			} catch (JsonProcessingException e) {
 				e.printStackTrace();
 			}
@@ -414,6 +427,48 @@ public class ChatBrowser {
 	
 	public boolean setFocus() {
 		return browser.setFocus();
+	}
+	
+	public static boolean isRequestPermissionResponse(String location) {
+		String[] parts = location.split(":");
+		if (parts.length > 0) {
+			String prefix = parts[0];
+			if (prefix != null && prefix.equals("response")) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public void provideResponse(String location) {
+		String toolCallId;
+		String optionId;
+		
+		String[] parts = location.split(":");
+		if (parts.length == 2) {
+			String info = parts[1];
+			String[] params = info.split("/");
+			if (params.length == 2) {
+				toolCallId = params[0];
+				optionId = params[1];
+			} else {
+				Tracer.trace().trace(Tracer.BROWSER, "Could not determine permission response: " + location);
+				return;
+			}
+		} else {
+			Tracer.trace().trace(Tracer.BROWSER, "Could not determine permission response: " + location);
+			return;
+		}
+		
+		CompletableFuture<RequestPermissionResponse> pendingResponse = pendingResponses.get(toolCallId);
+		if (pendingResponse != null) {
+			RequestPermissionOutcome outcome = new RequestPermissionOutcome(Outcome.selected, optionId);
+			RequestPermissionResponse response = new RequestPermissionResponse(null, outcome);
+			pendingResponse.complete(response);
+			pendingResponses.remove(toolCallId);
+		} else {
+			Tracer.trace().trace(Tracer.BROWSER, "Could find permission response: " + location);
+		}
 	}
 	
 }
