@@ -60,6 +60,62 @@ public class WorkspaceChange {
 		return path.toFile().getName();
 	}
 	
+	public void synchronize() {
+		
+//		IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+//		ICommandService commandService = window.getService(ICommandService.class);
+//		IHandlerService handlerService = window.getService(IHandlerService.class);
+//		String commandId = "org.eclipse.team.ui.synchronizeAll"; 
+//
+//		   
+//        try {
+//			ParameterizedCommand pc = new ParameterizedCommand(commandService.getCommand(commandId), null);
+//			Object result = handlerService.executeCommand(pc, null);
+//			System.out.println(result);
+//			
+//			IServiceLocator locator = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+//		    IMenuService menuService = locator.getService(IMenuService.class);
+//		    
+//		    // 1. Create a context and explicitly set your projects as the selection
+//		    // Expressions like <iterate> or <adapt> check this 'default variable'
+//		    IEvaluationContext context = new EvaluationContext(null, Arrays.asList(selectedProjects));
+//		    
+//		    // 2. Also set the specific variable names expected by many 'visibleWhen' clauses
+//		    context.addVariable(ISources.ACTIVE_CURRENT_SELECTION_NAME, Arrays.asList(selectedProjects));
+//		    context.addVariable(ISources.ACTIVE_MENU_SELECTION_NAME, Arrays.asList(selectedProjects));
+//
+//		    // 3. Create the menu manager for the "Compare With" location
+//		    MenuManager tempMenu = new MenuManager();
+//		    String location = "popup:compareWithMenu";
+//
+//		    // 4. Use the version of the method that accepts your specific context
+//		    // This ensures visibility is calculated based on selectedProjects, not the global UI state
+//		    menuService.populateContributionManager(tempMenu, location, context, true);
+//
+//		    IContributionItem[] items = tempMenu.getItems();
+//		    
+//		    // Clean up
+//		    menuService.releaseContributions(tempMenu);
+//		    
+//		    return Arrays.asList(items);
+//
+//		} catch (ExecutionException e) {
+//			e.printStackTrace();
+//		} catch (NotDefinedException e) {
+//			e.printStackTrace();
+//		} catch (NotEnabledException e) {
+//			e.printStackTrace();
+//		} catch (NotHandledException e) {
+//			e.printStackTrace();
+//		}
+
+//		IWizard wizard = new GlobalSynchronizeWizard();
+//		WizardDialog dialog = new WizardDialog(Activator.getDisplay().getActiveShell(), wizard);
+//		dialog.open();
+
+	}
+
+	
 	public void review() {
 		IFile file = WorkspaceController.findFile(path);
 		ITextEditor editor = WorkspaceController.findFileEditor(path);

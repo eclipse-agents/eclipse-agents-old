@@ -63,7 +63,7 @@ public class ChatFileDrawer {
 						new ColumnWeightData(0, 40, false));
 			} else if (i == 1) {
 				tableLayout.setColumnData(column, 
-						new ColumnWeightData(100, 200, true));
+						new ColumnWeightData(150, 200, true));
 			} else {
 				tableLayout.setColumnData(column, 
 						new ColumnWeightData(0, 20, false));

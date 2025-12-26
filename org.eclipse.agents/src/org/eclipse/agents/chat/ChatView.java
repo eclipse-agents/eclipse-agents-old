@@ -101,6 +101,7 @@ public class ChatView extends ViewPart implements IAgentServiceListener, Travers
 		contexts = new ChatResourceAdditions(middle, SWT.NONE);
 		
 		expandBar = new ChatExpandBar(middle);
+//		new ChatExpandBar(middle, 2);
 
 		inputText = new Text(middle, SWT.MULTI | SWT.BORDER);
 		GridData gd = new GridData(GridData.FILL_HORIZONTAL);
