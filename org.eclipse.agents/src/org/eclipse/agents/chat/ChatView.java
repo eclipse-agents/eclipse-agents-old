@@ -45,8 +45,6 @@ import org.eclipse.jface.fieldassist.IContentProposalListener;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
-import org.eclipse.swt.events.ExpandEvent;
-import org.eclipse.swt.events.ExpandListener;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.TraverseEvent;
@@ -57,7 +55,6 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.ExpandBar;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolBar;
@@ -70,7 +67,7 @@ public class ChatView extends ViewPart implements IAgentServiceListener, Travers
 	Text inputText;
 	boolean disposed = false;
 	ChatResourceAdditions contexts;
-	ChatExpandBar expandBar;
+	ChatFileDrawer fileDrawer;
 	ChatBrowser browser;
 
 	Composite middle;
@@ -100,8 +97,7 @@ public class ChatView extends ViewPart implements IAgentServiceListener, Travers
 		
 		contexts = new ChatResourceAdditions(middle, SWT.NONE);
 		
-		expandBar = new ChatExpandBar(middle);
-//		new ChatExpandBar(middle, 2);
+		fileDrawer = new ChatFileDrawer(middle);
 
 		inputText = new Text(middle, SWT.MULTI | SWT.BORDER);
 		GridData gd = new GridData(GridData.FILL_HORIZONTAL);
@@ -165,7 +161,7 @@ public class ChatView extends ViewPart implements IAgentServiceListener, Travers
 		this.disposed = true;
 		SessionController.removeChatView(this);
 		AgentController.instance().removeAgentListener(this);
-		expandBar.dispose();
+		fileDrawer.dispose();
 	}
 
 	@Override
@@ -277,17 +273,17 @@ public class ChatView extends ViewPart implements IAgentServiceListener, Travers
 	}
 	
 	public void workspaceChangeAdded(WorkspaceChange change) {
-		expandBar.workspaceChangeAdded(change);
+		fileDrawer.workspaceChangeAdded(change);
 		middle.layout(true);
 	}
 
 	public void workspaceChangeModified(WorkspaceChange change) {
-		expandBar.workspaceChangeModified(change);
+		fileDrawer.workspaceChangeModified(change);
 		middle.layout(true);
 	}
 	
 	public void workspaceChangeRemoved(WorkspaceChange change) {
-		expandBar.workspaceChangeRemoved(change);
+		fileDrawer.workspaceChangeRemoved(change);
 		middle.layout(true);
 	}
 

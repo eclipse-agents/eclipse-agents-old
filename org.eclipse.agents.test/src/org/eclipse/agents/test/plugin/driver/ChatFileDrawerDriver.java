@@ -22,7 +22,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import org.eclipse.agents.chat.ChatExpandBar;
 import org.eclipse.agents.chat.ChatView;
 import org.eclipse.agents.chat.controller.workspace.IWorkspaceChangeListener;
 import org.eclipse.agents.chat.controller.workspace.WorkspaceChange;
@@ -37,19 +36,13 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.texteditor.ITextEditor;
-import org.junit.Assert;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.junit.jupiter.api.Test;
@@ -190,6 +183,17 @@ public final class ChatFileDrawerDriver {
 			@Override
 			public void changeAdded(String sessionId, WorkspaceChange change) {
 				lastChange[0] = change;
+				view.workspaceChangeAdded(change);
+				view.workspaceChangeAdded(change);
+				view.workspaceChangeAdded(change);
+				view.workspaceChangeAdded(change);
+				view.workspaceChangeAdded(change);
+				view.workspaceChangeAdded(change);
+				view.workspaceChangeAdded(change);
+				view.workspaceChangeAdded(change);
+				view.workspaceChangeAdded(change);
+				view.workspaceChangeAdded(change);
+				view.workspaceChangeAdded(change);
 				view.workspaceChangeAdded(change);
 				
 			}
