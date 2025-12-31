@@ -41,14 +41,13 @@ import org.eclipse.team.ui.synchronize.SaveableCompareEditorInput;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.forms.events.ExpansionAdapter;
 import org.eclipse.ui.forms.events.ExpansionEvent;
+import org.eclipse.ui.forms.widgets.ExpandableComposite;
 import org.eclipse.ui.forms.widgets.FormToolkit;
-import org.eclipse.ui.forms.widgets.ScrolledForm;
 import org.eclipse.ui.forms.widgets.Section;
 
 public class ChatFileDrawer {
 
-	Section section;
-	ScrolledForm form;
+	ExpandableComposite section;
 	Composite composite;
 	Table table;
 	ReviewListener reviewListener;
@@ -75,20 +74,12 @@ public class ChatFileDrawer {
 		};
 		
 		FormToolkit toolkit = new FormToolkit(parent.getDisplay());
-		form = toolkit.createScrolledForm(parent);
-		form.setLayoutData(new GridData(GridData.GRAB_HORIZONTAL | GridData.FILL_HORIZONTAL));
-		form.setExpandVertical(false);
-		composite = form.getBody();
-		form.setSize(SWT.DEFAULT, 80);
-		
-		composite.setLayoutData(new GridData(GridData.GRAB_HORIZONTAL | GridData.FILL_HORIZONTAL));
-		composite.setLayout(new GridLayout(1, true));
 
-		section = toolkit.createSection(composite,
+		section = toolkit.createExpandableComposite(parent,
 				Section.DESCRIPTION | Section.TITLE_BAR | Section.TWISTIE | Section.EXPANDED );
 		
 		section.setLayoutData(new GridData(GridData.GRAB_HORIZONTAL | GridData.FILL_HORIZONTAL));
-		((GridData)section.getLayoutData()).heightHint = 100;
+		((GridData)section.getLayoutData()).verticalIndent = 0;
 		section.setLayout(new GridLayout(1, true));
 
 		Composite buttons = toolkit.createComposite(section, SWT.BORDER_DASH);
@@ -118,9 +109,8 @@ public class ChatFileDrawer {
 		section.setTextClient(buttons);
 		section.addExpansionListener(new ExpansionAdapter() {
 			public void expansionStateChanged(ExpansionEvent e) {
-//				form.reflow(true);
-				form.setSize(SWT.DEFAULT, 100);
-				table.setSize(SWT.DEFAULT, 100);
+				updatePresentation();
+//				table.setSize(SWT.DEFAULT, 100);
 			}
 		});
 		section.setText("File Changes");
@@ -131,7 +121,7 @@ public class ChatFileDrawer {
 		TableColumnLayout tableLayout =new TableColumnLayout();
 		sectionClient.setLayout(tableLayout);
 		sectionClient.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		((GridData)sectionClient.getLayoutData()).heightHint = 100;
+		((GridData)sectionClient.getLayoutData()).heightHint = 120;
 
 		reviewListener = new ReviewListener();
 		clearListener = new ClearListener();
@@ -140,7 +130,7 @@ public class ChatFileDrawer {
 		table = new Table(sectionClient, SWT.BORDER | SWT.SINGLE | SWT.RESIZE | SWT.V_SCROLL);
 		table.setLinesVisible(false);
 		table.setLayoutData(new GridData(GridData.GRAB_HORIZONTAL | GridData.FILL_HORIZONTAL));
-		((GridData)table.getLayoutData()).heightHint = 100;
+		((GridData)table.getLayoutData()).heightHint = 120;
 
 		for (int i = 0; i < 5; i++) {
 			TableColumn column = new TableColumn(table, SWT.NONE);
@@ -321,11 +311,12 @@ public class ChatFileDrawer {
 		}
 		
 		boolean isVisible = table.getItemCount() > 0;
-		form.setVisible(isVisible);
-		((GridData)form.getLayoutData()).exclude = !isVisible;
+		section.setVisible(isVisible);
+		((GridData)section.getLayoutData()).exclude = !isVisible;
 		
-		table.layout(true);
-		form.getParent().layout(true);
+		section.layout(true);
+		section.getParent().layout(true);
+		section.getParent().getParent().layout(true);
 	}
 
 }

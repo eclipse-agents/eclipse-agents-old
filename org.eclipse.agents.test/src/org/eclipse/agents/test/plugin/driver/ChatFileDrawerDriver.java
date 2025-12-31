@@ -184,18 +184,6 @@ public final class ChatFileDrawerDriver {
 			public void changeAdded(String sessionId, WorkspaceChange change) {
 				lastChange[0] = change;
 				view.workspaceChangeAdded(change);
-				view.workspaceChangeAdded(change);
-				view.workspaceChangeAdded(change);
-				view.workspaceChangeAdded(change);
-				view.workspaceChangeAdded(change);
-				view.workspaceChangeAdded(change);
-				view.workspaceChangeAdded(change);
-				view.workspaceChangeAdded(change);
-				view.workspaceChangeAdded(change);
-				view.workspaceChangeAdded(change);
-				view.workspaceChangeAdded(change);
-				view.workspaceChangeAdded(change);
-				
 			}
 		});
 		
