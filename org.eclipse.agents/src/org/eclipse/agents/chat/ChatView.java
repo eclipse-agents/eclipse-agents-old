@@ -89,7 +89,9 @@ public class ChatView extends ViewPart implements IAgentServiceListener, Travers
 //		PlatformUI.getWorkbench().getHelpSystem().setHelp(parent, IConsoleHelpContextIds.CONSOLE_VIEW);
 
 		middle = new Composite(parent, SWT.NONE);
-		middle.setLayout(new GridLayout(1, true));
+		GridLayout gl = new GridLayout(1, true);
+		gl.verticalSpacing = 0;
+		middle.setLayout(gl);
 		middle.setLayoutData(new GridData(GridData.FILL_BOTH));
 
 		browser = new ChatBrowser(middle, SWT.NONE);

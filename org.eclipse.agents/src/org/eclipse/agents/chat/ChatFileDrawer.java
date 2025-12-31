@@ -1,5 +1,6 @@
 package org.eclipse.agents.chat;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -11,12 +12,16 @@ import org.eclipse.agents.chat.controller.workspace.WorkspaceController;
 import org.eclipse.agents.contexts.Images;
 import org.eclipse.compare.CompareConfiguration;
 import org.eclipse.compare.structuremergeviewer.Differencer;
+import org.eclipse.compare.structuremergeviewer.ICompareInput;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.layout.TableColumnLayout;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.ColumnWeightData;
+import org.eclipse.jface.wizard.IWizard;
+import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.TableEditor;
 import org.eclipse.swt.events.DisposeEvent;
@@ -28,10 +33,12 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.ExpandItem;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.team.internal.ui.wizards.GlobalSynchronizeWizard;
+import org.eclipse.team.ui.synchronize.SaveableCompareEditorInput;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.forms.events.ExpansionAdapter;
 import org.eclipse.ui.forms.events.ExpansionEvent;
 import org.eclipse.ui.forms.widgets.FormToolkit;
@@ -50,12 +57,29 @@ public class ChatFileDrawer {
 
 	Map<ImageDescriptor, Image> images;
 	CompareConfiguration cc;
+	SaveableCompareEditorInput scei;
 
 	public ChatFileDrawer(Composite parent) {
+		
+		images = new HashMap<ImageDescriptor, Image>();
+		cc = new CompareConfiguration();
+		scei = new SaveableCompareEditorInput(cc, PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()) {
+			@Override
+			protected ICompareInput prepareCompareInput(IProgressMonitor arg0)
+					throws InvocationTargetException, InterruptedException {
+				return null;
+			}
+			@Override
+			protected void fireInputChange() {
+			}
+		};
+		
 		FormToolkit toolkit = new FormToolkit(parent.getDisplay());
 		form = toolkit.createScrolledForm(parent);
 		form.setLayoutData(new GridData(GridData.GRAB_HORIZONTAL | GridData.FILL_HORIZONTAL));
+		form.setExpandVertical(false);
 		composite = form.getBody();
+		form.setSize(SWT.DEFAULT, 80);
 		
 		composite.setLayoutData(new GridData(GridData.GRAB_HORIZONTAL | GridData.FILL_HORIZONTAL));
 		composite.setLayout(new GridLayout(1, true));
@@ -64,47 +88,56 @@ public class ChatFileDrawer {
 				Section.DESCRIPTION | Section.TITLE_BAR | Section.TWISTIE | Section.EXPANDED );
 		
 		section.setLayoutData(new GridData(GridData.GRAB_HORIZONTAL | GridData.FILL_HORIZONTAL));
+		((GridData)section.getLayoutData()).heightHint = 100;
 		section.setLayout(new GridLayout(1, true));
 
 		Composite buttons = toolkit.createComposite(section, SWT.BORDER_DASH);
 		buttons.setLayoutData(new GridData(GridData.HORIZONTAL_ALIGN_END));
-		buttons.setLayout(new GridLayout(2, false));
+		buttons.setLayout(new GridLayout(3, false));
 		
-		Button revertAll = toolkit.createButton(buttons, "Revert All", SWT.PUSH);
+		Button synchronize = toolkit.createButton(buttons, null, SWT.PUSH);
+		synchronize.addSelectionListener(new SynchronizeListener());
+		synchronize.setLayoutData(new GridData());
+		synchronize.setImage(scei.getTitleImage());
+		synchronize.setToolTipText("Synchronize...");
+		
+		Button revertAll = toolkit.createButton(buttons, null, SWT.PUSH);
 		revertAll.addSelectionListener(new RevertAllListener());
 		revertAll.setLayoutData(new GridData());
 		revertAll.setImage(Activator.getDefault().getImageRegistry().get(Images.IMG_UNDO_All));
-
-		Button acceptAll = toolkit.createButton(buttons, "Accept All", SWT.PUSH);
+		revertAll.setToolTipText("Accept All");
+		
+		Button acceptAll = toolkit.createButton(buttons, null, SWT.PUSH);
 		acceptAll.addSelectionListener(new ClearAllListener());
 		acceptAll.setLayoutData(new GridData());
 		acceptAll.setImage(Activator.getDefault().getImageRegistry().get(Images.IMG_REMOVE_ALL));
+		acceptAll.setToolTipText("Accept All");
 
 		
 		// Move the button into the title bar
 		section.setTextClient(buttons);
 		section.addExpansionListener(new ExpansionAdapter() {
 			public void expansionStateChanged(ExpansionEvent e) {
-				form.reflow(true);
+//				form.reflow(true);
+				form.setSize(SWT.DEFAULT, 100);
+				table.setSize(SWT.DEFAULT, 100);
 			}
 		});
 		section.setText("File Changes");
-		section.setDescription("List of modified files. Does not include added, removed or moved files");
+//		section.setDescription("List of modified files. Does not include added, removed or moved files");
 		
 		Composite sectionClient = toolkit.createComposite(section);
 		section.setClient(sectionClient);
 		TableColumnLayout tableLayout =new TableColumnLayout();
 		sectionClient.setLayout(tableLayout);
 		sectionClient.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		
-		
-		images = new HashMap<ImageDescriptor, Image>();
-		cc = new CompareConfiguration();
+		((GridData)sectionClient.getLayoutData()).heightHint = 100;
+
 		reviewListener = new ReviewListener();
 		clearListener = new ClearListener();
 		revertListener = new RevertListener();
 
-		table = new Table(sectionClient, SWT.BORDER | SWT.SINGLE);
+		table = new Table(sectionClient, SWT.BORDER | SWT.SINGLE | SWT.RESIZE | SWT.V_SCROLL);
 		table.setLinesVisible(false);
 		table.setLayoutData(new GridData(GridData.GRAB_HORIZONTAL | GridData.FILL_HORIZONTAL));
 		((GridData)table.getLayoutData()).heightHint = 100;
@@ -247,6 +280,16 @@ public class ChatFileDrawer {
 			}
 		}
 	}
+	
+	class SynchronizeListener extends SelectionAdapter {
+		@Override
+		public void widgetSelected(SelectionEvent e) {
+			IWizard wizard = new GlobalSynchronizeWizard();
+			WizardDialog dialog = new WizardDialog(Activator.getDisplay().getActiveShell(), wizard);
+			dialog.open();
+		}
+	}
+
 
 	public void dispose() {
 		for (Image image : images.values()) {
