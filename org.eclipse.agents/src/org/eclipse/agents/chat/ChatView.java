@@ -269,9 +269,6 @@ public class ChatView extends ViewPart implements IAgentServiceListener, Travers
 	public void prompTurnEnded() {
 		startStop.prompTurnEnded();
 		getViewSite().getActionBars().updateActionBars();
-	
-		//TODO clean up
-//		AgentController.getSession(activeSessionId).getWorkspaceController().displayDiffs();
 	}
 	
 	public void workspaceChangeAdded(WorkspaceChange change) {
