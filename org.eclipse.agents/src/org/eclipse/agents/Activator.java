@@ -120,6 +120,11 @@ public class Activator extends AbstractUIPlugin {
 			String key = Images.imagelist[i];
 			reg.put(key, createImageDescriptor(key));
 		}
+		
+		for (String key: Images.sharedList) {
+			reg.put(key, PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(key));
+		}
+		
 	}
 
 	protected ImageDescriptor createImageDescriptor(String relativePath) {

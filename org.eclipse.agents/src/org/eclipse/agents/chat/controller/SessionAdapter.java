@@ -27,12 +27,7 @@ import org.eclipse.agents.services.protocol.AcpSchema.WaitForTerminalExitRespons
 import org.eclipse.agents.services.protocol.AcpSchema.WriteTextFileRequest;
 import org.eclipse.agents.services.protocol.AcpSchema.WriteTextFileResponse;
 
-public class SessionAdapter implements ISessionListener {
-
-	@Override
-	public String getSessionId() {
-		return null;
-	}
+public abstract class SessionAdapter implements ISessionListener {
 
 	@Override
 	public void accept(SessionNotification notification) {

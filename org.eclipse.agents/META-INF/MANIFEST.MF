@@ -27,7 +27,12 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.jetty.ee10.servlet;bundle-version="12.1.0",
  org.eclipse.jetty.server;bundle-version="12.1.0",
  org.eclipse.jetty.util;bundle-version="12.1.0",
- org.eclipse.wildwebdeveloper.embedder.node
+ org.eclipse.wildwebdeveloper.embedder.node,
+ org.eclipse.team.core,
+ org.eclipse.team.ui,
+ org.eclipse.ltk.core.refactoring,
+ org.eclipse.ui.forms,
+ org.eclipse.core.expressions
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: org.eclipse.agents
 Bundle-ActivationPolicy: lazy
@@ -67,6 +72,7 @@ Export-Package: io.modelcontextprotocol.client,
  org.eclipse.agents.chat,
  org.eclipse.agents.chat.actions,
  org.eclipse.agents.chat.controller,
+ org.eclipse.agents.chat.controller.workspace,
  org.eclipse.agents.chat.toolbar,
  org.eclipse.agents.contexts;x-friends:="org.eclipse.agents.test",
  org.eclipse.agents.contexts.adapters,

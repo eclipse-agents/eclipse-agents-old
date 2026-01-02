@@ -24,6 +24,7 @@ import org.eclipse.agents.chat.controller.AgentController;
 import org.eclipse.agents.chat.controller.IAgentServiceListener;
 import org.eclipse.agents.chat.controller.SessionController;
 import org.eclipse.agents.chat.controller.StartSessionJob;
+import org.eclipse.agents.chat.controller.workspace.WorkspaceChange;
 import org.eclipse.agents.chat.toolbar.ToolbarAgentSelector;
 import org.eclipse.agents.chat.toolbar.ToolbarModeSelector;
 import org.eclipse.agents.chat.toolbar.ToolbarModelSelector;
@@ -35,7 +36,6 @@ import org.eclipse.agents.services.protocol.AcpSchema.ContentBlock;
 import org.eclipse.agents.services.protocol.AcpSchema.TextBlock;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IAdaptable;
-import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.jface.action.IToolBarManager;
@@ -67,6 +67,7 @@ public class ChatView extends ViewPart implements IAgentServiceListener, Travers
 	Text inputText;
 	boolean disposed = false;
 	ChatResourceAdditions contexts;
+	ChatFileDrawer fileDrawer;
 	ChatBrowser browser;
 
 	Composite middle;
@@ -88,13 +89,17 @@ public class ChatView extends ViewPart implements IAgentServiceListener, Travers
 //		PlatformUI.getWorkbench().getHelpSystem().setHelp(parent, IConsoleHelpContextIds.CONSOLE_VIEW);
 
 		middle = new Composite(parent, SWT.NONE);
-		middle.setLayout(new GridLayout(1, true));
+		GridLayout gl = new GridLayout(1, true);
+		gl.verticalSpacing = 0;
+		middle.setLayout(gl);
 		middle.setLayoutData(new GridData(GridData.FILL_BOTH));
 
 		browser = new ChatBrowser(middle, SWT.NONE);
 		browser.initialize();
 		
 		contexts = new ChatResourceAdditions(middle, SWT.NONE);
+		
+		fileDrawer = new ChatFileDrawer(middle);
 
 		inputText = new Text(middle, SWT.MULTI | SWT.BORDER);
 		GridData gd = new GridData(GridData.FILL_HORIZONTAL);
@@ -158,6 +163,7 @@ public class ChatView extends ViewPart implements IAgentServiceListener, Travers
 		this.disposed = true;
 		SessionController.removeChatView(this);
 		AgentController.instance().removeAgentListener(this);
+		fileDrawer.dispose();
 	}
 
 	@Override
@@ -256,11 +262,43 @@ public class ChatView extends ViewPart implements IAgentServiceListener, Travers
 	public void prompTurnStarted() {
 		startStop.prompTurnStarted();
 		getViewSite().getActionBars().updateActionBars();
+		
+		AgentController.getSession(activeSessionId).getWorkspaceController().clearVariants();
 	}
 
 	public void prompTurnEnded() {
 		startStop.prompTurnEnded();
 		getViewSite().getActionBars().updateActionBars();
+	}
+	
+	public void workspaceChangeAdded(WorkspaceChange change) {
+		Activator.getDisplay().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				fileDrawer.workspaceChangeAdded(change);
+				middle.layout(true);
+			}
+		});
+	}
+
+	public void workspaceChangeModified(WorkspaceChange change) {
+		Activator.getDisplay().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				fileDrawer.workspaceChangeModified(change);
+				middle.layout(true);
+			}
+		});
+	}
+	
+	public void workspaceChangeRemoved(WorkspaceChange change) {
+		Activator.getDisplay().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				fileDrawer.workspaceChangeRemoved(change);
+				middle.layout(true);
+			}
+		});
 	}
 
 	@Override
