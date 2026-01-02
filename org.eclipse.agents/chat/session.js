@@ -86,14 +86,14 @@ function acceptSessionToolCall(toolCallId, title, kind, status, content, options
 	scrollToBottom();
 }
 
-function acceptSessionToolCallUpdate(toolCallId, status) {
+function acceptSessionToolCallUpdate(toolCallId, status, content) {
 	let toolCall = getTurn().querySelector('tool-call#' + toolCallId);
 	
-	// TODO: tool-call is currently not created for permission requests.
-	// We may need to look up the tool call for permission requests differently
-	// when receiveing updates 
 	if (toolCall != null) {
 		toolCall.updateStatus(status);
+		if (content != null && toolCall.isPermissionRequest()) {
+			toolCall.updateContent(content);
+		}
 		scrollToBottom();
 	}
 }

@@ -16,9 +16,7 @@ package org.eclipse.agents.chat;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
@@ -372,14 +370,26 @@ public class ChatBrowser {
 	}
 
 
-	public void  acceptSessionToolCallUpdate(String toolCallId, String status) {
+	public void  acceptSessionToolCallUpdate(String toolCallId, String status, ToolCallContent[] content) {
 		if (!browser.isDisposed()) {
-			String fxn = String.format("acceptSessionToolCallUpdate(`%s`, `%s`);", 
-					toolCallId, status);
+			try {
+			String contentJson = null;
+			if (content != null) {
+				contentJson = mapper.writeValueAsString(content);
+				if (contentJson != null) {
+					contentJson = sanitize(contentJson);
+				}
+			}
+			String formattedFxn = String.format("acceptSessionToolCallUpdate(`%s`, `%s`, `%s`);", 
+					toolCallId, status, contentJson);
+			String fxn = formattedFxn.replaceAll("`null`", "null");
 			Tracer.trace().trace(Tracer.BROWSER, fxn);
 			Activator.getDisplay().syncExec(()-> {
 				Tracer.trace().trace(Tracer.BROWSER, "" + browser.evaluate(fxn));
 			});
+			} catch (JsonProcessingException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 	
@@ -396,11 +406,14 @@ public class ChatBrowser {
 				if (contents != null && contents.length > 0) {
 					ToolCallContent content = contents[0];
 					contentJson = mapper.writeValueAsString(content);
+					if (contentJson != null) {
+						contentJson = sanitize(contentJson);
+					}
 				}
 				// TODO: for now, we pass in the raw content
 				// We'll need to render content differently based on type. e.g. regular/diff/terminal
 				String formattedFxn = String.format("acceptSessionToolCall(`%s`, `%s`, `%s`, `%s`, `%s`, `%s`);",
-						toolCallId, title, toolCall.kind(), toolCall.status(), contentJson, optionsJson);
+						toolCallId, title, toolCall.kind(), toolCall.status(), contentJson, sanitize(optionsJson));
 				// handle when content or options are empty
 				String fxn = formattedFxn.replaceAll("`null`", "null");
 				Tracer.trace().trace(Tracer.BROWSER, fxn);

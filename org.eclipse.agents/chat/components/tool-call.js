@@ -59,6 +59,7 @@ class ToolCall extends DivTemplate {
 		}
 		
 		if (permissionOptions != null) {
+			this._isPermissionRequest = true;
 			for(const option of permissionOptions) {
 				const permissionRequestButton = addChild(this._buttonContainer, "permission-request-button");
 				permissionRequestButton.create(option.kind, option.name, option.optionId, this);
@@ -71,6 +72,7 @@ class ToolCall extends DivTemplate {
 				this._title.textContent = toolCallId;
 			}
 		} else {
+			this._isPermissionRequest = false;
 			this._buttonContainer.style.display = "none";
 		}
 		
@@ -133,12 +135,16 @@ class ToolCall extends DivTemplate {
     }
 	
 	updateContent(content) {
+		if (this._content.textContent === null || this._content.textContent === "") {
+			// expand when receiving first update
+			this._content.style.display = "unset";
+			this._expandCollapseContentImg.src = "icons/collapse.png";
+			this._contentFooterButtonImg.src = "icons/collapse.png";
+			this._expandCollapseContent.style.display = "flex";
+			this._contentFooterButton.style.display = "unset";	
+		}
+		
 		this._content.textContent = content;
-		this._content.style.display = "unset";
-		this._expandCollapseContentImg.src = "icons/collapse.png";
-		this._contentFooterButtonImg.src = "icons/collapse.png";
-		this._expandCollapseContent.style.display = "flex";
-		this._contentFooterButton.style.display = "unset";
 	}
 	
 	toggleContent(event) {
@@ -162,6 +168,10 @@ class ToolCall extends DivTemplate {
 		this.collapseContent();
 		// Pass response info to eclipse browser location handler
 		window.location = "response:" + this._toolCallId + "/" + optionId;
+	}
+	
+	isPermissionRequest() {
+		return this._isPermissionRequest;
 	}
 }
 customElements.define("tool-call", ToolCall);

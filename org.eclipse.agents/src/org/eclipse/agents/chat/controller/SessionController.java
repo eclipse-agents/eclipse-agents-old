@@ -182,7 +182,8 @@ public class SessionController implements ISessionListener {
 				SessionToolCallUpdate toolCall = (SessionToolCallUpdate)notification.update();
 				browser.acceptSessionToolCallUpdate(
 						toolCall.toolCallId(), 
-						toolCall.status().toString());
+						toolCall.status().toString(),
+						toolCall.content());
 			}
 			else if (notification.update() instanceof SessionPlan) {
 				PlanEntry[] entries = ((SessionPlan)notification.update()).entries();
