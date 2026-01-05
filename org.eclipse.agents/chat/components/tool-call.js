@@ -46,7 +46,7 @@ class ToolCall extends DivTemplate {
 		this._expandCollapseContent.addEventListener("click", (event) => this.toggleContent(event));
 		this._contentFooterButton.addEventListener("click", (event) => this.collapseContent(event));
 		
-		if (content != null) {
+		if (content && content.length > 0) {
 			// TODO: Currently displaying the raw content.
 			// we'll need to render the content based on the type of content provided
 			this._content.textContent = content;
@@ -59,7 +59,6 @@ class ToolCall extends DivTemplate {
 		}
 		
 		if (permissionOptions != null) {
-			this._isPermissionRequest = true;
 			for(const option of permissionOptions) {
 				const permissionRequestButton = addChild(this._buttonContainer, "permission-request-button");
 				permissionRequestButton.create(option.kind, option.name, option.optionId, this);
@@ -72,7 +71,6 @@ class ToolCall extends DivTemplate {
 				this._title.textContent = toolCallId;
 			}
 		} else {
-			this._isPermissionRequest = false;
 			this._buttonContainer.style.display = "none";
 		}
 		
@@ -168,10 +166,6 @@ class ToolCall extends DivTemplate {
 		this.collapseContent();
 		// Pass response info to eclipse browser location handler
 		window.location = "response:" + this._toolCallId + "/" + optionId;
-	}
-	
-	isPermissionRequest() {
-		return this._isPermissionRequest;
 	}
 }
 customElements.define("tool-call", ToolCall);

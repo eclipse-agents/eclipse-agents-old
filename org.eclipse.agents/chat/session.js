@@ -87,12 +87,16 @@ function acceptSessionToolCall(toolCallId, title, kind, status, content, options
 }
 
 function acceptSessionToolCallUpdate(toolCallId, status, content) {
-	let toolCall = getTurn().querySelector('tool-call#' + toolCallId);
+	const toolCall = getTurn().querySelector('tool-call#' + toolCallId);
 	
 	if (toolCall != null) {
 		toolCall.updateStatus(status);
-		if (content != null && toolCall.isPermissionRequest()) {
-			toolCall.updateContent(content);
+		if (content != null) {
+			const contentJson = JSON.parse(content);
+			// don't update content if an empty content array is received
+			if(contentJson.length > 0) {
+				toolCall.updateContent(content);
+			}
 		}
 		scrollToBottom();
 	}
