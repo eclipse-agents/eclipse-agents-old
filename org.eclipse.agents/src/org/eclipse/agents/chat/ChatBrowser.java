@@ -88,6 +88,7 @@ public class ChatBrowser {
 		browser.setForeground(Activator.getDisplay().getSystemColor(SWT.COLOR_INFO_FOREGROUND));
 		browser.setBackground(Activator.getDisplay().getSystemColor(SWT.COLOR_INFO_BACKGROUND));
 		browser.setLayoutData(new GridData(GridData.FILL_BOTH));
+		((GridData)browser.getLayoutData()).minimumHeight = 80;
 		browser.setVisible(false);
 		
 		new BrowserFunction(browser, "getProgramIcon") {

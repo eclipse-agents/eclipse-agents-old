@@ -49,8 +49,8 @@ import org.eclipse.agents.services.protocol.AcpSchema.TerminalOutputRequest;
 import org.eclipse.agents.services.protocol.AcpSchema.TerminalOutputResponse;
 import org.eclipse.agents.services.protocol.AcpSchema.WaitForTerminalExitRequest;
 import org.eclipse.agents.services.protocol.AcpSchema.WaitForTerminalExitResponse;
+import org.eclipse.agents.services.protocol.AcpSchema.WriteTextFileRequest;
 import org.eclipse.agents.services.protocol.AcpSchema.WriteTextFileResponse;
-import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.ListenerList;
 
 public class AgentController {
@@ -164,6 +164,8 @@ public class AgentController {
 		for (ISessionListener listener : sesionListeners) {
 			if (req instanceof ReadTextFileRequest) {
 				listener.accept((ReadTextFileRequest)req);
+			} else if (req instanceof WriteTextFileRequest) {
+				listener.accept((WriteTextFileRequest)req);
 			} else if (req instanceof CreateTerminalRequest) {
 				listener.accept((CreateTerminalRequest)req);
 			} else if (req instanceof TerminalOutputRequest) {

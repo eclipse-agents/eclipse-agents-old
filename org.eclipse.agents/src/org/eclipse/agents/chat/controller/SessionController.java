@@ -20,6 +20,9 @@ import java.util.concurrent.CompletableFuture;
 import org.eclipse.agents.Tracer;
 import org.eclipse.agents.chat.ChatBrowser;
 import org.eclipse.agents.chat.ChatView;
+import org.eclipse.agents.chat.controller.workspace.IWorkspaceChangeListener;
+import org.eclipse.agents.chat.controller.workspace.WorkspaceChange;
+import org.eclipse.agents.chat.controller.workspace.WorkspaceController;
 import org.eclipse.agents.services.agent.IAgentService;
 import org.eclipse.agents.services.protocol.AcpSchema.CancelNotification;
 import org.eclipse.agents.services.protocol.AcpSchema.ContentBlock;
@@ -65,7 +68,7 @@ import org.eclipse.agents.services.protocol.AcpSchema.WriteTextFileRequest;
 import org.eclipse.agents.services.protocol.AcpSchema.WriteTextFileResponse;
 import org.eclipse.core.runtime.ListenerList;
 
-public class SessionController implements ISessionListener {
+public class SessionController implements ISessionListener, IWorkspaceChangeListener {
 
 	// Initialization
 	private IAgentService agent;
@@ -74,6 +77,7 @@ public class SessionController implements ISessionListener {
 	private McpServer[] mcpServers; 
 	private SessionModeState modes;
 	private SessionModelState models;
+	private WorkspaceController workspaceController;
 	
 	// State
 //	int promptId = 0;
@@ -94,11 +98,17 @@ public class SessionController implements ISessionListener {
 		this.models = models;
 		
 		AgentController.instance().addSessionListener(this);
+		workspaceController = new WorkspaceController(sessionId);
+		workspaceController.addListener(this);
 	}
 	
 	@Override
 	public String getSessionId() {
 		return sessionId;
+	}
+	
+	public WorkspaceController getWorkspaceController() {
+		return workspaceController;
 	}
 	
 	public static void addChatView(ChatView view) {
@@ -208,7 +218,6 @@ public class SessionController implements ISessionListener {
 	@Override
 	public void accept(WriteTextFileRequest request) {
 		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
@@ -325,7 +334,6 @@ public class SessionController implements ISessionListener {
 			view.prompTurnEnded();
 		}
 		
-		
 	}
 
 	//------------------------
@@ -371,6 +379,8 @@ public class SessionController implements ISessionListener {
 
 	@Override
 	public void accept(PromptRequest request) {
+		workspaceController.clearVariants();
+		
 		for (ChatView view: getChatViews(sessionId)) {
 			view.getBrowser().acceptPromptRequest(request);
 			view.prompTurnStarted();
@@ -452,6 +462,26 @@ public class SessionController implements ISessionListener {
 		// TODO Auto-generated method stub
 		
 	}
-	
+
+	@Override
+	public void changeAdded(String sessionId, WorkspaceChange change) {
+		for (ChatView view: getChatViews(sessionId)) {
+			view.workspaceChangeAdded(change);
+		}
+	}
+
+	@Override
+	public void changeModified(String sessionID, WorkspaceChange change) {
+		for (ChatView view: getChatViews(sessionId)) {
+			view.workspaceChangeModified(change);
+		}
+	}
+
+	@Override
+	public void changeRemoved(String sessionId, WorkspaceChange change) {
+		for (ChatView view: getChatViews(sessionId)) {
+			view.workspaceChangeRemoved(change);
+		}
+	}
 	
 }
