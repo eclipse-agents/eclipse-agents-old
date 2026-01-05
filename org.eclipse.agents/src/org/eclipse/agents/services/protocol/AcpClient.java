@@ -18,8 +18,6 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 import org.eclipse.agents.Activator;
@@ -30,12 +28,9 @@ import org.eclipse.agents.services.protocol.AcpSchema.CreateTerminalRequest;
 import org.eclipse.agents.services.protocol.AcpSchema.CreateTerminalResponse;
 import org.eclipse.agents.services.protocol.AcpSchema.KillTerminalCommandRequest;
 import org.eclipse.agents.services.protocol.AcpSchema.KillTerminalCommandResponse;
-import org.eclipse.agents.services.protocol.AcpSchema.Outcome;
-import org.eclipse.agents.services.protocol.AcpSchema.PermissionOption;
 import org.eclipse.agents.services.protocol.AcpSchema.ReadTextFileRequest;
 import org.eclipse.agents.services.protocol.AcpSchema.ReadTextFileResponse;
 import org.eclipse.agents.services.protocol.AcpSchema.ReleaseTerminalResponse;
-import org.eclipse.agents.services.protocol.AcpSchema.RequestPermissionOutcome;
 import org.eclipse.agents.services.protocol.AcpSchema.RequestPermissionRequest;
 import org.eclipse.agents.services.protocol.AcpSchema.RequestPermissionResponse;
 import org.eclipse.agents.services.protocol.AcpSchema.SessionNotification;
@@ -51,17 +46,9 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.lsp4j.jsonrpc.JsonRpcException;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Combo;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorReference;
@@ -69,7 +56,6 @@ import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.dialogs.SelectionDialog;
 import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.texteditor.ITextEditor;
 
@@ -87,49 +73,7 @@ public class AcpClient implements IAcpClient {
 		
 		Activator.getDisplay().syncExec(new Runnable() {
 			public void run() {
-				// TODO : temporarily leave dialog available for testing purposes
-				boolean useChatPermissionRequest = false;
-				if (useChatPermissionRequest) {
-					AgentController.instance().acceptRequestsPermission(request, future);
-				} else {
-					SelectionDialog dialog = new SelectionDialog(Activator.getDisplay().getActiveShell()) {
-						@Override
-						protected Control createDialogArea(Composite parent) {
-							Composite top = (Composite) super.createDialogArea(parent);
-							top.setLayout(new GridLayout(1, true));
-							
-							Combo combo = new Combo(top, SWT.READ_ONLY);
-							for (PermissionOption po: request.options()) {
-								combo.add(po.name());
-							}
-							combo.addModifyListener(new ModifyListener() {
-								@Override
-								public void modifyText(ModifyEvent arg0) {
-									setSelectionResult(new Object[] { 
-											request.options()[combo.getSelectionIndex()]
-									});
-									getOkButton().setEnabled(true);
-								}
-							});
-							return top;
-						}
-					};
-					
-					String message =  
-							"Agent would like to call " + request.toolCall().toolCallId() + ": " 
-									+ request.toolCall().title() + " TODO";
-					
-					dialog.setMessage(message);
-					if (dialog.open() == Dialog.OK) {
-						Object result = dialog.getResult()[0];
-						if (result instanceof PermissionOption) {
-							PermissionOption option = (PermissionOption)result;
-							RequestPermissionOutcome outcome = new RequestPermissionOutcome(Outcome.selected, option.optionId());
-							RequestPermissionResponse response = new RequestPermissionResponse(null, outcome);
-							future.complete(response);
-						}
-					}
-				}
+				AgentController.instance().acceptRequestsPermission(request, future);
 			}
 		});
 		
