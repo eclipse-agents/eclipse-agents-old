@@ -15,6 +15,7 @@ package org.eclipse.agents.chat.controller;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 import org.eclipse.agents.Tracer;
 import org.eclipse.agents.chat.ChatBrowser;
@@ -191,7 +192,8 @@ public class SessionController implements ISessionListener, IWorkspaceChangeList
 				SessionToolCallUpdate toolCall = (SessionToolCallUpdate)notification.update();
 				browser.acceptSessionToolCallUpdate(
 						toolCall.toolCallId(), 
-						toolCall.status().toString());
+						toolCall.status().toString(),
+						toolCall.content());
 			}
 			else if (notification.update() instanceof SessionPlan) {
 				PlanEntry[] entries = ((SessionPlan)notification.update()).entries();
@@ -225,9 +227,15 @@ public class SessionController implements ISessionListener, IWorkspaceChangeList
 	}
 
 	@Override
-	public void accept(RequestPermissionRequest request) {
-		// TODO Auto-generated method stub
+	public void accept(RequestPermissionRequest request, CompletableFuture<RequestPermissionResponse> pendingResponse) {
+		if (!sessionId.equals(request.sessionId())) {
+			return;
+		}
 		
+		for (ChatView view: getChatViews(request.sessionId())) {
+			ChatBrowser browser = view.getBrowser();
+			browser.acceptPermissionRequest(request, pendingResponse);
+		}
 	}
 
 	@Override

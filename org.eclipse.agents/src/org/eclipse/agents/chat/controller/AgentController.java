@@ -15,6 +15,7 @@ package org.eclipse.agents.chat.controller;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 import org.eclipse.agents.services.agent.GeminiService;
 import org.eclipse.agents.services.agent.IAgentService;
@@ -165,8 +166,6 @@ public class AgentController {
 				listener.accept((ReadTextFileRequest)req);
 			} else if (req instanceof WriteTextFileRequest) {
 				listener.accept((WriteTextFileRequest)req);
-			} else if (req instanceof RequestPermissionRequest) {
-				listener.accept((RequestPermissionRequest)req);
 			} else if (req instanceof CreateTerminalRequest) {
 				listener.accept((CreateTerminalRequest)req);
 			} else if (req instanceof TerminalOutputRequest) {
@@ -204,6 +203,12 @@ public class AgentController {
 			if (notification instanceof SessionNotification) {
 				listener.accept((SessionNotification)notification);
 			}
+		}
+	}
+	
+	public void acceptRequestsPermission(RequestPermissionRequest permissionRequest, CompletableFuture<RequestPermissionResponse> pendingResponse) {
+		for (ISessionListener listener: sesionListeners) {
+			listener.accept(permissionRequest, pendingResponse);
 		}
 	}
 

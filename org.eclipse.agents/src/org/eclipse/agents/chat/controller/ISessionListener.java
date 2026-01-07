@@ -13,6 +13,8 @@
  *******************************************************************************/
 package org.eclipse.agents.chat.controller;
 
+import java.util.concurrent.CompletableFuture;
+
 import org.eclipse.agents.services.protocol.AcpSchema.CancelNotification;
 import org.eclipse.agents.services.protocol.AcpSchema.CreateTerminalRequest;
 import org.eclipse.agents.services.protocol.AcpSchema.CreateTerminalResponse;
@@ -50,7 +52,7 @@ public interface ISessionListener {
 	//AgentRequest
 	public void accept(WriteTextFileRequest request);
 	public void accept(ReadTextFileRequest request);
-	public void accept(RequestPermissionRequest request);
+	public void accept(RequestPermissionRequest request, CompletableFuture<RequestPermissionResponse> pendingResponse);
 	public void accept(CreateTerminalRequest request);
 	public void accept(TerminalOutputRequest request);
 	public void accept(ReleaseTerminalRequest request);
