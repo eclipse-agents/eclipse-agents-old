@@ -15,9 +15,62 @@
 div:focus {
 	outline: none;
 }
+
+.requestToolCall {
+	margin-bottom: 6px;
+}
  
-img {
+.toolCallIcon {
 	vertical-align: text-bottom;
 	column-gap: 2px;
 	max-width: 100%;
+}
+
+.toolCallContent {
+	padding-top: 6px;
+}
+
+.expandCollapseButton {
+	display: flex;
+	margin-left: auto;
+	margin-top: 6px;
+	margin-bottom: 6px;
+	height: 18px;
+	width: 30px;
+	justify-content: center;
+	border: none;
+	border-radius: 2px;
+}
+
+.expandCollapseButton img {
+	height: 12px;
+	margin-top: 2px;
+}
+
+.expandCollapseButton:hover {
+	background-color: #ccc;
+}
+
+.footerButton {
+	height: 18px;
+	width: 100%;
+	margin-top: 6px;
+	border: none;
+	border: none;
+	border-radius: 2px;
+}
+
+.footerButton img {
+	height: 12px;
+	margin-top: 2px;
+}
+
+.footerButton:hover {
+	background-color: #ccc;
+}
+
+.buttonContainer {
+	display: flex;
+	justify-content: flex-end;
+	margin-top: 6px;
 }

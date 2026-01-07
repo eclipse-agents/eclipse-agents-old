@@ -15,6 +15,7 @@ package org.eclipse.agents.chat.controller;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 import org.eclipse.agents.services.agent.GeminiService;
 import org.eclipse.agents.services.agent.IAgentService;
@@ -48,6 +49,7 @@ import org.eclipse.agents.services.protocol.AcpSchema.TerminalOutputRequest;
 import org.eclipse.agents.services.protocol.AcpSchema.TerminalOutputResponse;
 import org.eclipse.agents.services.protocol.AcpSchema.WaitForTerminalExitRequest;
 import org.eclipse.agents.services.protocol.AcpSchema.WaitForTerminalExitResponse;
+import org.eclipse.agents.services.protocol.AcpSchema.WriteTextFileRequest;
 import org.eclipse.agents.services.protocol.AcpSchema.WriteTextFileResponse;
 import org.eclipse.core.runtime.ListenerList;
 
@@ -57,7 +59,8 @@ public class AgentController {
 	
 	private static Map<String, SessionController> sessions = new HashMap<String, SessionController>();
 	
-	private ListenerList<ISessionListener> listenerList;
+	private ListenerList<IAgentServiceListener> agentListeners;
+	private ListenerList<ISessionListener> sesionListeners;
 
 	static {
 		instance = new AgentController();
@@ -69,7 +72,8 @@ public class AgentController {
 			new GeminiService()
 //			new GooseService()
 		};
-		listenerList = new  ListenerList<ISessionListener>();
+		agentListeners = new ListenerList<IAgentServiceListener>();
+		sesionListeners = new  ListenerList<ISessionListener>();
 	}
 	
 	public static AgentController instance() {
@@ -92,16 +96,24 @@ public class AgentController {
 		return sessions.size();
 	}
 	
-	public void addAcpListener(ISessionListener listener) {
-		listenerList.add(listener);
+	public void addSessionListener(ISessionListener listener) {
+		sesionListeners.add(listener);
 	}
 	
-	public void removeAcpListener(ISessionListener listener) {
-		listenerList.remove(listener);
+	public void removeSessionListener(ISessionListener listener) {
+		sesionListeners.remove(listener);
+	}
+	
+	public void addAgentListener(IAgentServiceListener listener) {
+		agentListeners.add(listener);
+	}
+	
+	public void removeAgentListener(IAgentServiceListener listener) {
+		agentListeners.remove(listener);
 	}
 	
 	public void clientRequests(ClientRequest req) {
-		for (ISessionListener listener: listenerList) {
+		for (ISessionListener listener: sesionListeners) {
 			if (req instanceof InitializeRequest) {
 				listener.accept((InitializeRequest)req);	
 //			} else if (req instanceof AuthenticateRequest) {
@@ -119,7 +131,7 @@ public class AgentController {
 	}
 	
 	public void clientResponds(ClientResponse resp) {
-		for (ISessionListener listener: listenerList) {
+		for (ISessionListener listener: sesionListeners) {
 			if (resp instanceof WriteTextFileResponse) {
 				listener.accept((WriteTextFileResponse)resp);
 			} else if (resp instanceof ReadTextFileResponse) {
@@ -141,7 +153,7 @@ public class AgentController {
 	}
 	
 	public void clientNotifies(ClientNotification notification) {
-		for (ISessionListener listener: listenerList) {
+		for (ISessionListener listener: sesionListeners) {
 			if (notification instanceof CancelNotification) {
 				listener.accept((CancelNotification)notification);
 			}
@@ -149,11 +161,11 @@ public class AgentController {
 	}
 	
 	public void agentRequests(AgentRequest req) {
-		for (ISessionListener listener : listenerList) {
+		for (ISessionListener listener : sesionListeners) {
 			if (req instanceof ReadTextFileRequest) {
 				listener.accept((ReadTextFileRequest)req);
-			} else if (req instanceof RequestPermissionRequest) {
-				listener.accept((RequestPermissionRequest)req);
+			} else if (req instanceof WriteTextFileRequest) {
+				listener.accept((WriteTextFileRequest)req);
 			} else if (req instanceof CreateTerminalRequest) {
 				listener.accept((CreateTerminalRequest)req);
 			} else if (req instanceof TerminalOutputRequest) {
@@ -169,7 +181,7 @@ public class AgentController {
 	}
 	
 	public void agentResponds(AgentResponse resp) {
-		for (ISessionListener listener: listenerList) {
+		for (ISessionListener listener: sesionListeners) {
 			if (resp instanceof InitializeResponse) {
 				listener.accept((InitializeResponse)resp);
 //			if (resp instanceof AuthenticateResponse) {
@@ -187,10 +199,40 @@ public class AgentController {
 	}
 	
 	public void agentNotifies(AgentNotification notification) {
-		for (ISessionListener listener: listenerList) {
+		for (ISessionListener listener: sesionListeners) {
 			if (notification instanceof SessionNotification) {
 				listener.accept((SessionNotification)notification);
 			}
+		}
+	}
+	
+	public void acceptRequestsPermission(RequestPermissionRequest permissionRequest, CompletableFuture<RequestPermissionResponse> pendingResponse) {
+		for (ISessionListener listener: sesionListeners) {
+			listener.accept(permissionRequest, pendingResponse);
+		}
+	}
+
+	public void agentStarted(IAgentService service) {
+		for (IAgentServiceListener listener: agentListeners) {
+			listener.agentStarted(service);
+		}
+	}
+	
+	public void agentStopped(IAgentService service) {
+		for (IAgentServiceListener listener: agentListeners) {
+			listener.agentStopped(service);
+		}
+	}
+	
+	public void agentFailed(IAgentService service) {
+		for (IAgentServiceListener listener: agentListeners) {
+			listener.agentFailed(service);
+		}
+	}
+	
+	public void agentScheduled(IAgentService service) {
+		for (IAgentServiceListener listener: agentListeners) {
+			listener.agentScheduled(service);
 		}
 	}
 }

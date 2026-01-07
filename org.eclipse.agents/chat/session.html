@@ -34,6 +34,7 @@
 		<script src="components/agent-messages.js"></script>
 		<script src="components/agent-thoughts.js"></script>
 		<script src="components/tool-call.js"></script>
+		<script src="components/permission-request-button.js"></script>
 	
 		<template id="prompt-turn">
 		</template>
@@ -77,14 +78,32 @@
 
 		<template id = "tool-call">
 			<link href="components/tool-call.css" rel="stylesheet">
-			<div id="toolCallId" tabindex="0">
-				<img id="kind" alt=""></img>
-				<span id="title"></span>
-				<img id="status" alt=""></img>
+			<div id="toolCall">
+				<div id="toolCallId" tabindex="0">
+					<img id="kind" class="toolCallIcon" alt=""></img>
+					<span id="title"></span>
+					<img id="status" class="toolCallIcon" alt=""></img>
+				</div>
+				<button id="expandCollapseContentButton" class="expandCollapseButton"><img alt=""></img></button>
+				<div id="contentContainer">
+					<div id="toolCallContent" tabindex="0"></div>
+					<button id="contentFooterButton" class="footerButton"><img alt=""></img></button>
+				</div>
+				<div id="permissionButtonContainer" class="buttonContainer"></div>
 			</div>
 		</template>
 
 		<!-- END SessionUpdate -->
+		
+		<template id="permission-request-button">
+			<link href="components/permission-request-button.css" rel="stylesheet">
+			<div id="permissionRequestButtonId">
+				<button>
+					<img id="kind" alt=""></img>
+					<span id="name"></span>
+				</button>
+			</div>
+		</template>
 
 	</body>
 

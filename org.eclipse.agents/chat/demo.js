@@ -40,7 +40,7 @@ function demo() {
 	acceptSessionAgentMessageChunk(JSON.stringify({"content":{"text":"Here i's what i came up with:\n```json\n \"a\": {\n\"B\": \"C\"","type":"text"},"sessionUpdate":"session1"}.content));
 
 	acceptSessionAgentMessageChunk(JSON.stringify({"content":{"text":"\n}}\n```\nAnything else?","type":"text"},"sessionUpdate":"session1"}.content));
-	
+
 	acceptSessionAgentMessageChunk(JSON.stringify({"content":{"text":"\nUsing sample.html and the snippet of selected xml code, compare them to ","type":"text"},"sessionUpdate":"session1"}.content));
 
 	acceptSessionAgentMessageChunk(JSON.stringify({"content":{"description":"description","mimeType":"text/xml","name":"mystery.xml","size":654321,"title":"mystery.xml","type":"resource_link","uri":"file:///no/where/dot/mystery"},"sessionUpdate":"session1"}.content));
@@ -50,6 +50,12 @@ function demo() {
 	acceptSessionAgentMessageChunk(JSON.stringify({"content":{"resource":{"blob":"text/xml","mimeType":"<xml><body></body></xml>","uri":"file:///no/where/dot/snippet.xml"},"type":"resource"},"sessionUpdate":"session1"}.content));
 
 	acceptSessionAgentMessageChunk(JSON.stringify({"content":{"text":". if not ask me for additional details","type":"text"},"sessionUpdate":"session1"}.content));
+
+	const options = JSON.stringify({"options": [{"kind":"allow_always","name":"Allow All Edits","optionId":"proceed_always"},{"kind":"allow_once","name":"Allow","optionId":"proceed_once"},{"kind":"reject_once","name":"Reject","optionId":"cancel"}]}.options);
+	const content = JSON.stringify({"children":[{"name":".project","isFolder":false,"uri":{"type":"resource_link","name":".project","uri":"file:/C:/geminiProjects/sample2/.project","description":"Eclipse workspace file","mimeType":"text/plain","size":398}},{"name":".settings","isFolder":true,"uri":{"type":"resource_link","name":".settings","uri":"file:/C:/geminiProjects/sample2/.settings","description":"Eclipse workspace folder"}},{"name":".jsdtscope","isFolder":false,"uri":{"type":"resource_link","name":".jsdtscope","uri":"file:/C:/geminiProjects/sample2/.settings/.jsdtscope","description":"Eclipse workspace file","mimeType":"text/plain","size":319}},{"name":"org.eclipse.wst.jsdt.ui.superType.container","isFolder":false,"uri":{"type":"resource_link","name":"org.eclipse.wst.jsdt.ui.superType.container","uri":"file:/C:/geminiProjects/sample2/.settings/org.eclipse.wst.jsdt.ui.superType.container","description":"Eclipse workspace file","mimeType":"text/plain","size":44}},{"name":"org.eclipse.wst.jsdt.ui.superType.name","isFolder":false,"uri":{"type":"resource_link","name":"org.eclipse.wst.jsdt.ui.superType.name","uri":"file:/C:/geminiProjects/sample2/.settings/org.eclipse.wst.jsdt.ui.superType.name","description":"Eclipse workspace file","mimeType":"text/plain","size":6}},{"name":"app.js","isFolder":false,"uri":{"type":"resource_link","name":"app.js","uri":"file:/C:/geminiProjects/sample2/app.js","description":"Eclipse workspace file","mimeType":"text/plain","size":22110}},{"name":"sample2.html","isFolder":false,"uri":{"type":"resource_link","name":"sample2.html","uri":"file:/C:/geminiProjects/sample2/sample2.html","description":"Eclipse workspace file","mimeType":"text/plain","size":734}}],"depthSearched":"INFINITE"});
+	
+	acceptSessionToolCall("permission2", "listProjects", "other", "pending", content, options);
+
 }
 
 if (getProgramIcon == null) { 

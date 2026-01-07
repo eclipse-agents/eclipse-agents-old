@@ -19,9 +19,12 @@ import java.util.List;
 
 import org.eclipse.agents.Activator;
 import org.eclipse.agents.chat.ContentAssistProvider.ResourceProposal;
+import org.eclipse.agents.chat.actions.NewSessionAction;
 import org.eclipse.agents.chat.controller.AgentController;
+import org.eclipse.agents.chat.controller.IAgentServiceListener;
 import org.eclipse.agents.chat.controller.SessionController;
 import org.eclipse.agents.chat.controller.StartSessionJob;
+import org.eclipse.agents.chat.controller.workspace.WorkspaceChange;
 import org.eclipse.agents.chat.toolbar.ToolbarAgentSelector;
 import org.eclipse.agents.chat.toolbar.ToolbarModeSelector;
 import org.eclipse.agents.chat.toolbar.ToolbarModelSelector;
@@ -57,13 +60,14 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.ui.part.ViewPart;
 
-public class ChatView extends ViewPart implements TraverseListener, IContentProposalListener, ModifyListener, VerifyListener, Listener  {
+public class ChatView extends ViewPart implements IAgentServiceListener, TraverseListener, IContentProposalListener, ModifyListener, VerifyListener, Listener  {
 
 	public static final String ID  = "org.eclipse.agents.chat.ChatView"; //$NON-NLS-1$
 
 	Text inputText;
 	boolean disposed = false;
 	ChatResourceAdditions contexts;
+	ChatFileDrawer fileDrawer;
 	ChatBrowser browser;
 
 	Composite middle;
@@ -85,13 +89,17 @@ public class ChatView extends ViewPart implements TraverseListener, IContentProp
 //		PlatformUI.getWorkbench().getHelpSystem().setHelp(parent, IConsoleHelpContextIds.CONSOLE_VIEW);
 
 		middle = new Composite(parent, SWT.NONE);
-		middle.setLayout(new GridLayout(1, true));
+		GridLayout gl = new GridLayout(1, true);
+		gl.verticalSpacing = 0;
+		middle.setLayout(gl);
 		middle.setLayoutData(new GridData(GridData.FILL_BOTH));
 
 		browser = new ChatBrowser(middle, SWT.NONE);
 		browser.initialize();
 		
 		contexts = new ChatResourceAdditions(middle, SWT.NONE);
+		
+		fileDrawer = new ChatFileDrawer(middle);
 
 		inputText = new Text(middle, SWT.MULTI | SWT.BORDER);
 		GridData gd = new GridData(GridData.FILL_HORIZONTAL);
@@ -137,6 +145,7 @@ public class ChatView extends ViewPart implements TraverseListener, IContentProp
 			}
 		});
 		
+		AgentController.instance().addAgentListener(this);
 		SessionController.addChatView(this);
 	}
 
@@ -153,6 +162,8 @@ public class ChatView extends ViewPart implements TraverseListener, IContentProp
 		super.dispose();
 		this.disposed = true;
 		SessionController.removeChatView(this);
+		AgentController.instance().removeAgentListener(this);
+		fileDrawer.dispose();
 	}
 
 	@Override
@@ -187,14 +198,19 @@ public class ChatView extends ViewPart implements TraverseListener, IContentProp
 		}
 	}
 
-	public void agentConnected(IAgentService agent) {
-		this.activeAgent = agent;
-		startStop.setEnabled(true);
+	public void setActiveAgent(IAgentService agent) {
+		if (this.activeAgent != agent) {
+			this.activeAgent = agent;
+			if (agent.isRunning() && activeSessionId == null) {
+				new NewSessionAction(this).run();
+			}
+			updateEnablement();
+		}
 	}
 
 	public void agentDisconnected() {
-		this.activeAgent = null;
-		startStop.setEnabled(false);
+		this.activeSessionId = null;
+		updateEnablement();
 	}
 
 	@Override
@@ -246,11 +262,43 @@ public class ChatView extends ViewPart implements TraverseListener, IContentProp
 	public void prompTurnStarted() {
 		startStop.prompTurnStarted();
 		getViewSite().getActionBars().updateActionBars();
+		
+		AgentController.getSession(activeSessionId).getWorkspaceController().clearVariants();
 	}
 
 	public void prompTurnEnded() {
 		startStop.prompTurnEnded();
 		getViewSite().getActionBars().updateActionBars();
+	}
+	
+	public void workspaceChangeAdded(WorkspaceChange change) {
+		Activator.getDisplay().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				fileDrawer.workspaceChangeAdded(change);
+				middle.layout(true);
+			}
+		});
+	}
+
+	public void workspaceChangeModified(WorkspaceChange change) {
+		Activator.getDisplay().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				fileDrawer.workspaceChangeModified(change);
+				middle.layout(true);
+			}
+		});
+	}
+	
+	public void workspaceChangeRemoved(WorkspaceChange change) {
+		Activator.getDisplay().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				fileDrawer.workspaceChangeRemoved(change);
+				middle.layout(true);
+			}
+		});
 	}
 
 	@Override
@@ -275,27 +323,15 @@ public class ChatView extends ViewPart implements TraverseListener, IContentProp
 			}
 		}
 	}
-
-	public void setActiveAgent(IAgentService agent) {
-		if (this.activeAgent != agent) {
-			this.activeAgent = agent;
-			this.activeSessionId = null;
-		}
-	}
 	
 	public void setActiveSessionId(String sessionId) {
 		if (activeSessionId == null || !sessionId.equals(activeSessionId)) {
+//			TODO: stopPromptTurn();
 			browser.clearContent();
 		}
 
 		this.activeSessionId = sessionId;
-
-		Activator.getDisplay().asyncExec(new Thread() {
-			public void run() {
-				sessionSelector.setEnabled(true);
-				sessionSelector.updateText("Session " + AgentController.getSessionCount());
-			}
-		});
+		updateEnablement();
 		
 	}
 	
@@ -305,5 +341,51 @@ public class ChatView extends ViewPart implements TraverseListener, IContentProp
 
 	public IAgentService getActiveAgent() {
 		return activeAgent;
+	}
+
+	@Override
+	public void agentStopped(IAgentService service) {
+		if (getActiveAgent() == service) {
+			this.activeSessionId = null;
+			updateEnablement();
+		}
+	}
+
+	@Override
+	public void agentScheduled(IAgentService service) {
+		if (activeAgent == service) {
+			this.activeSessionId = null;
+			updateEnablement();
+		}
+	}
+
+	@Override
+	public void agentStarted(IAgentService service) {
+		if (activeAgent == service) {
+			this.activeSessionId = null;
+			new NewSessionAction(this).run();
+			updateEnablement();
+		}
+	}
+
+	@Override
+	public void agentFailed(IAgentService service) {
+		if (this.activeAgent == service) {
+			this.activeSessionId = null;
+			updateEnablement();
+		}
+	}
+	
+	private void updateEnablement() {
+		Activator.getDisplay().asyncExec(new Runnable() {
+			public void run() {
+				if (!disposed) {
+					agentSelector.setEnabled(true);
+				    sessionSelector.setEnabled(activeAgent != null && activeAgent.isRunning());
+					startStop.setEnabled(activeAgent != null && activeAgent.isRunning() && activeSessionId != null);	
+					inputText.setEnabled(activeAgent != null && activeAgent.isRunning() && activeSessionId != null);
+				}
+			}
+		});
 	}
 }

@@ -38,6 +38,7 @@ const user_thoughts = "user-thoughts";
 const agent_thoughts = "agent-thoughts";
 const agent_messages= "agent-messages";
 const tool_call= "tool-call";
+const permission_request = "permission-request";
 
 
 
@@ -75,16 +76,38 @@ function acceptSessionAgentMessageChunk(blockChunk) {
 	scrollToBottom();
 }
 
-function acceptSessionToolCall(toolCallId, title, kind, status) {
+function acceptSessionToolCall(toolCallId, title, kind, status, content, options) {
 	addChild(getTurn(), tool_call).id = toolCallId;
-	getTurnMessage().create(toolCallId, title, kind, status);
+	let jsonOptions;
+	if (options != null) {
+		jsonOptions = JSON.parse(options);
+	}
+	getTurnMessage().create(toolCallId, title, kind, status, content, jsonOptions);
 	scrollToBottom();
 }
 
+function acceptSessionToolCallUpdate(toolCallId, status, content) {
+	const toolCall = getTurn().querySelector('tool-call#' + toolCallId);
+	
+	if (toolCall != null) {
+		toolCall.updateStatus(status);
+		if (content != null) {
+			const contentJson = JSON.parse(content);
+			// don't update content if an empty content array is received
+			if(contentJson.length > 0) {
+				toolCall.updateContent(content);
+			}
+		}
+		scrollToBottom();
+	}
+}
 
-function acceptSessionToolCallUpdate(toolCallId, status) {
-    getTurn().querySelector('tool-call#' + toolCallId).updateStatus(status);
+function acceptPermissionRequest(toolCallId, options, title, input, output) {
+	addChild(getTurn(), permission_request).id = toolCallId;
+	const jsonOptions = JSON.parse(options);
+	const permissionRequest = getTurnMessage().create(toolCallId, jsonOptions, title, input, output);
 	scrollToBottom();
+	return permissionRequest;
 }
 
 
@@ -122,7 +145,7 @@ function clearContents() {
 	const tagsToKeep = ['script', 'template'];
 	children.forEach(element => {
 		const tagName = element.tagName.toLowerCase();
-    	if (!tagsToKeep.includes(tagName)) {
+ 	   	if (!tagsToKeep.includes(tagName)) {
     		element.remove();
     	}
   	});
