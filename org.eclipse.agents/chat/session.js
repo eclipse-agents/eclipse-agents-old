@@ -38,9 +38,6 @@ const user_thoughts = "user-thoughts";
 const agent_thoughts = "agent-thoughts";
 const agent_messages= "agent-messages";
 const tool_call= "tool-call";
-const permission_request = "permission-request";
-
-
 
 function acceptPromptRequest(promptRequest) {
 	addChild(document.body, "prompt-turn");
@@ -101,15 +98,6 @@ function acceptSessionToolCallUpdate(toolCallId, status, content) {
 		scrollToBottom();
 	}
 }
-
-function acceptPermissionRequest(toolCallId, options, title, input, output) {
-	addChild(getTurn(), permission_request).id = toolCallId;
-	const jsonOptions = JSON.parse(options);
-	const permissionRequest = getTurnMessage().create(toolCallId, jsonOptions, title, input, output);
-	scrollToBottom();
-	return permissionRequest;
-}
-
 
 function setStyle(fontSize, foreground, background, link, linkActive, infoFg, infoBg) {
 	document.body.style.color = foreground;
