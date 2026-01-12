@@ -46,17 +46,17 @@ class ToolCall extends DivTemplate {
 		this._expandCollapseContent.addEventListener("click", (event) => this.toggleContent(event));
 		this._contentFooterButton.addEventListener("click", (event) => this.collapseContent(event));
 		
-		if (content && content.length > 0) {
-			// TODO: Currently displaying the raw content.
-			// we'll need to render the content based on the type of content provided
-			this._content.textContent = content;
-			this._expandCollapseContentImg.src = "icons/collapse.png";
-			this._contentFooterButtonImg.src = "icons/collapse.png";
-		} else {
+//		if (content && content.length > 0) {
+//			// TODO: Currently displaying the raw content.
+//			// we'll need to render the content based on the type of content provided
+//			this._content.textContent = content;
+//			this._expandCollapseContentImg.src = "icons/collapse.png";
+//			this._contentFooterButtonImg.src = "icons/collapse.png";
+//		} else {
 			this._expandCollapseContent.style.display = "none";
 			this._contentFooterButton.style.display = "none";
 			this._content.style.display = "none";
-		}
+//		}
 		
 		if (permissionOptions != null) {
 			for(const option of permissionOptions) {
@@ -149,7 +149,7 @@ class ToolCall extends DivTemplate {
 		if (this._content.style.display === "none") {
 			this._content.style.display = "unset";
 			this._expandCollapseContentImg.src = "icons/collapse.png";
-			this._contentFooterButton.style.display = "unset"
+			this._contentFooterButton.style.display = "unset";
 		} else {
 			this.collapseContent();
 		}
