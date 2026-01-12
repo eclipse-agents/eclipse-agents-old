@@ -361,6 +361,10 @@ public class ChatBrowser {
 	
 	public void acceptSessionToolCall(String toolCallId, String title, String kind, String status) {
 		if (!browser.isDisposed()) {
+
+			//TODO Gemini puts the input into title, needs gemini fix
+			title = toolCallId.replaceAll("-\\d+$", "");
+			
 			String fxn = String.format("acceptSessionToolCall(`%s`, `%s`, `%s`, `%s`);", 
 					toolCallId, title, kind, status);
 			Tracer.trace().trace(Tracer.BROWSER, fxn);
@@ -401,6 +405,9 @@ public class ChatBrowser {
 				String toolCallId = toolCall.toolCallId();
 				String optionsJson = mapper.writeValueAsString(request.options());
 				String title = toolCall.title();
+				
+				//TODO Gemini puts the input into title, needs gemini fix
+				title = toolCallId.replaceAll("-\\d+$", "");
 				
 				String contentJson = null;
 				ToolCallContent[] contents = toolCall.content();
