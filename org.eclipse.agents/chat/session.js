@@ -88,13 +88,13 @@ function acceptSessionToolCallUpdate(toolCallId, status, content) {
 	
 	if (toolCall != null) {
 		toolCall.updateStatus(status);
-		if (content != null) {
-			const contentJson = JSON.parse(content);
-			// don't update content if an empty content array is received
-			if(contentJson.length > 0) {
-				toolCall.updateContent(content);
-			}
-		}
+//		if (content != null) {
+//			const contentJson = JSON.parse(content);
+//			// don't update content if an empty content array is received
+//			if(contentJson.length > 0) {
+//				toolCall.updateContent(content);
+//			}
+//		}
 		scrollToBottom();
 	}
 }
