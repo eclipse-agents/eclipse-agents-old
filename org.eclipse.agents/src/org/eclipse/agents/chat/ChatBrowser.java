@@ -16,13 +16,17 @@ package org.eclipse.agents.chat;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 import org.eclipse.agents.Activator;
+import org.eclipse.agents.MCPException;
 import org.eclipse.agents.Tracer;
 import org.eclipse.agents.contexts.platform.resource.WorkspaceResourceAdapter;
 import org.eclipse.agents.services.protocol.AcpSchema.ContentBlock;
@@ -65,6 +69,8 @@ import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.browser.IWebBrowser;
+import org.eclipse.ui.browser.IWorkbenchBrowserSupport;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.navigator.CommonNavigator;
 
@@ -93,46 +99,46 @@ public class ChatBrowser {
 		
 		new BrowserFunction(browser, "getProgramIcon") {
 			@Override
-	        public Object function(Object[] args) {
+			public Object function(Object[] args) {
 				Tracer.trace().trace(Tracer.BROWSER, "getProgramIcon:" + args[0]);
 				WorkspaceResourceAdapter adapter = new WorkspaceResourceAdapter(args[0].toString());
-	            IResource resource = adapter.getModel();
-	            final ImageDescriptor imageDescriptor;
-	            if (resource instanceof IFile) {
-	            	IEditorDescriptor editorDescriptor = IDE.getDefaultEditor((IFile)resource);
-	            	if (editorDescriptor != null) {
-	            		imageDescriptor = editorDescriptor.getImageDescriptor();
-	            	} else {
-	            		imageDescriptor = null;
-	            	}
-	            } else if (resource instanceof IFolder) {
-	            	imageDescriptor = PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_OBJ_FOLDER);
-	            } else if (resource instanceof IProject) {
-	            	imageDescriptor = PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_OBJ_PROJECT);
-	            } else {
-	            	imageDescriptor = null;
-	            }
-	            
-	            if (imageDescriptor != null) {
-	            	StringBuffer result = new StringBuffer();
+				IResource resource = adapter.getModel();
+				final ImageDescriptor imageDescriptor;
+				if (resource instanceof IFile) {
+					IEditorDescriptor editorDescriptor = IDE.getDefaultEditor((IFile)resource);
+					if (editorDescriptor != null) {
+						imageDescriptor = editorDescriptor.getImageDescriptor();
+					} else {
+						imageDescriptor = null;
+					}
+				} else if (resource instanceof IFolder) {
+					imageDescriptor = PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_OBJ_FOLDER);
+				} else if (resource instanceof IProject) {
+					imageDescriptor = PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_OBJ_PROJECT);
+				} else {
+					imageDescriptor = null;
+				}
+				
+				if (imageDescriptor != null) {
+					StringBuffer result = new StringBuffer();
 					
 					Activator.getDisplay().syncExec(()-> {
 						ByteArrayOutputStream bos = new ByteArrayOutputStream();
-				        Image image = imageDescriptor.createImage(Activator.getDisplay());
-				        ImageLoader loader = new ImageLoader();
-				        loader.data = new ImageData[] { image.getImageData() }; // Get current ImageData from Image
-				        result.append("data:image/jpg;base64,");
-				        loader.save(bos, SWT.IMAGE_PNG);
-				        image.dispose();
-				        
-				        byte[] imageBytes = bos.toByteArray();
-				        result.append(Base64.getEncoder().encodeToString(imageBytes));
+						Image image = imageDescriptor.createImage(Activator.getDisplay());
+						ImageLoader loader = new ImageLoader();
+						loader.data = new ImageData[] { image.getImageData() }; // Get current ImageData from Image
+						result.append("data:image/jpg;base64,");
+						loader.save(bos, SWT.IMAGE_PNG);
+						image.dispose();
+						
+						byte[] imageBytes = bos.toByteArray();
+						result.append(Base64.getEncoder().encodeToString(imageBytes));
 					});
 
 					Tracer.trace().trace(Tracer.BROWSER, result.toString());
 					return result.toString();
-	            }
-	            return null;
+				}
+				return null;
 			}
 		};
 		
@@ -182,32 +188,53 @@ public class ChatBrowser {
 					
 					if (isRequestPermissionResponse(event.location)) {
 						provideResponse(event.location);
+						Tracer.trace().trace(Tracer.BROWSER, "link location: 'permission response'");
 						return;
+					} 
+					
+					// Check if external HTTP(S) URL
+					try {
+						URL url = new URI(event.location).toURL();
+						if (url.getProtocol().equalsIgnoreCase("http") || url.getProtocol().equalsIgnoreCase("https")) {
+							IWorkbenchBrowserSupport browserSupport = PlatformUI.getWorkbench().getBrowserSupport();
+							IWebBrowser browser = browserSupport.getExternalBrowser();
+							if (browser != null) {
+								Tracer.trace().trace(Tracer.BROWSER, "link location: 'http(s) url'");
+								browser.openURL(url);
+							}
+						}
+					} catch (PartInitException e) {
+						e.printStackTrace();
+					} catch (URISyntaxException e) {
+						Tracer.trace().trace(Tracer.BROWSER, "link location: not valid uri syntax");
+						// do nothing
+					} catch (MalformedURLException e) {
+						Tracer.trace().trace(Tracer.BROWSER, "link location: not well-formed url");
+						// do nothing
 					}
 					
-					
-					WorkspaceResourceAdapter wra = new WorkspaceResourceAdapter(event.location);
-					IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
-					
-					IResource resource = wra.getModel();
-					if (resource instanceof IFile) {
-						try {
-						    IDE.openEditor(page, (IFile)resource); 
-						} catch (PartInitException e) {
-						    e.printStackTrace();
-						}
-					} else if (resource instanceof IFolder || resource instanceof IProject) {
-						try {
+					// Check if file URI
+					try {
+						WorkspaceResourceAdapter wra = new WorkspaceResourceAdapter(event.location);
+						IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+						
+						IResource resource = wra.getModel();
+						if (resource instanceof IFile) {
+							IDE.openEditor(page, (IFile)resource); 
+						} else if (resource instanceof IFolder || resource instanceof IProject) {
 							IViewPart view = page.showView("org.eclipse.ui.navigator.ProjectExplorer");
 							if (view instanceof CommonNavigator) {
-				                CommonNavigator projectExplorer = (CommonNavigator) view;
-				                if (resource.exists() && resource.getProject().exists() && resource.getProject().isOpen()) {
-					                projectExplorer.selectReveal(new StructuredSelection(resource));
-				                }
-				            }
-						} catch (PartInitException e) {
-							e.printStackTrace();
+								CommonNavigator projectExplorer = (CommonNavigator) view;
+								if (resource.exists() && resource.getProject().exists() && resource.getProject().isOpen()) {
+									projectExplorer.selectReveal(new StructuredSelection(resource));
+								}
+							}
 						}
+					} catch (MCPException e) {
+						Tracer.trace().trace(Tracer.BROWSER, "link location: not valid Resource URI");
+						// do nothing
+					} catch (PartInitException e) {
+						e.printStackTrace();
 					}
 				}));
 			}
