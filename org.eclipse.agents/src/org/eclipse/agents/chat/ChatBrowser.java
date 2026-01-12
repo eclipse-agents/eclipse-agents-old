@@ -16,13 +16,17 @@ package org.eclipse.agents.chat;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 import org.eclipse.agents.Activator;
+import org.eclipse.agents.MCPException;
 import org.eclipse.agents.Tracer;
 import org.eclipse.agents.contexts.platform.resource.WorkspaceResourceAdapter;
 import org.eclipse.agents.services.protocol.AcpSchema.ContentBlock;
@@ -65,6 +69,8 @@ import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.browser.IWebBrowser;
+import org.eclipse.ui.browser.IWorkbenchBrowserSupport;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.navigator.CommonNavigator;
 
@@ -182,22 +188,40 @@ public class ChatBrowser {
 					
 					if (isRequestPermissionResponse(event.location)) {
 						provideResponse(event.location);
+						Tracer.trace().trace(Tracer.BROWSER, "link location: 'permission response'");
 						return;
+					} 
+					
+					try {
+						URL url = new URI(event.location).toURL();
+						if (url.getProtocol().equalsIgnoreCase("http") || url.getProtocol().equalsIgnoreCase("https")) {
+							IWorkbenchBrowserSupport browserSupport = PlatformUI.getWorkbench().getBrowserSupport();
+				            IWebBrowser browser = browserSupport.getExternalBrowser();
+				            if (browser != null) {
+				            	Tracer.trace().trace(Tracer.BROWSER, "link location: 'http(s) url'");
+				                browser.openURL(url);
+				            }
+					       
+						}
+					} catch (PartInitException e) {
+						e.printStackTrace();
+					} catch (URISyntaxException e) {
+						Tracer.trace().trace(Tracer.BROWSER, "link location: not valid uri syntax");
+						// do nothing
+					} catch (MalformedURLException e) {
+						Tracer.trace().trace(Tracer.BROWSER, "link location: not well-formed url");
+						// do nothing
 					}
 					
-					
-					WorkspaceResourceAdapter wra = new WorkspaceResourceAdapter(event.location);
-					IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
-					
-					IResource resource = wra.getModel();
-					if (resource instanceof IFile) {
-						try {
+				
+					try {
+						WorkspaceResourceAdapter wra = new WorkspaceResourceAdapter(event.location);
+						IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+						
+						IResource resource = wra.getModel();
+						if (resource instanceof IFile) {
 							IDE.openEditor(page, (IFile)resource); 
-						} catch (PartInitException e) {
-							e.printStackTrace();
-						}
-					} else if (resource instanceof IFolder || resource instanceof IProject) {
-						try {
+						} else if (resource instanceof IFolder || resource instanceof IProject) {
 							IViewPart view = page.showView("org.eclipse.ui.navigator.ProjectExplorer");
 							if (view instanceof CommonNavigator) {
 								CommonNavigator projectExplorer = (CommonNavigator) view;
@@ -205,10 +229,14 @@ public class ChatBrowser {
 									projectExplorer.selectReveal(new StructuredSelection(resource));
 								}
 							}
-						} catch (PartInitException e) {
-							e.printStackTrace();
 						}
+					} catch (MCPException e) {
+						Tracer.trace().trace(Tracer.BROWSER, "link location: not valid Resource URI");
+						// do nothing
+					} catch (PartInitException e) {
+						e.printStackTrace();
 					}
+					
 				}));
 			}
 		});
@@ -233,6 +261,10 @@ public class ChatBrowser {
 				});
 			}
 			
+		});
+		// Cancel opening of new windows
+		browser.addOpenWindowListener(event -> {
+			event.required= true;
 		});
 
 		// Replace browser's built-in context menu with none
