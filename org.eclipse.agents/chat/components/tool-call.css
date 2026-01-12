@@ -16,6 +16,17 @@ div:focus {
 	outline: none;
 }
 
+.toolCall {
+	border-color: lightblue;
+	border-style: solid;
+	border-top-width: thin;
+	border-bottom-width: thin;
+	border-radius: 4px;
+	margin-top: 5px;
+	margin-bottom: 5px;
+	padding: 5px;
+}
+
 .requestToolCall {
 	margin-bottom: 6px;
 }
