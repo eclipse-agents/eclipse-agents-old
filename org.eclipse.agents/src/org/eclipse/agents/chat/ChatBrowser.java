@@ -33,6 +33,7 @@ import org.eclipse.agents.services.protocol.AcpSchema.RequestPermissionRequest;
 import org.eclipse.agents.services.protocol.AcpSchema.RequestPermissionResponse;
 import org.eclipse.agents.services.protocol.AcpSchema.SessionUpdate;
 import org.eclipse.agents.services.protocol.AcpSchema.ToolCallContent;
+import org.eclipse.agents.services.protocol.AcpSchema.ToolCallStatus;
 import org.eclipse.agents.services.protocol.AcpSchema.ToolCallUpdate;
 import org.eclipse.agents.services.protocol.AcpSchema.ToolKind;
 import org.eclipse.core.resources.IFile;
@@ -360,10 +361,10 @@ public class ChatBrowser {
 		}
 	}
 	
-	public void acceptSessionToolCall(String toolCallId, String title, String kind, String status) {
+	public void acceptSessionToolCall(String toolCallId, String title, ToolKind kind, ToolCallStatus status) {
 		if (!browser.isDisposed()) {
 
-			if (ToolKind.other.toString().equals(kind)) {
+			if (ToolKind.other.equals(kind)) {
 				//TODO Gemini puts the input into title for MCP calls, needs gemini fix
 				title = toolCallId.replaceAll("-\\d+$", "");
 			}
@@ -378,7 +379,7 @@ public class ChatBrowser {
 	}
 
 
-	public void  acceptSessionToolCallUpdate(String toolCallId, String status, ToolCallContent[] content) {
+	public void  acceptSessionToolCallUpdate(String toolCallId, ToolCallStatus status, ToolCallContent[] content) {
 		if (!browser.isDisposed()) {
 			try {
 			String contentJson = null;
