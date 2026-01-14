@@ -77,8 +77,9 @@ This feature runs a Model Context Protocol server within the Eclipse IDE VM enab
 
 ## Demonstrations
 
-- [Coding Agent developing SQL](https://www.youtube.com/watch?v=z1d67Xzq3UU)
-- [HTML and Markdown display, Code Blocks, Resource Links](https://www.youtube.com/watch?v=1G8pt1H27fQ)
+- [Tool Calls, Permissions, File Changes, Tasks (01/2026)](https://youtu.be/ugOxBeFw6t4?si=FYfOt2TvR1rs_YSW)
+- [HTML and Markdown display, Code Blocks, Resource Links (10/2025)](https://www.youtube.com/watch?v=1G8pt1H27fQ)
+- [Coding Agent developing SQL (09/2026)](https://www.youtube.com/watch?v=z1d67Xzq3UU)
 - [Claude Conversation with Eclipse MCP: What's wrong with my java project](https://claude.ai/share/31968356-df7e-471b-8fec-3b85868a2376)
 
 ## Installation
