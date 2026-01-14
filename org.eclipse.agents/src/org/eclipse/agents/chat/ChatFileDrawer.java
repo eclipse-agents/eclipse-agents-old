@@ -92,18 +92,17 @@ public class ChatFileDrawer {
 		synchronize.setImage(scei.getTitleImage());
 		synchronize.setToolTipText("Synchronize...");
 		
-		Button revertAll = toolkit.createButton(buttons, null, SWT.PUSH);
-		revertAll.addSelectionListener(new RevertAllListener());
-		revertAll.setLayoutData(new GridData());
-		revertAll.setImage(Activator.getDefault().getImageRegistry().get(Images.IMG_UNDO_All));
-		revertAll.setToolTipText("Accept All");
-		
 		Button acceptAll = toolkit.createButton(buttons, null, SWT.PUSH);
 		acceptAll.addSelectionListener(new ClearAllListener());
 		acceptAll.setLayoutData(new GridData());
 		acceptAll.setImage(Activator.getDefault().getImageRegistry().get(Images.IMG_REMOVE_ALL));
 		acceptAll.setToolTipText("Accept All");
 
+		Button revertAll = toolkit.createButton(buttons, null, SWT.PUSH);
+		revertAll.addSelectionListener(new RevertAllListener());
+		revertAll.setLayoutData(new GridData());
+		revertAll.setImage(Activator.getDefault().getImageRegistry().get(Images.IMG_UNDO_All));
+		revertAll.setToolTipText("Revert All");
 		
 		// Move the button into the title bar
 		section.setTextClient(buttons);

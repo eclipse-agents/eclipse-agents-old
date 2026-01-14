@@ -185,14 +185,14 @@ public class SessionController implements ISessionListener, IWorkspaceChangeList
 				browser.acceptSessionToolCall(
 						toolCall.toolCallId(), 
 						toolCall.title(), 
-						toolCall.kind().toString(), 
-						toolCall.status().toString());
+						toolCall.kind(), 
+						toolCall.status());
 	
 			} else if (notification.update() instanceof SessionToolCallUpdate) {
 				SessionToolCallUpdate toolCall = (SessionToolCallUpdate)notification.update();
 				browser.acceptSessionToolCallUpdate(
 						toolCall.toolCallId(), 
-						toolCall.status().toString(),
+						toolCall.status(),
 						toolCall.content());
 			}
 			else if (notification.update() instanceof SessionPlan) {

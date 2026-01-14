@@ -33,7 +33,9 @@ import org.eclipse.agents.services.protocol.AcpSchema.RequestPermissionRequest;
 import org.eclipse.agents.services.protocol.AcpSchema.RequestPermissionResponse;
 import org.eclipse.agents.services.protocol.AcpSchema.SessionUpdate;
 import org.eclipse.agents.services.protocol.AcpSchema.ToolCallContent;
+import org.eclipse.agents.services.protocol.AcpSchema.ToolCallStatus;
 import org.eclipse.agents.services.protocol.AcpSchema.ToolCallUpdate;
+import org.eclipse.agents.services.protocol.AcpSchema.ToolKind;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
@@ -359,11 +361,13 @@ public class ChatBrowser {
 		}
 	}
 	
-	public void acceptSessionToolCall(String toolCallId, String title, String kind, String status) {
+	public void acceptSessionToolCall(String toolCallId, String title, ToolKind kind, ToolCallStatus status) {
 		if (!browser.isDisposed()) {
 
-			//TODO Gemini puts the input into title, needs gemini fix
-			title = toolCallId.replaceAll("-\\d+$", "");
+			if (ToolKind.other.equals(kind)) {
+				//TODO Gemini puts the input into title for MCP calls, needs gemini fix
+				title = toolCallId.replaceAll("-\\d+$", "");
+			}
 			
 			String fxn = String.format("acceptSessionToolCall(`%s`, `%s`, `%s`, `%s`);", 
 					toolCallId, title, kind, status);
@@ -375,7 +379,7 @@ public class ChatBrowser {
 	}
 
 
-	public void  acceptSessionToolCallUpdate(String toolCallId, String status, ToolCallContent[] content) {
+	public void  acceptSessionToolCallUpdate(String toolCallId, ToolCallStatus status, ToolCallContent[] content) {
 		if (!browser.isDisposed()) {
 			try {
 			String contentJson = null;
@@ -405,9 +409,11 @@ public class ChatBrowser {
 				String toolCallId = toolCall.toolCallId();
 				String optionsJson = mapper.writeValueAsString(request.options());
 				String title = toolCall.title();
-				
-				//TODO Gemini puts the input into title, needs gemini fix
-				title = toolCallId.replaceAll("-\\d+$", "");
+
+				if (ToolKind.other.equals(toolCall.kind())) {
+					//TODO Gemini puts the input into title for MCP calls
+					title = toolCallId.replaceAll("-\\d+$", "");
+				}
 				
 				String contentJson = null;
 				ToolCallContent[] contents = toolCall.content();
