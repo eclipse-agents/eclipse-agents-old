@@ -13,6 +13,7 @@
  *******************************************************************************/
 package org.eclipse.agents.chat.actions;
 
+import org.eclipse.agents.LogHelper;
 import org.eclipse.agents.Tracer;
 import org.eclipse.agents.chat.ChatView;
 import org.eclipse.core.commands.ExecutionEvent;
@@ -48,9 +49,9 @@ public class AddToChatAction extends Action {
 			}
 			event.getParameters();
 		} catch (PartInitException e) {
-			e.printStackTrace();
+			LogHelper.logError("Failed to initialize ChatView", e);
 		} catch (Exception e) {
-			e.printStackTrace();
+			LogHelper.logError("Failed to add context to chat", e);
 		}
 	}
 }

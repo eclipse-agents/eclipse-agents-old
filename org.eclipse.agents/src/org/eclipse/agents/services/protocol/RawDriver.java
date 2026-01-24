@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
+import org.eclipse.agents.LogHelper;
 import org.eclipse.agents.services.protocol.AcpSchema.ClientCapabilities;
 import org.eclipse.agents.services.protocol.AcpSchema.FileSystemCapability;
 import org.eclipse.agents.services.protocol.AcpSchema.HttpHeader;
@@ -67,7 +68,7 @@ public class RawDriver {
 			BufferedReader br = new BufferedReader(new InputStreamReader(err, "UTF-8"));
 			String line = br.readLine();
 			while (line != null) {
-				System.err.println(line);
+				LogHelper.logError("Agent process error: " + line);
 				line = br.readLine();
 			}
 		}
@@ -79,7 +80,7 @@ public class RawDriver {
 				String output = null;
 				String errorString = null;
 
-				System.out.println("Gemini Exit:" + exitValue);
+				LogHelper.logInfo("Gemini Exit:" + exitValue);
 			}
 		});;
 		
@@ -115,14 +116,14 @@ public class RawDriver {
 		JSONRPCRequest request = new JSONRPCRequest("2.0", "initialize", "0", initialize);
 		Gson gson = new Gson();
 		
-		System.err.println(gson.toJson(request));
+		LogHelper.logInfo("Sending initialize request: " + gson.toJson(request));
 		OutputStreamWriter writer = new OutputStreamWriter(out);
 		writer.write(gson.toJson(request));
 		writer.write("\n");
 		writer.flush();
 		
 		String line = br.readLine();
-		System.err.println(line);
+		LogHelper.logInfo("Received response: " + line);
 			
 		
 		McpServer server = new SseTransport(
@@ -147,13 +148,13 @@ public class RawDriver {
 //			  }
 //			}
 		request = new JSONRPCRequest("2.0", "session/new", "1", session);
-		System.err.println(gson.toJson(request));
+		LogHelper.logInfo("Sending session request: " + gson.toJson(request));
 		writer.write(gson.toJson(request));
 		writer.write("\n");
 		writer.flush();
 		
 		line = br.readLine();
-		System.err.println(line);
+		LogHelper.logInfo("Received response: " + line);
 
 	}
 

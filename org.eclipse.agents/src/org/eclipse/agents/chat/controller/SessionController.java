@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
+import org.eclipse.agents.LogHelper;
 import org.eclipse.agents.Tracer;
 import org.eclipse.agents.chat.ChatBrowser;
 import org.eclipse.agents.chat.ChatView;
@@ -135,7 +136,7 @@ public class SessionController implements ISessionListener, IWorkspaceChangeList
 		agent.getAgent().prompt(request).whenComplete((result, ex) -> {
 	        if (ex != null) {
 	        	Tracer.trace().trace(Tracer.CHAT, "prompt error", ex); //$NON-NLS-1$
-	            ex.printStackTrace();
+	            LogHelper.logError("Prompt error", ex);
 	            
 	            // Gemini CLI: cancel before first thought throws JSONRPC error
 	            AgentController.instance().agentResponds(new PromptResponse(null, StopReason.refusal));
@@ -152,7 +153,7 @@ public class SessionController implements ISessionListener, IWorkspaceChangeList
 			agent.getAgent().cancel(notification);
 		} catch (Exception ex) {
 			Tracer.trace().trace(Tracer.CHAT, "stop prompt error", ex); //$NON-NLS-1$
-			ex.printStackTrace();
+			LogHelper.logError("Stop prompt error", ex);
 		}
 	}
 
