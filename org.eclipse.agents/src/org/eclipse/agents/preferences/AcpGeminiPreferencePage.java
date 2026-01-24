@@ -13,14 +13,21 @@
  *******************************************************************************/
 package org.eclipse.agents.preferences;
 
+import java.io.IOException;
+
 import org.eclipse.agents.Activator;
+import org.eclipse.agents.LogHelper;
 import org.eclipse.agents.chat.controller.AgentController;
 import org.eclipse.agents.chat.controller.IAgentServiceListener;
 import org.eclipse.agents.services.agent.GeminiService;
 import org.eclipse.agents.services.agent.IAgentService;
 import org.eclipse.agents.services.protocol.AcpSchema.InitializeResponse;
 import org.eclipse.agents.services.protocol.AcpSchema.McpCapabilities;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status; 	
+import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferenceManager;
 import org.eclipse.jface.preference.PreferencePage;
@@ -66,6 +73,9 @@ public class AcpGeminiPreferencePage extends PreferencePage implements
 	Button start, stop;
 	Text status;
 	IStatus startupError = null;
+	
+	// Track if version check is in progress to avoid multiple concurrent jobs
+	private volatile boolean versionCheckInProgress = false;
 	
 	public AcpGeminiPreferencePage() {
 		super();
@@ -220,6 +230,7 @@ public class AcpGeminiPreferencePage extends PreferencePage implements
 	private void updateStatus() {
 		for (IAgentService service: AgentController.instance().getAgents()) {
 			if (service instanceof GeminiService) {
+				final GeminiService geminiService = (GeminiService) service;
 				if (service.isRunning() && service.getInitializeResponse() != null) {
 					InitializeResponse response = service.getInitializeResponse();
 					StringBuffer buffer = new StringBuffer();
@@ -248,13 +259,209 @@ public class AcpGeminiPreferencePage extends PreferencePage implements
 				} else {
 					status.setText("Stopped");
 				}
+				
+				// Update installed version asynchronously in a background job
+				// Only spawn a new job if one isn't already running
+				if (!versionCheckInProgress) {
+					installVersion.setText("...");
+					versionCheckInProgress = true;
+					
+					Job versionJob = new Job("Fetching Gemini CLI version") {
+						@Override
+						protected IStatus run(IProgressMonitor monitor) {
+							try {
+								final String version = geminiService.getVersion();
+								
+								Activator.getDisplay().asyncExec(() -> {
+									if (!installVersion.isDisposed()) {
+										installVersion.setText(version);
+									}
+								});
+								
+								return Status.OK_STATUS;
+							} finally {
+								versionCheckInProgress = false;
+							}
+						}
+					};
+					versionJob.setSystem(true); // Don't show in progress view
+					versionJob.schedule();
+				}
 			}
-			
-			installVersion.setText("...");
-			Activator.getDisplay().asyncExec(()->{
-				installVersion.setText(((GeminiService)service).getVersion());
-			});
 		}
+	}
+	
+	private void startGeminiService() {
+		for (IAgentService service: AgentController.instance().getAgents()) {
+			if (service instanceof GeminiService) {
+				service.schedule();
+				updateEnablement();
+			}
+		}
+	}
+	
+	private void stopGeminiService() {
+		for (IAgentService service: AgentController.instance().getAgents()) {
+			if (service instanceof GeminiService) {
+				service.stop();
+				service.unschedule();
+				updateEnablement();
+			}
+		}
+	}
+	
+	private void handleInstallButton() {
+		final String version = validateVersion();
+		if (version == null) {
+			return;
+		}
+		
+		for (IAgentService service : AgentController.instance().getAgents()) {
+			if (service instanceof GeminiService) {
+				final GeminiService geminiService = (GeminiService) service;
+				
+				// Stop the service if running before installing
+				if (service.isRunning()) {
+					service.stop();
+					service.unschedule();
+				}
+				
+				installButton.setEnabled(false);
+				uninstallButton.setEnabled(false);
+				
+				// Create and schedule installation job
+				Job installJob = createInstallJob(geminiService, version);
+				installJob.schedule();
+				break;
+			}
+		}
+	}
+	
+	private void handleUninstallButton() {
+		// Confirm uninstall action
+		boolean confirmed = MessageDialog.openConfirm(getShell(), "Uninstall Gemini CLI",
+				"Are you sure you want to uninstall Gemini CLI?\n\n" +
+				"This will remove the installation from:\n" + installLocation.getText());
+		
+		if (!confirmed) {
+			return;
+		}
+		
+		for (IAgentService service : AgentController.instance().getAgents()) {
+			if (service instanceof GeminiService) {
+				final GeminiService geminiService = (GeminiService) service;
+				
+				// Stop the service if running before uninstalling
+				if (service.isRunning()) {
+					service.stop();
+					service.unschedule();
+				}
+				
+				// Disable buttons while job is running
+				installButton.setEnabled(false);
+				uninstallButton.setEnabled(false);
+				
+				Job uninstallJob = createUninstallJob(geminiService);
+				uninstallJob.schedule();
+				break;
+			}
+		}
+	}
+	
+	private void handleUseLocalInstallToggle() {
+		if (useLocalInstall.getSelection()) {
+			input.setText(getPreferenceStore().getDefaultString(geminiPreferenceId));
+		} else {
+			input.setText("gemini\n--experimental-acp");
+		}
+		parent.layout(true);
+	}
+	
+	private String validateVersion() {
+		final String version = targetVersion.getText().trim();
+		if (version.isEmpty()) {
+			MessageDialog.openError(getShell(), "Install Gemini CLI", "Please enter a target version.");
+			return null;
+		}
+		return version;
+	}
+	
+	private Job createInstallJob(final GeminiService geminiService, final String version) {
+		Job installJob = new Job("Installing Gemini CLI") {
+			@Override
+			protected IStatus run(IProgressMonitor monitor) {
+				monitor.beginTask("Installing version " + version, IProgressMonitor.UNKNOWN);
+				try {
+					geminiService.installGemini(version, monitor);
+					
+					// Refresh UI on the display thread
+					Activator.getDisplay().asyncExec(() -> {
+						if (!parent.isDisposed()) {
+							updateStatus();
+							updateEnablement();
+						}
+					});
+					
+					return Status.OK_STATUS;
+				} catch (IOException e) {
+					LogHelper.logError("User-initiated installation failed for Gemini CLI v" + version, e);
+					return new Status(IStatus.ERROR, Activator.PLUGIN_ID, 
+							"Installation failed: " + e.getMessage(), e);
+				} finally {
+					monitor.done();
+					// Re-enable buttons on the display thread
+					Activator.getDisplay().asyncExec(() -> {
+						if (!installButton.isDisposed()) {
+							installButton.setEnabled(true);
+						}
+						if (!uninstallButton.isDisposed()) {
+							uninstallButton.setEnabled(true);
+						}
+					});
+				}
+			}
+		};
+		installJob.setUser(true);
+		return installJob;
+	}
+	
+	private Job createUninstallJob(final GeminiService geminiService) {
+		Job uninstallJob = new Job("Uninstalling Gemini CLI") {
+			@Override
+			protected IStatus run(IProgressMonitor monitor) {
+				monitor.beginTask("Uninstalling version ", IProgressMonitor.UNKNOWN);
+				try {
+					geminiService.uninstallGemini(monitor);
+					
+					// Refresh UI on the display thread
+					Activator.getDisplay().asyncExec(() -> {
+						if (!parent.isDisposed()) {
+							updateStatus();
+							updateEnablement();
+						}
+					});
+					
+					return Status.OK_STATUS;
+				} catch (IOException e) {
+					LogHelper.logError("User-initiated uninstallation failed for Gemini CLI", e);
+					return new Status(IStatus.ERROR, Activator.PLUGIN_ID, 
+							"Uninstallation failed: " + e.getMessage(), e);
+				} finally {
+					monitor.done();
+					// Re-enable buttons on the display thread
+					Activator.getDisplay().asyncExec(() -> {
+						if (!installButton.isDisposed()) {
+							installButton.setEnabled(true);
+						}
+						if (!uninstallButton.isDisposed()) {
+							uninstallButton.setEnabled(true);
+						}
+					});
+				}
+			}
+		};
+		uninstallJob.setUser(true);
+		return uninstallJob;
 	}
 
 	private void loadPreferences() {
@@ -303,27 +510,15 @@ public class AcpGeminiPreferencePage extends PreferencePage implements
 	@Override
 	public void widgetSelected(SelectionEvent event) {
 		if (event.getSource() == start) {
-			for (IAgentService service: AgentController.instance().getAgents()) {
-				if (service instanceof GeminiService) {
-					service.schedule();
-					updateEnablement();
-				}
-			}
+			startGeminiService();
 		} else if (event.getSource() == stop) {
-			for (IAgentService service: AgentController.instance().getAgents()) {
-				if (service instanceof GeminiService) {
-					service.stop();
-					service.unschedule();
-					updateEnablement();
-				}
-			}
+			stopGeminiService();
+		} else if (event.getSource() == installButton) {
+			handleInstallButton();
+		} else if (event.getSource() == uninstallButton) {
+			handleUninstallButton();
 		} else if (event.getSource() == useLocalInstall) {
-			if (useLocalInstall.getSelection()) {
-				input.setText(getPreferenceStore().getDefaultString(geminiPreferenceId));
-			} else {
-				input.setText("gemini\n--experimental-acp");
-			}
-			parent.layout(true);
+			handleUseLocalInstallToggle();
 		}
 
 		updateValidation();

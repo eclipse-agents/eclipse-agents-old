@@ -21,6 +21,7 @@ import java.io.InputStreamReader;
 import java.util.Arrays;
 
 import org.eclipse.agents.Activator;
+import org.eclipse.agents.LogHelper;
 import org.eclipse.agents.Tracer;
 import org.eclipse.agents.chat.EnableMCPDialog;
 import org.eclipse.agents.preferences.IPreferenceConstants;
@@ -50,6 +51,98 @@ public class GeminiService extends AbstractService implements IPreferenceConstan
 	@Override
 	public String getId() {
 		return "gemini";
+	}
+
+	/**
+	 * Installs Gemini CLI at the specified version.
+	 * 
+	 * @param version the version to install (e.g., "0.9.0")
+	 * @param monitor progress monitor for reporting progress
+	 * @throws IOException if installation fails
+	 */
+	public void installGemini(String version, IProgressMonitor monitor) throws IOException {
+		File agentsNodeDir = getAgentsNodeDirectory();
+		
+		LogHelper.logInfo("Installing Gemini CLI v" + version + " to " + agentsNodeDir.getAbsolutePath());
+		LogHelper.logDebug(Tracer.ACP, "Starting Gemini CLI installation: version=" + version + ", directory=" + agentsNodeDir);
+		
+		// Use npm install without --prefix for proper dependency resolution
+		// cd to directory and run npm install there
+		ProcessBuilder pb = NodeJSManager.prepareNPMProcessBuilder("install", "@google/gemini-cli@" + version);
+		
+		pb.directory(agentsNodeDir);
+		String path = pb.environment().get("PATH");
+		path = NodeJSManager.getNodeJsLocation().getParentFile().getAbsolutePath() + 
+				System.getProperty("path.separator") +
+				path;
+		pb.environment().put("PATH", path);
+		
+		LogHelper.logDebug(Tracer.ACP, "Running npm install command in directory: " + agentsNodeDir);
+		monitor.subTask("Running npm install command in directory " + agentsNodeDir.getAbsolutePath());
+		
+		ProcessResult result = runProcess(pb);
+		
+		if (result.result != 0) {
+			String errorMessage = String.join("\n", result.errorLines);
+			if (errorMessage.isEmpty()) {
+				errorMessage = "npm install failed with exit code " + result.result;
+			}
+			LogHelper.logError("Failed to install Gemini CLI v" + version + ": " + errorMessage);
+			throw new IOException(errorMessage);
+		}
+		
+		LogHelper.logInfo("Successfully installed Gemini CLI v" + version);
+		monitor.subTask("Installation complete");
+	}
+	
+	/**
+	 * Uninstalls Gemini CLI by removing the entire gemini folder from .eclipseagents directory.
+	 * 
+	 * @param monitor progress monitor for reporting progress
+	 * @throws IOException if uninstallation fails
+	 */
+	public void uninstallGemini(IProgressMonitor monitor) throws IOException {
+		// Get the gemini directory path without creating it
+		File geminiDir = new File(System.getProperty("user.home") + File.separator + ECLIPSEAGENTS + File.separator + getFolderName());
+		
+		LogHelper.logInfo("Uninstalling Gemini CLI from " + geminiDir.getAbsolutePath());
+		LogHelper.logDebug(Tracer.ACP, "Starting Gemini CLI uninstallation from: " + geminiDir);
+		
+		// Remove the entire gemini directory
+		if (geminiDir.exists()) {
+			LogHelper.logDebug(Tracer.ACP, "Deleting gemini directory and all its contents");
+			monitor.subTask("Deleting directory " + geminiDir.getAbsolutePath());
+			deleteDirectory(geminiDir);
+		}
+		
+		LogHelper.logInfo("Successfully uninstalled Gemini CLI");
+		monitor.subTask("Uninstallation complete");
+	}
+	
+	/**
+	 * Recursively deletes a directory and all its contents.
+	 */
+	private void deleteDirectory(File directory) throws IOException {
+		LogHelper.logDebug(Tracer.ACP, "Deleting directory: " + directory.getAbsolutePath());
+		File[] files = directory.listFiles();
+		if (files != null) {
+			for (File file : files) {
+				if (file.isDirectory()) {
+					deleteDirectory(file);
+				} else {
+					if (!file.delete()) {
+						String errorMsg = "Failed to delete file: " + file.getAbsolutePath();
+						LogHelper.logError(errorMsg);
+						throw new IOException(errorMsg);
+					}
+				}
+			}
+		}
+		if (!directory.delete()) {
+			String errorMsg = "Failed to delete directory: " + directory.getAbsolutePath();
+			LogHelper.logError(errorMsg);
+			throw new IOException(errorMsg);
+		}
 	}
 
 	@Override
@@ -93,7 +186,6 @@ public class GeminiService extends AbstractService implements IPreferenceConstan
 					Activator.getDisplay().syncExec(new Runnable() {
 						@Override
 						public void run() {
-							// TODO Auto-generated method stub
 							EnableMCPDialog dialog = new EnableMCPDialog(Activator.getDisplay().getActiveShell());
 							dialog.open();
 						}
@@ -148,16 +240,16 @@ public class GeminiService extends AbstractService implements IPreferenceConstan
 							foundUrl = true;
 							mcpLine = line;
 						}
-					}
-					
-					if (!foundName && !foundUrl) {
-						System.err.println("Failed to configure Gemini CLI to use Eclipse IDE MCP");
-					}
 				}
 				
-				if (mcpLine != null && mcpLine.contains("✗")) {
-					System.err.println(mcpLine);
+				if (!foundName && !foundUrl) {
+					LogHelper.logError("Failed to configure Gemini CLI to use Eclipse IDE MCP");
 				}
+			}
+			
+			if (mcpLine != null && mcpLine.contains("✗")) {
+				LogHelper.logWarning("MCP configuration issue: " + mcpLine);
+			}
 			}
 		}
 	}
@@ -209,6 +301,8 @@ public class GeminiService extends AbstractService implements IPreferenceConstan
 				getGeminiCommand(),
 				"mcp",
 				"add",
+				"--scope", 
+				"user",
 				"--transport", 
 				"sse",
 				getMCPName(),
@@ -217,20 +311,43 @@ public class GeminiService extends AbstractService implements IPreferenceConstan
 	}
 	
 	public String getVersion() {
+		LogHelper.logDebug(Tracer.ACP, "Checking Gemini CLI version");
+		LogHelper.logDebug(Tracer.ACP, "  isInstalled(): " + isInstalled());
+		LogHelper.logDebug(Tracer.ACP, "  Install directory: " + getAgentsNodeDirectory().getAbsolutePath());
+		LogHelper.logDebug(Tracer.ACP, "  Install directory exists: " + getAgentsNodeDirectory().exists());
+		
+		File geminiIndexFile = new File(getGeminiCommand());
+		LogHelper.logDebug(Tracer.ACP, "  Gemini index.js path: " + geminiIndexFile.getAbsolutePath());
+		LogHelper.logDebug(Tracer.ACP, "  Gemini index.js exists: " + geminiIndexFile.exists());
+		
 		if (isInstalled()) {
-			ProcessResult result = super.runProcess(new String[] {
+			String[] command = new String[] {
 				getNodeCommand(),
 				getGeminiCommand(),
-				"--version"});
+				"--version"};
 			
-			if (result.result == 0) {
-				return result.inputLines.get(0);
+			LogHelper.logDebug(Tracer.ACP, "  Running command: " + String.join(" ", command));
+			
+			ProcessResult result = super.runProcess(command);
+			
+			LogHelper.logDebug(Tracer.ACP, "  Process exit code: " + result.result);
+			LogHelper.logDebug(Tracer.ACP, "  Output lines: " + result.inputLines.size());
+			for (String line: result.inputLines) {
+				LogHelper.logDebug(Tracer.ACP, "  OUTPUT: " + line);
+			}
+			LogHelper.logDebug(Tracer.ACP, "  Error lines: " + result.errorLines.size());
+			for (String line: result.errorLines) {
+				LogHelper.logDebug(Tracer.ACP, "  ERROR: " + line);
 			}
 			
-			for (String line: result.errorLines) {
-				Tracer.trace().trace(Tracer.ACP, line);
+			if (result.result == 0 && !result.inputLines.isEmpty()) {
+				String version = result.inputLines.get(0);
+				LogHelper.logDebug(Tracer.ACP, "  Returning version: " + version);
+				return version;
 			}
 		}
+		
+		LogHelper.logDebug(Tracer.ACP, "  Gemini CLI not found");
 		return "Not found";
 
 	}	
@@ -241,6 +358,8 @@ public class GeminiService extends AbstractService implements IPreferenceConstan
 				getGeminiCommand(),
 				"mcp",
 				"remove",
+				"--scope",
+				"user",
 				getMCPName()};
 	}
 	
