@@ -16,7 +16,6 @@ package org.eclipse.agents.preferences;
 import java.io.IOException;
 
 import org.eclipse.agents.Activator;
-import org.eclipse.agents.LogHelper;
 import org.eclipse.agents.chat.controller.AgentController;
 import org.eclipse.agents.chat.controller.IAgentServiceListener;
 import org.eclipse.agents.services.agent.GeminiService;
@@ -404,7 +403,8 @@ public class AcpGeminiPreferencePage extends PreferencePage implements
 					
 					return Status.OK_STATUS;
 				} catch (IOException e) {
-					LogHelper.logError("User-initiated installation failed for Gemini CLI v" + version, e);
+					System.out.println("User-initiated installation failed for Gemini CLI v" + version);
+					e.printStackTrace();
 					return new Status(IStatus.ERROR, Activator.PLUGIN_ID, 
 							"Installation failed: " + e.getMessage(), e);
 				} finally {
@@ -443,7 +443,8 @@ public class AcpGeminiPreferencePage extends PreferencePage implements
 					
 					return Status.OK_STATUS;
 				} catch (IOException e) {
-					LogHelper.logError("User-initiated uninstallation failed for Gemini CLI", e);
+					System.out.println("User-initiated uninstallation failed for Gemini CLI");
+					e.printStackTrace();
 					return new Status(IStatus.ERROR, Activator.PLUGIN_ID, 
 							"Uninstallation failed: " + e.getMessage(), e);
 				} finally {
