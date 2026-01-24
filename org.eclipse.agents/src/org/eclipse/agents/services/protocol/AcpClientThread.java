@@ -17,6 +17,7 @@ import java.text.MessageFormat;
 import java.util.concurrent.ExecutionException;
 
 import org.eclipse.agents.Activator;
+import org.eclipse.agents.LogHelper;
 import org.eclipse.agents.Tracer;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -40,10 +41,10 @@ public abstract class AcpClientThread extends Thread {
 		try {
 			launcher.startListening().get();
 		} catch (InterruptedException e) {
-			e.printStackTrace();
+			LogHelper.logError("AcpClientThread interrupted", e);
 			lastException = e;
 		} catch (ExecutionException e) {
-			e.printStackTrace();
+			LogHelper.logError("AcpClientThread execution failed", e);
 			lastException = e;
 		}
 

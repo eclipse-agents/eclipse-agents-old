@@ -16,6 +16,7 @@ package org.eclipse.agents.chat.controller;
 import java.util.concurrent.ExecutionException;
 
 import org.eclipse.agents.Activator;
+import org.eclipse.agents.LogHelper;
 import org.eclipse.agents.Tracer;
 import org.eclipse.agents.preferences.IPreferenceConstants;
 import org.eclipse.agents.services.agent.IAgentService;
@@ -131,8 +132,10 @@ public class StartSessionJob extends Job {
 				}
 			}
 		} catch (InterruptedException e) {
+			LogHelper.logError("Session start interrupted: " + e.getLocalizedMessage(), e);
 			return new Status(IStatus.ERROR, Activator.PLUGIN_ID, e.getLocalizedMessage(), e);
 		} catch (ExecutionException e) {
+			LogHelper.logError("Session start execution failed: " + e.getLocalizedMessage(), e);
 			return new Status(IStatus.ERROR, Activator.PLUGIN_ID, e.getLocalizedMessage(), e);
 		}
 		

@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.agents.Activator;
+import org.eclipse.agents.LogHelper;
 import org.eclipse.agents.Tracer;
 import org.eclipse.agents.chat.controller.AgentController;
 import org.eclipse.agents.chat.controller.InitializeAgentJob;
@@ -114,7 +115,7 @@ public abstract class AbstractService implements IAgentService {
 							Tracer.trace().trace(Tracer.CHAT, "initialization job has an error");
 							Tracer.trace().trace(Tracer.CHAT, event.getJob().getResult().getMessage(), event.getJob().getResult().getException());
 							if (event.getJob().getResult().getException() != null) {
-								event.getJob().getResult().getException().printStackTrace();
+								LogHelper.logError("Agent initialization failed", event.getJob().getResult().getException());
 							}
 							AgentController.instance().agentFailed(AbstractService.this);
 							AbstractService.this.initializeJob = null;
@@ -160,7 +161,7 @@ public abstract class AbstractService implements IAgentService {
 							}
 						} catch (IOException e) {
 							Tracer.trace().trace(Tracer.ACP, e.getMessage(), e);
-							e.printStackTrace();
+							LogHelper.logError("Error reading from agent error stream", e);
 						}							
 					}
 				}.start();
@@ -189,10 +190,10 @@ public abstract class AbstractService implements IAgentService {
 
 		} catch (UnsupportedEncodingException e) {
 			Tracer.trace().trace(Tracer.ACP, "Error: ", e);
-			e.printStackTrace();
+			LogHelper.logError("Unsupported encoding", e);
 		} catch (IOException e) {
 			Tracer.trace().trace(Tracer.ACP, "Error: ", e);
-			e.printStackTrace();
+			LogHelper.logError("IO error starting agent", e);
 		}
 	}
 
@@ -331,16 +332,16 @@ public abstract class AbstractService implements IAgentService {
 				br.close();
 			}
 		} catch (InterruptedException e) {
-			e.printStackTrace();
+			LogHelper.logError("Process interrupted", e);
 			Tracer.trace().trace(Tracer.ACP, "", e);
 			result.ex = e;
 		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
+			LogHelper.logError("Unsupported encoding in process output", e);
 			Tracer.trace().trace(Tracer.ACP, "", e);
 			result.ex = e;
 		} catch (IOException e) {
 			Tracer.trace().trace(Tracer.ACP, "", e);
-			e.printStackTrace();
+			LogHelper.logError("IO error running process", e);
 			result.ex = e;
 		}
 		return result;

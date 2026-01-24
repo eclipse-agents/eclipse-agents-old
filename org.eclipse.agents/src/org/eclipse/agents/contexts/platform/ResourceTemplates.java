@@ -18,6 +18,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.agents.LogHelper;
 import org.eclipse.agents.contexts.platform.resource.EditorAdapter;
 import org.eclipse.agents.contexts.platform.resource.WorkspaceResourceAdapter;
 import org.eclipse.core.resources.IContainer;
@@ -139,7 +140,7 @@ public class ResourceTemplates {
 				try {
 					project.accept(visitor, IResource.DEPTH_INFINITE, false);
 				} catch (CoreException e) {
-					e.printStackTrace();
+					LogHelper.logError("Core exception visiting project resources: " + project.getName(), e);
 				}
 				
 				for (IFile file: files) {

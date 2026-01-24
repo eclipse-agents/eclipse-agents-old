@@ -18,6 +18,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.agents.LogHelper;
 import org.eclipse.agents.MCPException;
 import org.eclipse.agents.contexts.adapters.IResourceAdapter;
 import org.eclipse.agents.contexts.platform.resource.ResourceSchema.Marker;
@@ -195,7 +196,7 @@ public class MarkerAdapter implements IResourceAdapter<Marker> {
 			return new Problems(children.toArray(Marker[]::new));
 
 		} catch (CoreException e) {
-			e.printStackTrace();
+			LogHelper.logError("Core exception getting problems for resource", e);
 		}
 		
 		return null;
@@ -228,7 +229,7 @@ public class MarkerAdapter implements IResourceAdapter<Marker> {
 			return new Tasks(children.toArray(Marker[]::new));
 
 		} catch (CoreException e) {
-			e.printStackTrace();
+			LogHelper.logError("Core exception getting tasks for resource", e);
 		}
 		
 		return null;

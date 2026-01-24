@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.eclipse.agents.Activator;
+import org.eclipse.agents.LogHelper;
 import org.eclipse.agents.MCPException;
 import org.eclipse.agents.Tracer;
 import org.eclipse.agents.contexts.adapters.IResourceTemplate;
@@ -218,15 +219,15 @@ public class EditorAdapter implements IResourceTemplate<IEditorReference, Editor
 								result.append(breader.lines().collect(Collectors.joining("\n"))); //$NON-NLS-1$
 								
 							}catch (UnsupportedEncodingException e) {
-								e.printStackTrace();
+								LogHelper.logError("Unsupported encoding reading editor content", e);
 							} catch (CoreException e) {
-								e.printStackTrace();
+								LogHelper.logError("Core exception reading editor content", e);
 							} catch (IOException e1) {
-								e1.printStackTrace();
+								LogHelper.logError("IO exception reading editor content", e1);
 							}
 						}
 					} catch (PartInitException e) {
-						e.printStackTrace();
+						LogHelper.logError("Part init exception reading editor", e);
 					}
 				}
 			}
@@ -285,7 +286,7 @@ public class EditorAdapter implements IResourceTemplate<IEditorReference, Editor
 								markSelection.getDocument().get(offset, length));
 
 					} catch (BadLocationException e) {
-						e.printStackTrace();
+						LogHelper.logError("Bad location getting text selection", e);
 						result[0] = new TextSelection(
 								markSelection.getOffset(),
 								markSelection.getLength(),

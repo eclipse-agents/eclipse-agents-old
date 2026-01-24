@@ -21,6 +21,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.agents.LogHelper;
 import org.eclipse.agents.Tracer;
 import org.eclipse.compare.structuremergeviewer.Differencer;
 import org.eclipse.core.resources.IFile;
@@ -96,7 +97,7 @@ public class WorkspaceController {
 			return doc.get(offset, length);
 
 		} catch (BadLocationException e) {
-			e.printStackTrace();
+			LogHelper.logError("Bad location in document", e);
 			Tracer.trace().trace(Tracer.ACP, "read", e);
 			throw new JsonRpcException(e);
 		}
@@ -132,10 +133,10 @@ public class WorkspaceController {
 				}
 				breader.close();
 			} catch (CoreException e) {
-				e.printStackTrace();
+				LogHelper.logError("Core exception reading file: " + absolutePath, e);
 				throw new JsonRpcException(e);
 			} catch (IOException e) {
-				e.printStackTrace();
+				LogHelper.logError("IO exception reading file: " + absolutePath, e);
 				throw new JsonRpcException(e);
 			}
 		} else {
@@ -166,10 +167,10 @@ public class WorkspaceController {
 			}
 		
 		} catch (MalformedTreeException e) {
-			e.printStackTrace();
+			LogHelper.logError("Malformed tree exception writing to editor", e);
 			throw new JsonRpcException(e);
 		} catch (BadLocationException e) {
-			e.printStackTrace();
+			LogHelper.logError("Bad location writing to editor", e);
 			throw new JsonRpcException(e);
 		}
 	}
@@ -206,13 +207,13 @@ public class WorkspaceController {
 		        	addChange(workspaceChange);
 		        }
 		    } catch (CoreException e) {
-		    	e.printStackTrace();
+		    	LogHelper.logError("Core exception writing to file: " + absolutePath, e);
 		    	throw new JsonRpcException(e);
 		    } catch (UnsupportedEncodingException e) {
-				e.printStackTrace();
+				LogHelper.logError("Unsupported encoding writing to file", e);
 				throw new JsonRpcException(e);
 			} catch (IOException e) {
-				e.printStackTrace();
+				LogHelper.logError("IO exception writing to file: " + absolutePath, e);
 				throw new JsonRpcException(e);
 			}
 		}
@@ -233,7 +234,7 @@ public class WorkspaceController {
 				}
 			}
 		} catch (CoreException ex) {
-			ex.printStackTrace();
+			LogHelper.logError("Core exception getting file history: " + path, ex);
 		}
 		return null;
 	}
@@ -268,7 +269,7 @@ public class WorkspaceController {
 				try {
 					file.refreshLocal(0, new NullProgressMonitor());
 				} catch (CoreException e) {
-					e.printStackTrace();
+					LogHelper.logError("Error refreshing file: " + absolutePath, e);
 				}
 			}
 			

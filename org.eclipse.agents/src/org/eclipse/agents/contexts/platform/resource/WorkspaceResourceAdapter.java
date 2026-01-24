@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.eclipse.agents.LogHelper;
 import org.eclipse.agents.MCPException;
 import org.eclipse.agents.contexts.adapters.IResourceHierarchy;
 import org.eclipse.agents.contexts.platform.resource.ResourceSchema.Children;
@@ -166,7 +167,7 @@ public class WorkspaceResourceAdapter implements IResourceHierarchy<IResource, F
 					}, depth.value(), false);
 				}
 			} catch (CoreException e) {
-				e.printStackTrace();
+				LogHelper.logError("Core exception visiting resource children: " + resource.getName(), e);
 			}
 		}
 		
@@ -199,7 +200,7 @@ public class WorkspaceResourceAdapter implements IResourceHierarchy<IResource, F
 				builder.size(info.getLength());
 				
 			} catch (CoreException e) {
-				e.printStackTrace();
+				LogHelper.logError("Core exception fetching file info: " + resource.getName(), e);
 			}
 		} else if (resource instanceof IProject) {
 			builder.description("Eclipse workspace project");
@@ -229,9 +230,9 @@ public class WorkspaceResourceAdapter implements IResourceHierarchy<IResource, F
 				content = breader.lines().collect(Collectors.joining("\n")); //$NON-NLS-1$
 				breader.close();
 			} catch (CoreException e) {
-				e.printStackTrace();
+				LogHelper.logError("Core exception reading file content: " + resource.getName(), e);
 			} catch (IOException e) {
-				e.printStackTrace();
+				LogHelper.logError("IO exception reading file content: " + resource.getName(), e);
 			}
 		}
 		return content;

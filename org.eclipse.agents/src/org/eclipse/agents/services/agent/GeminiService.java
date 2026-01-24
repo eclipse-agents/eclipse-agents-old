@@ -21,6 +21,7 @@ import java.io.InputStreamReader;
 import java.util.Arrays;
 
 import org.eclipse.agents.Activator;
+import org.eclipse.agents.LogHelper;
 import org.eclipse.agents.Tracer;
 import org.eclipse.agents.chat.EnableMCPDialog;
 import org.eclipse.agents.preferences.IPreferenceConstants;
@@ -151,12 +152,12 @@ public class GeminiService extends AbstractService implements IPreferenceConstan
 					}
 					
 					if (!foundName && !foundUrl) {
-						System.err.println("Failed to configure Gemini CLI to use Eclipse IDE MCP");
+						LogHelper.logError("Failed to configure Gemini CLI to use Eclipse IDE MCP");
 					}
 				}
 				
 				if (mcpLine != null && mcpLine.contains("✗")) {
-					System.err.println(mcpLine);
+					LogHelper.logWarning("MCP configuration issue: " + mcpLine);
 				}
 			}
 		}

@@ -15,7 +15,9 @@ package org.eclipse.agents.contexts.platform;
 
 
 import org.eclipse.agents.Activator;
+import org.eclipse.agents.LogHelper;
 import org.eclipse.agents.MCPException;
+import org.eclipse.agents.Tracer;
 import org.eclipse.agents.contexts.adapters.IResourceTemplate;
 import org.eclipse.agents.contexts.platform.resource.ConsoleAdapter;
 import org.eclipse.agents.contexts.platform.resource.EditorAdapter;
@@ -251,8 +253,7 @@ public class Tools {
 								result[0] = IDE.saveAllEditors(new IResource[] { ifile }, true);
 							}
 						} catch (PartInitException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
+							LogHelper.logError("Failed to save editor", e);
 						}
 					}
 				});

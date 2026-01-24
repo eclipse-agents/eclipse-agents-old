@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 import org.eclipse.agents.Activator;
+import org.eclipse.agents.LogHelper;
 import org.eclipse.agents.Tracer;
 import org.eclipse.agents.contexts.platform.resource.WorkspaceResourceAdapter;
 import org.eclipse.agents.services.protocol.AcpSchema.ContentBlock;
@@ -196,7 +197,7 @@ public class ChatBrowser {
 						try {
 						    IDE.openEditor(page, (IFile)resource); 
 						} catch (PartInitException e) {
-						    e.printStackTrace();
+						    LogHelper.logError("Failed to open editor for file: " + resource.getName(), e);
 						}
 					} else if (resource instanceof IFolder || resource instanceof IProject) {
 						try {
@@ -208,7 +209,7 @@ public class ChatBrowser {
 				                }
 				            }
 						} catch (PartInitException e) {
-							e.printStackTrace();
+							LogHelper.logError("Failed to show Project Explorer view", e);
 						}
 					}
 				}));
@@ -251,9 +252,9 @@ public class ChatBrowser {
 			source = Activator.getDefault().getBundleFile("chat/session.html");
 			browser.setUrl(source.toURI().toURL().toString());
 		} catch (IOException e) {
-			e.printStackTrace();
+			LogHelper.logError("Failed to load session.html", e);
 		} catch (URISyntaxException e) {
-			e.printStackTrace();
+			LogHelper.logError("Invalid URI for session.html", e);
 		}
 	}
 	
@@ -278,7 +279,7 @@ public class ChatBrowser {
 					Tracer.trace().trace(Tracer.BROWSER, "" + browser.evaluate(fxn));
 				});
 			} catch (JsonProcessingException e) {
-				e.printStackTrace();
+				LogHelper.logError("Failed to process JSON in updateSession", e);
 			}
 		}
 	}
@@ -293,7 +294,7 @@ public class ChatBrowser {
 					Tracer.trace().trace(Tracer.BROWSER, "" + browser.evaluate(fxn));
 				});
 			} catch (JsonProcessingException e) {
-				e.printStackTrace();
+				LogHelper.logError("Failed to process JSON in acceptPromptRequest", e);
 			}
 		}
 	}
@@ -323,7 +324,7 @@ public class ChatBrowser {
 					Tracer.trace().trace(Tracer.BROWSER, "" + browser.evaluate(fxn));
 				});
 			} catch (JsonProcessingException e) {
-				e.printStackTrace();
+				LogHelper.logError("Failed to process JSON in acceptSessionUserMessageChunk", e);
 			}
 		}
 	}
@@ -341,7 +342,7 @@ public class ChatBrowser {
 					Tracer.trace().trace(Tracer.BROWSER, "" + browser.evaluate(fxn));
 				});
 			} catch (JsonProcessingException e) {
-				e.printStackTrace();
+				LogHelper.logError("Failed to process JSON in acceptSessionAgentThoughtChunk", e);
 			}
 		}
 	}
@@ -356,7 +357,7 @@ public class ChatBrowser {
 					Tracer.trace().trace(Tracer.BROWSER, "" + browser.evaluate(fxn));
 				});
 			} catch (JsonProcessingException e) {
-				e.printStackTrace();
+				LogHelper.logError("Failed to process JSON in acceptSessionAgentMessageChunk", e);
 			}
 		}
 	}
@@ -397,7 +398,7 @@ public class ChatBrowser {
 				Tracer.trace().trace(Tracer.BROWSER, "" + browser.evaluate(fxn));
 			});
 			} catch (JsonProcessingException e) {
-				e.printStackTrace();
+				LogHelper.logError("Failed to process JSON in acceptSessionToolCallUpdate", e);
 			}
 		}
 	}
@@ -437,7 +438,7 @@ public class ChatBrowser {
 				
 				pendingResponses.put(toolCallId, pendingResponse);
 			} catch (JsonProcessingException e) {
-				e.printStackTrace();
+				LogHelper.logError("Failed to process JSON in acceptPermissionRequest", e);
 			}
 		}
 	}

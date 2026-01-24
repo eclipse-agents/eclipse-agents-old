@@ -14,6 +14,7 @@
 package org.eclipse.agents.chat.controller;
 
 import org.eclipse.agents.Activator;
+import org.eclipse.agents.LogHelper;
 import org.eclipse.agents.preferences.IPreferenceConstants;
 import org.eclipse.agents.services.agent.IAgentService;
 import org.eclipse.agents.services.protocol.AcpSchema.ClientCapabilities;
@@ -83,6 +84,7 @@ public class InitializeAgentJob extends Job implements IPreferenceConstants {
 			this.service.setInitializeResponse(initializeResponse);
 
 		} catch (Exception e) {
+			LogHelper.logError("Failed to initialize agent: " + e.getLocalizedMessage(), e);
 			return new Status(IStatus.ERROR, Activator.PLUGIN_ID, e.getLocalizedMessage(), e);
 		}
 		

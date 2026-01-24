@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.eclipse.agents.IFactoryProvider;
+import org.eclipse.agents.LogHelper;
 import org.eclipse.agents.Tracer;
 import org.eclipse.agents.contexts.adapters.IResourceTemplate;
 import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
@@ -182,7 +183,7 @@ public class MCPServer {
 
 		} catch (Exception e) {
 			Tracer.trace().trace(Tracer.MCP, "Failed to initialize jetty server", e);
-			e.printStackTrace();
+			LogHelper.logError("Failed to initialize jetty server", e);
 		}
 	}
 	
@@ -200,7 +201,7 @@ public class MCPServer {
 			try {
 				jettyServer.stop();
 			} catch (Exception e) {
-				e.printStackTrace();
+				LogHelper.logError("Failed to stop jetty server", e);
 			}
 		}
 	}
@@ -217,7 +218,7 @@ public class MCPServer {
 	public void log(McpSchema.LoggingLevel level, Object source, String message) {
 	
 		if (copyLogsToSysError) {
-			System.err.println(message);
+			LogHelper.logInfo(message);
 		}
 	
 		Class<?> sourceClass;

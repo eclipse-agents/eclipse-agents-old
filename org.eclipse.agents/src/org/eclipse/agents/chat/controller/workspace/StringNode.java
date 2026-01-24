@@ -17,6 +17,7 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 
+import org.eclipse.agents.LogHelper;
 import org.eclipse.compare.IEncodedStreamContentAccessor;
 import org.eclipse.compare.ITypedElement;
 import org.eclipse.core.resources.IFile;
@@ -52,7 +53,7 @@ public class StringNode  implements ITypedElement, IEncodedStreamContentAccessor
 		try {
 			return new ByteArrayInputStream(content.getBytes(UTF_16));
 		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
+			LogHelper.logError("Unsupported encoding: " + UTF_16, e);
 			throw new RuntimeException(e);
 		}
 	}
