@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.agents.Activator;
+import org.eclipse.agents.LogHelper;
 import org.eclipse.agents.Tracer;
 import org.eclipse.agents.chat.controller.AgentController;
 import org.eclipse.agents.chat.controller.InitializeAgentJob;
@@ -114,7 +115,7 @@ public abstract class AbstractService implements IAgentService {
 							Tracer.trace().trace(Tracer.CHAT, "initialization job has an error");
 							Tracer.trace().trace(Tracer.CHAT, event.getJob().getResult().getMessage(), event.getJob().getResult().getException());
 							if (event.getJob().getResult().getException() != null) {
-								event.getJob().getResult().getException().printStackTrace();
+								LogHelper.logError("Agent initialization failed", event.getJob().getResult().getException());
 							}
 							AgentController.instance().agentFailed(AbstractService.this);
 							AbstractService.this.initializeJob = null;
@@ -160,7 +161,7 @@ public abstract class AbstractService implements IAgentService {
 							}
 						} catch (IOException e) {
 							Tracer.trace().trace(Tracer.ACP, e.getMessage(), e);
-							e.printStackTrace();
+							LogHelper.logError("Error reading agent error stream", e);
 						}							
 					}
 				}.start();
@@ -189,10 +190,10 @@ public abstract class AbstractService implements IAgentService {
 
 		} catch (UnsupportedEncodingException e) {
 			Tracer.trace().trace(Tracer.ACP, "Error: ", e);
-			e.printStackTrace();
+			LogHelper.logError("Unsupported encoding when starting agent", e);
 		} catch (IOException e) {
 			Tracer.trace().trace(Tracer.ACP, "Error: ", e);
-			e.printStackTrace();
+			LogHelper.logError("I/O error when starting agent", e);
 		}
 	}
 

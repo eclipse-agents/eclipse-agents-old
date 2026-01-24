@@ -21,6 +21,7 @@ import java.io.InputStreamReader;
 import java.util.Arrays;
 
 import org.eclipse.agents.Activator;
+import org.eclipse.agents.LogHelper;
 import org.eclipse.agents.chat.EnableMCPDialog;
 import org.eclipse.agents.preferences.IPreferenceConstants;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -61,8 +62,8 @@ public class GeminiService extends AbstractService implements IPreferenceConstan
 	public void installGemini(String version, IProgressMonitor monitor) throws IOException {
 		File agentsNodeDir = getAgentsNodeDirectory();
 		
-		System.out.println("Installing Gemini CLI v" + version + " to " + agentsNodeDir.getAbsolutePath());
-		System.out.println("Starting Gemini CLI installation: version=" + version + ", directory=" + agentsNodeDir);
+		LogHelper.logInfo("Installing Gemini CLI v" + version + " to " + agentsNodeDir.getAbsolutePath());
+		LogHelper.logInfo("Starting Gemini CLI installation: version=" + version + ", directory=" + agentsNodeDir);
 		
 		// Use npm install without --prefix for proper dependency resolution
 		// cd to directory and run npm install there
@@ -75,7 +76,7 @@ public class GeminiService extends AbstractService implements IPreferenceConstan
 				path;
 		pb.environment().put("PATH", path);
 		
-		System.out.println("Running npm install command in directory: " + agentsNodeDir);
+		LogHelper.logInfo("Running npm install command in directory: " + agentsNodeDir);
 		monitor.subTask("Running npm install command in directory " + agentsNodeDir.getAbsolutePath());
 		
 		ProcessResult result = runProcess(pb);
@@ -85,11 +86,11 @@ public class GeminiService extends AbstractService implements IPreferenceConstan
 			if (errorMessage.isEmpty()) {
 				errorMessage = "npm install failed with exit code " + result.result;
 			}
-			System.out.println("Failed to install Gemini CLI v" + version + ": " + errorMessage);
+			LogHelper.logError("Failed to install Gemini CLI v" + version + ": " + errorMessage);
 			throw new IOException(errorMessage);
 		}
 		
-		System.out.println("Successfully installed Gemini CLI v" + version);
+		LogHelper.logInfo("Successfully installed Gemini CLI v" + version);
 		monitor.subTask("Installation complete");
 	}
 	
@@ -103,17 +104,17 @@ public class GeminiService extends AbstractService implements IPreferenceConstan
 		// Get the gemini directory path without creating it
 		File geminiDir = new File(System.getProperty("user.home") + File.separator + ECLIPSEAGENTS + File.separator + getFolderName());
 		
-		System.out.println("Uninstalling Gemini CLI from " + geminiDir.getAbsolutePath());
-		System.out.println("Starting Gemini CLI uninstallation from: " + geminiDir);
+		LogHelper.logInfo("Uninstalling Gemini CLI from " + geminiDir.getAbsolutePath());
+		LogHelper.logInfo("Starting Gemini CLI uninstallation from: " + geminiDir);
 		
 		// Remove the entire gemini directory
 		if (geminiDir.exists()) {
-			System.out.println("Deleting gemini directory and all its contents");
+			LogHelper.logInfo("Deleting gemini directory and all its contents");
 			monitor.subTask("Deleting directory " + geminiDir.getAbsolutePath());
 			deleteDirectory(geminiDir);
 		}
 		
-		System.out.println("Successfully uninstalled Gemini CLI");
+		LogHelper.logInfo("Successfully uninstalled Gemini CLI");
 		monitor.subTask("Uninstallation complete");
 	}
 	
@@ -121,7 +122,7 @@ public class GeminiService extends AbstractService implements IPreferenceConstan
 	 * Recursively deletes a directory and all its contents.
 	 */
 	private void deleteDirectory(File directory) throws IOException {
-		System.out.println("Deleting directory: " + directory.getAbsolutePath());
+		LogHelper.logInfo("Deleting directory: " + directory.getAbsolutePath());
 		File[] files = directory.listFiles();
 		if (files != null) {
 			for (File file : files) {
@@ -130,7 +131,7 @@ public class GeminiService extends AbstractService implements IPreferenceConstan
 				} else {
 					if (!file.delete()) {
 						String errorMsg = "Failed to delete file: " + file.getAbsolutePath();
-						System.out.println(errorMsg);
+						LogHelper.logError(errorMsg);
 						throw new IOException(errorMsg);
 					}
 				}
@@ -138,7 +139,7 @@ public class GeminiService extends AbstractService implements IPreferenceConstan
 		}
 		if (!directory.delete()) {
 			String errorMsg = "Failed to delete directory: " + directory.getAbsolutePath();
-			System.out.println(errorMsg);
+			LogHelper.logError(errorMsg);
 			throw new IOException(errorMsg);
 		}
 	}
