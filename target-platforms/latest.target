@@ -23,6 +23,11 @@
 			<unit id="org.eclipse.ui.navigator" version="0.0.0"/>
 			<unit id="org.junit" version="0.0.0"/>
 			<unit id="org.eclipse.jdt.core" version="0.0.0"/>
+			<unit id="org.eclipse.team.core" version="0.0.0"/>
+			<unit id="org.eclipse.team.ui" version="0.0.0"/>
+			<unit id="org.eclipse.ltk.core.refactoring" version="0.0.0"/>
+			<unit id="org.eclipse.ui.forms" version="0.0.0"/>
+			<unit id="org.eclipse.core.expressions" version="0.0.0"/>
 			<unit id="junit-jupiter-api" version="0.0.0"/>
 		</location>
 
