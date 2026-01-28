@@ -85,7 +85,7 @@ This feature runs a Model Context Protocol server within the Eclipse IDE VM enab
 ## Installation
 
 - Download a recent version of [Eclipse J2EE package](https://www.eclipse.org/downloads/packages/release/2025-09/r/eclipse-ide-enterprise-java-and-web-developers) that has this plugins dependencies built-in.
-- Download the [Eclipse Agents plugin](https://ibm.box.com/s/mbdlz17f7wqcvun40ouuqb6zgvzckss9) and unzip it
+- Download the [Eclipse Agents plugin](https://ibm.box.com/s/vxr2pcnlxd2jb4cq8yqxu1kicqvqhu9h) and unzip it
 - From Eclipse navigate to Help > Install New Software...
 - Click "Add..." > "Archive..." and navigate to the org.eclipse.mcp.update folder, then click "Open"
 - Uncheck "Group items by category"
