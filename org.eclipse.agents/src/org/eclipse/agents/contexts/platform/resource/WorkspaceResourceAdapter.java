@@ -110,11 +110,11 @@ public class WorkspaceResourceAdapter implements IResourceHierarchy<IResource, F
 			IWorkspace workspace = ResourcesPlugin.getWorkspace();
 			
 			IFile[] files = workspace.getRoot().findFilesForLocationURI(URI.create(absolutePath));
-			if (files != null && files.length > 0 && files[0] != null) {
+			if (files != null && files.length > 0 && files[0] != null && files[0].exists()) {
 				resource = files[0];
 			} else {
 				IContainer[] containers = workspace.getRoot().findContainersForLocationURI(URI.create(absolutePath));
-				if (containers != null && containers.length > 0 && containers[0] != null) {
+				if (containers != null && containers.length > 0 && containers[0] != null && containers[0].exists()) {
 					resource = containers[0];
 				}
 			}
