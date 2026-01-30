@@ -52,6 +52,7 @@ import org.eclipse.agents.services.protocol.AcpSchema.WaitForTerminalExitRespons
 import org.eclipse.agents.services.protocol.AcpSchema.WriteTextFileRequest;
 import org.eclipse.agents.services.protocol.AcpSchema.WriteTextFileResponse;
 import org.eclipse.core.runtime.ListenerList;
+import org.eclipse.agents.services.agent.ClaudeService;
 
 public class AgentController {
 
@@ -69,7 +70,8 @@ public class AgentController {
 	IAgentService[] agentServices;
 	private AgentController() {
 		agentServices = new IAgentService[] { 
-			new GeminiService()
+			new GeminiService(),
+			new ClaudeService()
 //			new GooseService()
 		};
 		agentListeners = new ListenerList<IAgentServiceListener>();
