@@ -64,10 +64,10 @@ public class StartSessionJob extends Job {
 			
 			boolean supportsSseMcp = initializeResponse.agentCapabilities() != null &&
 					initializeResponse.agentCapabilities().mcpCapabilities() != null &&
-							initializeResponse.agentCapabilities().mcpCapabilities().sse();
-			
+							Boolean.TRUE.equals(initializeResponse.agentCapabilities().mcpCapabilities().sse());
+
 			boolean supportsLoadSession = initializeResponse.agentCapabilities() != null &&
-					initializeResponse.agentCapabilities().loadSession();
+					Boolean.TRUE.equals(initializeResponse.agentCapabilities().loadSession());
 			
 			if (oldSessionId != null && supportsLoadSession) {
 

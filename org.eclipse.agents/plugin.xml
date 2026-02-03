@@ -129,6 +129,15 @@
 			<keywordReference id="org.eclipse.agents.keyword.google" />
 			<keywordReference id="org.eclipse.agents.keyword.gemini" />
 		</page>
+		<page
+			id="org.eclipse.agents.preferences.services.custom"
+			name="Custom Agents"
+			category="org.eclipse.agents.preferences.services"
+			class="org.eclipse.agents.preferences.AcpCustomAgentsPreferencePage">
+			<keywordReference id="org.eclipse.agents.keyword.acp" />
+			<keywordReference id="org.eclipse.agents.keyword.agent" />
+			<keywordReference id="org.eclipse.agents.keyword.coding" />
+		</page>
 	</extension>
 
 	<extension point="org.eclipse.core.runtime.preferences">

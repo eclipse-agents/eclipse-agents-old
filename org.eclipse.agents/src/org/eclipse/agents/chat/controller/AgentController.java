@@ -13,10 +13,15 @@
  *******************************************************************************/
 package org.eclipse.agents.chat.controller;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
+import org.eclipse.agents.Activator;
+import org.eclipse.agents.preferences.IPreferenceConstants;
+import org.eclipse.agents.services.agent.CustomAgentService;
 import org.eclipse.agents.services.agent.GeminiService;
 import org.eclipse.agents.services.agent.IAgentService;
 import org.eclipse.agents.services.protocol.AcpSchema.AgentNotification;
@@ -53,6 +58,11 @@ import org.eclipse.agents.services.protocol.AcpSchema.WriteTextFileRequest;
 import org.eclipse.agents.services.protocol.AcpSchema.WriteTextFileResponse;
 import org.eclipse.core.runtime.ListenerList;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+
 public class AgentController {
 
 	private static AgentController instance;
@@ -66,22 +76,85 @@ public class AgentController {
 		instance = new AgentController();
 	}
 	
-	IAgentService[] agentServices;
+	List<IAgentService> agentServices;
 	private AgentController() {
-		agentServices = new IAgentService[] { 
-			new GeminiService()
-//			new GooseService()
-		};
+		agentServices = new ArrayList<IAgentService>();
+		agentServices.add(new GeminiService());
 		agentListeners = new ListenerList<IAgentServiceListener>();
 		sesionListeners = new  ListenerList<ISessionListener>();
+		loadCustomAgents();
 	}
-	
+
 	public static AgentController instance() {
 		return instance;
 	}
-	
+
 	public IAgentService[] getAgents() {
-		return agentServices;
+		return agentServices.toArray(new IAgentService[agentServices.size()]);
+	}
+
+	public void addAgent(IAgentService agent) {
+		agentServices.add(agent);
+	}
+
+	public void removeAgent(IAgentService agent) {
+		if (agent.isRunning()) {
+			agent.stop();
+		}
+		if (agent.isScheduled()) {
+			agent.unschedule();
+		}
+		agentServices.remove(agent);
+	}
+
+	public void refreshCustomAgents() {
+		// Stop and remove existing custom agents
+		List<IAgentService> toRemove = new ArrayList<IAgentService>();
+		for (IAgentService agent : agentServices) {
+			if (agent instanceof CustomAgentService) {
+				if (agent.isRunning()) {
+					agent.stop();
+				}
+				if (agent.isScheduled()) {
+					agent.unschedule();
+				}
+				toRemove.add(agent);
+			}
+		}
+		agentServices.removeAll(toRemove);
+		// Reload from preferences
+		loadCustomAgents();
+	}
+
+	private void loadCustomAgents() {
+		try {
+			String json = Activator.getDefault().getPreferenceStore().getString(IPreferenceConstants.P_ACP_CUSTOM_AGENTS);
+			if (json == null || json.isEmpty()) {
+				return;
+			}
+			Gson gson = new Gson();
+			JsonArray array = gson.fromJson(json, JsonArray.class);
+			if (array == null) {
+				return;
+			}
+			for (JsonElement element : array) {
+				JsonObject obj = element.getAsJsonObject();
+				String id = obj.get("id").getAsString();
+				String name = obj.get("name").getAsString();
+				JsonArray cmdArray = obj.getAsJsonArray("command");
+				String[] command = new String[cmdArray.size()];
+				for (int i = 0; i < cmdArray.size(); i++) {
+					command[i] = cmdArray.get(i).getAsString();
+				}
+				String workingDirectory = null;
+				if (obj.has("workingDirectory") && !obj.get("workingDirectory").isJsonNull()) {
+					workingDirectory = obj.get("workingDirectory").getAsString();
+				}
+				agentServices.add(new CustomAgentService(id, name, command, workingDirectory));
+			}
+		} catch (Exception e) {
+			// If preferences are corrupt, just skip loading custom agents
+		}
 	}
 	
 	public static void putSession(String sessionId, SessionController controller) {

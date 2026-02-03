@@ -24,19 +24,16 @@ import org.eclipse.jface.action.MenuManager;
 
 public class ToolbarAgentSelector extends AbstractDynamicToolbarDropdown {
 
-	List<SelectAgentAction> actions;
-	
 	public ToolbarAgentSelector(ChatView view) {
 		super("Coding Agent...", "Select a coding agent", view);
-		
-		actions = new ArrayList<SelectAgentAction>();
-		for (IAgentService agent: AgentController.instance().getAgents()) {
-			actions.add(new SelectAgentAction(view, agent, this));
-		}
 	}
 
 	@Override
 	protected void fillMenu(MenuManager menuManager) {
+		List<SelectAgentAction> actions = new ArrayList<SelectAgentAction>();
+		for (IAgentService agent: AgentController.instance().getAgents()) {
+			actions.add(new SelectAgentAction(getView(), agent, this));
+		}
 		for (SelectAgentAction action: actions) {
 			menuManager.add(action);
 			action.setChecked(action.getAgent() ==  getView().getActiveAgent());
