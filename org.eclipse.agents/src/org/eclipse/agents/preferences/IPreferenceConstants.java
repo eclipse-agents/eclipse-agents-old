@@ -31,4 +31,6 @@ public interface IPreferenceConstants {
 	
 	public static final String P_ACP_GEMINI_VERSION= Activator.PLUGIN_ID + ".default.acp.gemini.version"; //$NON-NLS-1$
 
+	public static final String P_ACP_CUSTOM_AGENTS = Activator.PLUGIN_ID + ".default.acp.custom.agents"; //$NON-NLS-1$
+
 }

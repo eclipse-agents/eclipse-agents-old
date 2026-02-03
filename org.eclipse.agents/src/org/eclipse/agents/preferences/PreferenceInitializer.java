@@ -34,6 +34,7 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer impleme
 		store.setDefault(P_ACP_FILE_READ, true);
 		store.setDefault(P_ACP_FILE_WRITE, true);
 		store.setDefault(P_ACP_PROMPT4MCP, true);
+		store.setDefault(P_ACP_CUSTOM_AGENTS, "[]");
 
 		for (IAgentService service: AgentController.instance().getAgents()) {
 			if (service instanceof AbstractService) {
