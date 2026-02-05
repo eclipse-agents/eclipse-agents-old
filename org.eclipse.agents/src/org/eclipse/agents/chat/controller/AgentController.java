@@ -19,6 +19,7 @@ import java.util.concurrent.CompletableFuture;
 
 import org.eclipse.agents.services.agent.GeminiService;
 import org.eclipse.agents.services.agent.IAgentService;
+import org.eclipse.agents.services.agent.KiroService;
 import org.eclipse.agents.services.protocol.AcpSchema.AgentNotification;
 import org.eclipse.agents.services.protocol.AcpSchema.AgentRequest;
 import org.eclipse.agents.services.protocol.AcpSchema.AgentResponse;
@@ -69,7 +70,8 @@ public class AgentController {
 	IAgentService[] agentServices;
 	private AgentController() {
 		agentServices = new IAgentService[] { 
-			new GeminiService()
+			new GeminiService(),
+			new KiroService()
 //			new GooseService()
 		};
 		agentListeners = new ListenerList<IAgentServiceListener>();
