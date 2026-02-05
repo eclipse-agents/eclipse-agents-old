@@ -25,6 +25,9 @@ div:focus {
 	margin-top: 5px;
 	margin-bottom: 5px;
 	padding: 5px;
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
 }
 
 .requestToolCall {
@@ -46,16 +49,10 @@ div:focus {
 	margin-left: auto;
 	margin-top: 6px;
 	margin-bottom: 6px;
-	height: 18px;
 	width: 30px;
 	justify-content: center;
 	border: none;
 	border-radius: 2px;
-}
-
-.expandCollapseButton img {
-	height: 12px;
-	margin-top: 2px;
 }
 
 .expandCollapseButton:hover {
@@ -63,7 +60,6 @@ div:focus {
 }
 
 .footerButton {
-	height: 18px;
 	width: 100%;
 	margin-top: 6px;
 	border: none;
@@ -84,4 +80,13 @@ div:focus {
 	display: flex;
 	justify-content: flex-end;
 	margin-top: 6px;
+	width: 100%;
+}
+
+.toolCallHeader {
+	flex-grow: 1;
+}
+
+.contentContainer{
+	width: 100%;
 }

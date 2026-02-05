@@ -27,12 +27,11 @@ class ToolCall extends DivTemplate {
 		this._buttonContainer = this.root.querySelector('div div#permissionButtonContainer');
 		
 		this._content = this.root.querySelector('div div#contentContainer div#toolCallContent');
+		this._contentMarkdown = this.root.querySelector('div div#contentContainer chunked-markdown#toolCallContentMarkdown');
 		
 		this._expandCollapseContent = this.root.querySelector('div button#expandCollapseContentButton');
-		this._expandCollapseContentImg = this._expandCollapseContent.querySelector('img');		
 		
 		this._contentFooterButton = this.root.querySelector('div div button#contentFooterButton');
-		this._contentFooterButtonImg = this._contentFooterButton.querySelector('img');
 	}
 
 	create(toolCallId, title, kind, status, content, permissionOptions) {
@@ -46,24 +45,28 @@ class ToolCall extends DivTemplate {
 		this._expandCollapseContent.addEventListener("click", (event) => this.toggleContent(event));
 		this._contentFooterButton.addEventListener("click", (event) => this.collapseContent(event));
 		
-//		if (content && content.length > 0) {
-//			// TODO: Currently displaying the raw content.
-//			// we'll need to render the content based on the type of content provided
-//			this._content.textContent = content;
-//			this._expandCollapseContentImg.src = "icons/collapse.png";
-//			this._contentFooterButtonImg.src = "icons/collapse.png";
-//		} else {
+		if (content && content.length > 0) {
+			// TODO: Currently displaying the raw content.
+			// we'll need to render the content based on the type of content provided
+			this._content.textContent = content;
+			this._expandCollapseContent.textContent = "\u2295";
+			this._contentFooterButton.textContent = "\u2296";
+			this._content.style.display = "none";
+			this._contentFooterButton.style.display = "none";
+		} else {
 			this._expandCollapseContent.style.display = "none";
 			this._contentFooterButton.style.display = "none";
 			this._content.style.display = "none";
-//		}
+			this._contentMarkdown.style.display = "none";
+		}
 		
 		if (permissionOptions != null) {
-			for(const option of permissionOptions) {
+			for (const option of permissionOptions) {
 				const permissionRequestButton = addChild(this._buttonContainer, "permission-request-button");
 				permissionRequestButton.create(option.kind, option.name, option.optionId, this);
 			}
 			this._toolCallContainer.classList.add("requestToolCall");
+			this._toolCallContainer.style.paddingTop = "0";
 			
 			// TODO: Gemini can return empty info for the title.
 			// For now, replace it with the toolCallId if it's empty
@@ -135,20 +138,39 @@ class ToolCall extends DivTemplate {
 	updateContent(content) {
 		if (this._content.textContent === null || this._content.textContent === "") {
 			// expand when receiving first update
-			this._content.style.display = "unset";
-			this._expandCollapseContentImg.src = "icons/collapse.png";
-			this._contentFooterButtonImg.src = "icons/collapse.png";
+			this._content.style.display = "none";
+			this._contentMarkdown.style.display = "none";
+			this._expandCollapseContent.textContent = "\u2295";
+			this._contentFooterButton.textContent = "\u2296";
 			this._expandCollapseContent.style.display = "flex";
-			this._contentFooterButton.style.display = "unset";	
+			this._contentFooterButton.style.display = "none";
+			this._toolCallContainer.style.paddingTop = "0";
 		}
 		
-		this._content.textContent = content;
+		const contentJson = JSON.parse(content);
+		
+		for(const contentItem of contentJson) {
+			switch(contentItem.type) {
+				case "content":
+					this._contentMarkdown.addContentBlock(contentItem.content);
+					break;
+				case "diff":
+					// TODO: properly render diff instead of raw json with oldText and newText
+					this._content.textContent = content;
+					break;
+				case "terminal":
+					// TODO: handle terminal content type
+					this._content.textContent = content;
+					break;
+			}
+		}
 	}
 	
 	toggleContent(event) {
 		if (this._content.style.display === "none") {
 			this._content.style.display = "unset";
-			this._expandCollapseContentImg.src = "icons/collapse.png";
+			this._contentMarkdown.style.display = "unset";
+			this._expandCollapseContent.textContent = "\u2296";
 			this._contentFooterButton.style.display = "unset";
 		} else {
 			this.collapseContent();
@@ -157,8 +179,9 @@ class ToolCall extends DivTemplate {
 
 	collapseContent(event) {
 		this._content.style.display = "none";
+		this._contentMarkdown.style.display = "none"; 
 		this._contentFooterButton.style.display = "none";
-		this._expandCollapseContentImg.src = "icons/expand.png";
+		this._expandCollapseContent.textContent = "\u2295";
 	}
 	
 	handlePermissionResponse(optionId) {

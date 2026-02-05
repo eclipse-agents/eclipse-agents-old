@@ -55,7 +55,10 @@ function demo() {
 	const content = JSON.stringify({"children":[{"name":".project","isFolder":false,"uri":{"type":"resource_link","name":".project","uri":"file:/C:/geminiProjects/sample2/.project","description":"Eclipse workspace file","mimeType":"text/plain","size":398}},{"name":".settings","isFolder":true,"uri":{"type":"resource_link","name":".settings","uri":"file:/C:/geminiProjects/sample2/.settings","description":"Eclipse workspace folder"}},{"name":".jsdtscope","isFolder":false,"uri":{"type":"resource_link","name":".jsdtscope","uri":"file:/C:/geminiProjects/sample2/.settings/.jsdtscope","description":"Eclipse workspace file","mimeType":"text/plain","size":319}},{"name":"org.eclipse.wst.jsdt.ui.superType.container","isFolder":false,"uri":{"type":"resource_link","name":"org.eclipse.wst.jsdt.ui.superType.container","uri":"file:/C:/geminiProjects/sample2/.settings/org.eclipse.wst.jsdt.ui.superType.container","description":"Eclipse workspace file","mimeType":"text/plain","size":44}},{"name":"org.eclipse.wst.jsdt.ui.superType.name","isFolder":false,"uri":{"type":"resource_link","name":"org.eclipse.wst.jsdt.ui.superType.name","uri":"file:/C:/geminiProjects/sample2/.settings/org.eclipse.wst.jsdt.ui.superType.name","description":"Eclipse workspace file","mimeType":"text/plain","size":6}},{"name":"app.js","isFolder":false,"uri":{"type":"resource_link","name":"app.js","uri":"file:/C:/geminiProjects/sample2/app.js","description":"Eclipse workspace file","mimeType":"text/plain","size":22110}},{"name":"sample2.html","isFolder":false,"uri":{"type":"resource_link","name":"sample2.html","uri":"file:/C:/geminiProjects/sample2/sample2.html","description":"Eclipse workspace file","mimeType":"text/plain","size":734}}],"depthSearched":"INFINITE"});
 	
 	acceptSessionToolCall("permission2", "listProjects", "other", "pending", content, options);
-
+	
+	acceptSessionToolCall("search1", " Searching the web for: \"interactive python tutorials\":", "search", "pending");
+	// Render content block in tool call update
+	acceptSessionToolCallUpdate("search1", "completed", JSON.stringify([{"content":{"text":"Search results for \"python tutorials for beginners\" returned.","type":"text"},"type":"content"}]));
 }
 
 if (getProgramIcon == null) { 
