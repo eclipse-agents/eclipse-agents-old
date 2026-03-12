@@ -31,6 +31,10 @@
 			id="org.eclipse.agents.keyword.google" />
 		<keyword label="GEMINI"
 			id="org.eclipse.agents.keyword.gemini" />
+		<keyword label="COPILOT"
+			id="org.eclipse.agents.keyword.copilot" />
+		<keyword label="GITHUB"
+			id="org.eclipse.agents.keyword.github" />
 	</extension>
 
 	<extension point="org.eclipse.ui.activities">
@@ -128,6 +132,24 @@
 			<keywordReference id="org.eclipse.agents.keyword.chat" />
 			<keywordReference id="org.eclipse.agents.keyword.google" />
 			<keywordReference id="org.eclipse.agents.keyword.gemini" />
+		</page>
+		<page
+			id="org.eclipse.agents.preferences.services.copilot"
+			name="GitHub Copilot CLI"
+			category="org.eclipse.agents.preferences.services"
+			class="org.eclipse.agents.preferences.AcpCopilotPreferencePage">
+			<keywordReference id="org.eclipse.agents.keyword.mcp" />
+			<keywordReference id="org.eclipse.agents.keyword.acp" />
+			<keywordReference id="org.eclipse.agents.keyword.model" />
+			<keywordReference id="org.eclipse.agents.keyword.agent" />
+			<keywordReference id="org.eclipse.agents.keyword.client" />
+			<keywordReference id="org.eclipse.agents.keyword.context" />
+			<keywordReference id="org.eclipse.agents.keyword.protocol" />
+			<keywordReference id="org.eclipse.agents.keyword.coding" />
+			<keywordReference id="org.eclipse.agents.keyword.cli" />
+			<keywordReference id="org.eclipse.agents.keyword.chat" />
+			<keywordReference id="org.eclipse.agents.keyword.github" />
+			<keywordReference id="org.eclipse.agents.keyword.copilot" />
 		</page>
 	</extension>
 

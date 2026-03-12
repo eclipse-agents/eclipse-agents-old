@@ -70,16 +70,30 @@ public class ServerManager implements IPreferenceConstants, IActivityManagerList
 			Set<Contributor> contributors = new HashSet<Contributor>();
 			for (ExtensionManager.Contributor contributor: Activator.getDefault().getExtensionManager().getContributors()) {
 				if (contributor.getActivityId() == null) {
+					Tracer.trace().trace(Tracer.MCP, "Adding contributor (no activity gate): " + contributor.getId()); //$NON-NLS-1$
 					contributors.add(contributor);
 				} else {
 					IActivity activity = activites.getActivity(contributor.getActivityId());
-					if (activity != null && activity.isDefined() && activity.isEnabled()) {
+					boolean defined = activity != null && activity.isDefined();
+					boolean enabled = defined && activity.isEnabled();
+					Tracer.trace().trace(Tracer.MCP, "Contributor " + contributor.getId() //$NON-NLS-1$
+							+ " activity=" + contributor.getActivityId() //$NON-NLS-1$
+							+ " defined=" + defined + " enabled=" + enabled); //$NON-NLS-1$
+					System.err.println("[ServerManager] Contributor: " + contributor.getId()
+							+ " | activityId=" + contributor.getActivityId()
+							+ " | defined=" + defined + " | enabled=" + enabled);
+					if (enabled) {
 						contributors.add(contributor);
 						activityIds.add(activity.getId());
+					} else if (!defined) {
+						// Activity not defined yet (e.g., first launch) — include contributor anyway
+						System.err.println("[ServerManager] Activity not defined, including contributor by default: " + contributor.getId());
+						contributors.add(contributor);
 					}
 				}
 			}
-			
+			System.err.println("[ServerManager] Total contributors selected: " + contributors.size());
+
 			List<IFactoryProvider> factories = new ArrayList<IFactoryProvider>();
 			for (Contributor contributor: contributors) {
 				factories.addAll(Arrays.asList(contributor.getFactoryProviders()));
