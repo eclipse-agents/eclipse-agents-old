@@ -19,6 +19,9 @@ import org.eclipse.agents.Activator;
 import org.eclipse.agents.Tracer;
 import org.eclipse.agents.preferences.IPreferenceConstants;
 import org.eclipse.agents.services.agent.IAgentService;
+import org.eclipse.agents.services.protocol.AcpSchema.AuthMethod;
+import org.eclipse.agents.services.protocol.AcpSchema.AuthenticateRequest;
+import org.eclipse.agents.services.protocol.AcpSchema.AuthenticateResponse;
 import org.eclipse.agents.services.protocol.AcpSchema.HttpHeader;
 import org.eclipse.agents.services.protocol.AcpSchema.InitializeResponse;
 import org.eclipse.agents.services.protocol.AcpSchema.McpServer;
@@ -31,6 +34,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.lsp4j.jsonrpc.ResponseErrorException;
 
 
 public class StartSessionJob extends Job {
@@ -78,9 +82,12 @@ public class StartSessionJob extends Job {
 				if (supportsSseMcp) {
 					Tracer.trace().trace(Tracer.ACP, service.getName() + " supports SSE MCP");
 					
-					boolean eclipseMcpEnabled = Activator.getDefault().getPreferenceStore().getBoolean(IPreferenceConstants.P_MCP_SERVER_ENABLED);
-					
-					if (eclipseMcpEnabled) {
+					// Use the actual running server state rather than just the preference flag,
+					// so the agent receives the MCP URL whenever the server is actually running.
+					boolean eclipseMcpRunning = Activator.getDefault().getServerManager() != null
+							&& Activator.getDefault().getServerManager().isRunning();
+
+					if (eclipseMcpRunning) {
 						String httpPort = Activator.getDefault().getPreferenceStore().getString(IPreferenceConstants.P_MCP_SERVER_HTTP_PORT);
 						Tracer.trace().trace(Tracer.ACP, "Eclipse MCP is running on port " + httpPort);
 						
@@ -109,7 +116,43 @@ public class StartSessionJob extends Job {
 					return Status.CANCEL_STATUS;
 				} 
 				
-				NewSessionResponse newSessionResponse = this.service.getAgent()._new(newSessionRequest).get();
+				NewSessionResponse newSessionResponse;
+				try {
+					newSessionResponse = this.service.getAgent()._new(newSessionRequest).get();
+				} catch (ExecutionException sessionEx) {
+					// If the agent reports "Authentication required" here it means
+					// authenticate() was never called (or the token expired).
+					// Try to authenticate now and retry session/new once.
+					Throwable cause = sessionEx.getCause();
+					boolean authRequired = cause instanceof ResponseErrorException
+							&& cause.getMessage() != null
+							&& cause.getMessage().toLowerCase().contains("authentication");
+					if (authRequired) {
+						Tracer.trace().trace(Tracer.ACP,
+								"session/new returned 'Authentication required' – attempting authenticate()");
+						try {
+							InitializeResponse initResp = service.getInitializeResponse();
+							AuthMethod[] authMethods = (initResp != null) ? initResp.authMethods() : null;
+							String methodId = (authMethods != null && authMethods.length > 0)
+									? authMethods[0].id() : null;
+							AuthenticateResponse authResp = this.service.getAgent()
+									.authenticate(new AuthenticateRequest(null, methodId)).get();
+							this.service.setAuthenticateResponse(authResp);
+							Tracer.trace().trace(Tracer.ACP, "authenticate() succeeded – retrying session/new");
+							// Retry
+							newSessionResponse = this.service.getAgent()._new(newSessionRequest).get();
+						} catch (Exception retryEx) {
+							String hint = service.getName().toLowerCase().contains("copilot")
+									? "\n\nPlease run 'copilot login' in a terminal and restart Eclipse."
+									: "";
+							return new Status(IStatus.ERROR, Activator.PLUGIN_ID,
+									"Authentication failed for " + service.getName()
+									+ ". Cannot start a session." + hint, retryEx);
+						}
+					} else {
+						throw sessionEx;
+					}
+				}
 				this.modes = newSessionResponse.modes();
 				this.models = newSessionResponse.models();
 				this.sessionId = newSessionResponse.sessionId();

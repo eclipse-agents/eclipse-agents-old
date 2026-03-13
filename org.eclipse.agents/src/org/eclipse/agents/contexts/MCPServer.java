@@ -13,15 +13,18 @@
  *******************************************************************************/
 package org.eclipse.agents.contexts;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.agents.IFactoryProvider;
 import org.eclipse.agents.Tracer;
 import org.eclipse.agents.contexts.adapters.IResourceTemplate;
+import org.eclipse.agents.schema.FormAwareMcpToolProvider;
 import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
 import org.eclipse.jetty.ee10.servlet.ServletHolder;
 import org.eclipse.jetty.server.ServerConnector;
@@ -31,8 +34,10 @@ import org.springaicommunity.mcp.provider.prompt.SyncMcpPromptProvider;
 import org.springaicommunity.mcp.provider.resource.SyncMcpResourceProvider;
 import org.springaicommunity.mcp.provider.tool.SyncMcpToolProvider;
 
+
 import io.modelcontextprotocol.server.McpServer;
 import io.modelcontextprotocol.server.McpServerFeatures.SyncCompletionSpecification;
+import io.modelcontextprotocol.server.McpSyncServerExchange;
 import io.modelcontextprotocol.server.McpServerFeatures.SyncPromptSpecification;
 import io.modelcontextprotocol.server.McpServerFeatures.SyncResourceSpecification;
 import io.modelcontextprotocol.server.McpServerFeatures.SyncToolSpecification;
@@ -107,7 +112,30 @@ public class MCPServer {
 		}
 		
 		completions = new SyncMcpCompleteProvider(annotated).getCompleteSpecifications();
-		tools = new SyncMcpToolProvider(annotated).getToolSpecifications();
+		// Use FormAwareMcpToolProvider to add form support to tools
+		try {
+			tools = new FormAwareMcpToolProvider(annotated).getToolSpecifications();
+			System.err.println("[MCPServer] Tool scan: found " + (tools != null ? tools.size() : 0)
+					+ " tools from " + annotated.size() + " annotated objects");
+			if (tools != null) {
+				for (SyncToolSpecification t : tools) {
+					boolean hasCall = t.call() != null;
+					System.err.println("[MCPServer]   tool: " + t.tool().name() + " | call=" + hasCall);
+				}
+			}
+			if (tools == null || tools.isEmpty()) {
+				System.err.println("[MCPServer] WARNING: No tools found.");
+			} else {
+				// Rebuild any spec whose call() is null using direct reflection.
+				// This happens when SyncMcpToolMethodCallback fails to initialize
+				// due to OSGi classloader split or Jackson version mismatch.
+				tools = rebuildNullCallHandlers(tools, annotated);
+			}
+		} catch (Exception e) {
+			System.err.println("[MCPServer] ERROR during tool scan: " + e);
+			e.printStackTrace();
+			tools = new ArrayList<>();
+		}
 //		loggers = new SyncMcpLogginProvider(factoryList);
 		prompts = new SyncMcpPromptProvider(annotated).getPromptSpecifications();
 		resources = new SyncMcpResourceProvider(annotated).getResourceSpecifications();
@@ -118,15 +146,11 @@ public class MCPServer {
 		this.url = "http://localhost:" + port + "/sse";
 
 		
-		//HttpServletSseServerTransportProvider transportProvider =
-		//	    new HttpServletSseServerTransportProvider(
-		//	        new ObjectMapper(), "/", "/sse");
-		
-		// If JsonMapper not specified, a JacksonJsonMapper will be created from the configured ObjectMapper
-		HttpServletSseServerTransportProvider transportProvider = HttpServletSseServerTransportProvider.builder()
-				.messageEndpoint("/")
-				.sseEndpoint("/sse")
-				.build();
+		// Use legacy SSE transport - compatible with Eclipse's bundled Jetty 12.1.4.
+		// VS Code tries Streamable HTTP first (POST /sse -> 404), then automatically
+		// falls back to legacy SSE (GET /sse) which works correctly.
+		HttpServletSseServerTransportProvider transportProvider =
+				CustomMcpTransportProvider.create("/", "/sse");
 
 		ServerCapabilities capabilities = ServerCapabilities.builder().resources(true, true) // Enable resource support
 				.tools(true) // Enable tool support
@@ -136,7 +160,7 @@ public class MCPServer {
 				.build();
 		
 		
-		// Create a server with custom configuration
+		// Create a server with legacy SSE transport
 		this.syncServer = McpServer.sync(transportProvider)
 			    .serverInfo(name, version)
 			    .capabilities(capabilities)
@@ -165,11 +189,18 @@ public class MCPServer {
 	
 		ServerConnector connector = new ServerConnector(jettyServer);
 		connector.setPort(port);
+		// Set a long idle timeout to prevent SSE connections from being dropped.
+		// Default Jetty timeout is too short for long-lived SSE streams,
+		// causing VS Code "TypeError: fetch failed" errors.
+		connector.setIdleTimeout(Long.MAX_VALUE);
 		jettyServer.addConnector(connector);
 
 		try {
 			ServletContextHandler context = new ServletContextHandler();
 			context.setContextPath("/");
+			// Register Streamable HTTP bridge at /mcp for Eclipse Copilot
+			context.addServlet(new ServletHolder(new StreamableHttpBridgeServlet(this)), "/mcp");
+			// Register legacy SSE transport at /* for VS Code and other SSE clients
 			context.addServlet(new ServletHolder((Servlet)transportProvider), "/*");
 			jettyServer.setHandler(context);
 			jettyServer.start();
@@ -189,7 +220,112 @@ public class MCPServer {
 	McpSyncServer getSyncServer() {
 		return syncServer;
 	}
-	
+
+	/**
+	 * Rebuilds SyncToolSpecification entries that have a null call() handler.
+	 * Uses direct Java reflection to invoke the annotated method, bypassing
+	 * SyncMcpToolMethodCallback which can fail due to OSGi classloader issues.
+	 */
+	@SuppressWarnings("unchecked")
+	private List<SyncToolSpecification> rebuildNullCallHandlers(
+			List<SyncToolSpecification> specs, List<Object> annotatedObjects) {
+
+		List<SyncToolSpecification> result = new ArrayList<>();
+		for (SyncToolSpecification spec : specs) {
+			if (spec.call() != null) {
+				result.add(spec); // already has a handler
+				continue;
+			}
+
+			// Find the method on one of the annotated objects whose @McpTool name matches
+			String toolName = spec.tool().name();
+			SyncToolSpecification rebuilt = null;
+
+			outer:
+			for (Object target : annotatedObjects) {
+				for (Method method : target.getClass().getMethods()) {
+					// Check annotation by class name to avoid classloader identity issues
+					for (java.lang.annotation.Annotation ann : method.getAnnotations()) {
+						String annType = ann.annotationType().getName();
+						if ("org.springaicommunity.mcp.annotation.McpTool".equals(annType)) {
+							// Get the name attribute via reflection on the annotation
+							String annotatedName = null;
+							try {
+								annotatedName = (String) ann.annotationType()
+										.getMethod("name").invoke(ann);
+							} catch (Exception ex) { /* ignore */ }
+
+							if (toolName.equals(annotatedName) ||
+									(annotatedName != null && annotatedName.isEmpty()
+											&& toolName.equals(method.getName()))) {
+
+								final Object finalTarget = target;
+								final Method finalMethod = method;
+								finalMethod.setAccessible(true);
+
+								// Build a reflection-based BiFunction call handler
+								java.util.function.BiFunction<McpSyncServerExchange, Map<String, Object>,
+										McpSchema.CallToolResult> callHandler = (exchange, args) -> {
+									try {
+										Object returnValue;
+										if (finalMethod.getParameterCount() == 0) {
+											returnValue = finalMethod.invoke(finalTarget);
+										} else {
+											// Pass null for each param — most Eclipse tools take no args
+											Object[] params = new Object[finalMethod.getParameterCount()];
+											returnValue = finalMethod.invoke(finalTarget, params);
+										}
+										String text = returnValue != null ? returnValue.toString() : "null";
+										return McpSchema.CallToolResult.builder()
+												.addTextContent(text)
+												.build();
+									} catch (Exception e) {
+										System.err.println("[MCPServer] Reflection call error for "
+												+ toolName + ": " + e.getMessage());
+										return McpSchema.CallToolResult.builder()
+												.addTextContent("Error: " + e.getMessage())
+												.isError(true)
+												.build();
+									}
+								};
+
+								rebuilt = new SyncToolSpecification(spec.tool(), callHandler);
+								System.err.println("[MCPServer] Rebuilt reflection call handler for: " + toolName);
+								break outer;
+							}
+						}
+					}
+				}
+			}
+
+			result.add(rebuilt != null ? rebuilt : spec);
+		}
+		return result;
+	}
+
+	/**
+	 * Calls a tool by name with the given arguments.
+	 * Routes through the registered SyncToolSpecification call handlers.
+	 */
+	public McpSchema.CallToolResult callTool(String toolName, java.util.Map<String, Object> args) {
+		// Find the spec in the tools list (same list registered with syncServer)
+		for (SyncToolSpecification spec : tools) {
+			if (spec.tool().name().equals(toolName) && !removedTools.contains(spec)) {
+				if (spec.call() != null) {
+					// call() takes (McpSyncServerExchange, Map<String,Object>)
+					// Passing null for exchange is safe — tool methods in this project
+					// do not use the exchange for logging/sampling callbacks.
+					return spec.call().apply(null, args);
+				} else {
+					throw new RuntimeException("Tool '" + toolName + "' has no call handler (call() is null)."
+							+ " This usually means the OSGi classloader split is still present."
+							+ " Check MANIFEST.MF Import-Package for org.springaicommunity entries.");
+				}
+			}
+		}
+		throw new RuntimeException("Tool not found: " + toolName);
+	}
+
 	public void stop() {
 
 		if (syncServer != null) {

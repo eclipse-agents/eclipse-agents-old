@@ -135,10 +135,23 @@ public abstract class AbstractService implements IAgentService {
 				
 		try {
 			agentProcess = createProcess();
+
+			// Check if process creation failed
+			if (agentProcess == null) {
+				Tracer.trace().trace(Tracer.ACP, "Error: createProcess() returned null");
+				return;
+			}
+
 			inputStream = agentProcess.getInputStream();
 			outputStream = agentProcess.getOutputStream();
 			errorStream = agentProcess.getErrorStream();
 			
+			// Check if streams are null
+			if (inputStream == null || outputStream == null || errorStream == null) {
+				Tracer.trace().trace(Tracer.ACP, "Error: Unable to get process streams");
+				agentProcess.destroy();
+				return;
+			}
 			
 			if (!agentProcess.isAlive()) {
 				BufferedReader br = new BufferedReader(new InputStreamReader(errorStream, "UTF-8"));
@@ -234,6 +247,22 @@ public abstract class AbstractService implements IAgentService {
 
 	@Override
 	public IAcpAgent getAgent() {
+		// Wait up to 10 seconds for thread to be initialized
+		int attempts = 0;
+		while (thread == null && attempts < 100) {
+			try {
+				Thread.sleep(100);
+				attempts++;
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
+				break;
+			}
+		}
+
+		if (thread == null) {
+			throw new RuntimeException("ACP Client thread failed to initialize. Check the agent logs for details.");
+		}
+
 		return thread.getAgent();
 	}
 

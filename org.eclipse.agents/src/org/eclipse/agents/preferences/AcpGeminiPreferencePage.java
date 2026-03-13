@@ -220,6 +220,7 @@ public class AcpGeminiPreferencePage extends PreferencePage implements
 	private void updateStatus() {
 		for (IAgentService service: AgentController.instance().getAgents()) {
 			if (service instanceof GeminiService) {
+				GeminiService geminiService = (GeminiService) service;
 				if (service.isRunning() && service.getInitializeResponse() != null) {
 					InitializeResponse response = service.getInitializeResponse();
 					StringBuffer buffer = new StringBuffer();
@@ -230,7 +231,6 @@ public class AcpGeminiPreferencePage extends PreferencePage implements
 					buffer.append("\n    Embedded Contexts: " + response.agentCapabilities().promptCapabilities().embeddedContext());
 					buffer.append("\n    Audio: " + response.agentCapabilities().promptCapabilities().embeddedContext());
 					buffer.append("\n    Images: " + response.agentCapabilities().promptCapabilities().embeddedContext());
-					
 					
 					McpCapabilities mcp = response.agentCapabilities().mcpCapabilities();
 					buffer.append("\n  MCP Autoconfiguration: ");
@@ -248,12 +248,12 @@ public class AcpGeminiPreferencePage extends PreferencePage implements
 				} else {
 					status.setText("Stopped");
 				}
+
+				installVersion.setText("...");
+				Activator.getDisplay().asyncExec(() -> {
+					installVersion.setText(geminiService.getVersion());
+				});
 			}
-			
-			installVersion.setText("...");
-			Activator.getDisplay().asyncExec(()->{
-				installVersion.setText(((GeminiService)service).getVersion());
-			});
 		}
 	}
 
