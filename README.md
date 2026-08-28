@@ -1,3 +1,5 @@
+Materials open sourced at:
+https://github.com/IBM/eclipse-agents/
 
 # Eclipse IDE integrations with Coding Agents over ACP and MCP
 
